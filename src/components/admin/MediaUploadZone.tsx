@@ -1,17 +1,20 @@
 import React, { useState, useRef } from 'react';
 import { UploadCloud, CheckCircle2, Image as ImageIcon, AlertCircle, RefreshCw } from 'lucide-react';
 import { useData } from '../../context/DataContext';
+import { StorageBucket } from '../../services/supabaseService';
 
 interface MediaUploadZoneProps {
   onUploadSuccess: (url: string) => void;
   label?: string;
   currentUrl?: string;
+  bucket?: StorageBucket;
 }
 
 export const MediaUploadZone: React.FC<MediaUploadZoneProps> = ({
   onUploadSuccess,
   label = 'Upload Media Asset',
   currentUrl,
+  bucket = 'gallery',
 }) => {
   const { uploadMedia } = useData();
   const [isDragging, setIsDragging] = useState(false);
@@ -91,7 +94,7 @@ export const MediaUploadZone: React.FC<MediaUploadZoneProps> = ({
     try {
       // Dynamically optimize image
       const optimized = await optimizeImage(file);
-      const res = await uploadMedia(optimized);
+      const res = await uploadMedia(optimized, bucket);
 
       if (res.success && res.url) {
         setPreviewUrl(res.url);

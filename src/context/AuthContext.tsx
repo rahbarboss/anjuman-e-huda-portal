@@ -22,20 +22,42 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  // If Supabase is configured, login status must be verified by Supabase session rather than blind localStorage
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState<boolean>(() => {
+    if (isSupabaseConfigured) return false;
     return localStorage.getItem('anjuman_admin_logged') === 'true';
   });
   const [adminUser, setAdminUser] = useState<AdminUser | null>(() => {
+    if (isSupabaseConfigured) return null;
     const saved = localStorage.getItem('anjuman_admin_user');
     return saved ? JSON.parse(saved) : null;
   });
   const [isLoginModalOpen, setIsLoginModalOpen] = useState<boolean>(false);
-  const [activeView, setActiveView] = useState<'site' | 'admin'>(() => {
-    return localStorage.getItem('anjuman_admin_logged') === 'true' ? 'admin' : 'site';
-  });
+  const [activeView, setActiveView] = useState<'site' | 'admin'>('site');
 
   const [logoClickCount, setLogoClickCount] = useState<number>(0);
   const clickTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  /**
+   * Helper: Check whether authenticated user possesses admin privileges in public.admin_profiles
+   */
+  const verifyAdminProfile = async (userId: string): Promise<{ authorized: boolean; fullName?: string }> => {
+    if (!supabase) return { authorized: false };
+    try {
+      const { data, error } = await supabase
+        .from('admin_profiles')
+        .select('id, role, full_name')
+        .eq('id', userId)
+        .maybeSingle();
+
+      if (!error && data && (data.role === 'admin' || data.role === 'superadmin')) {
+        return { authorized: true, fullName: data.full_name || undefined };
+      }
+      return { authorized: false };
+    } catch {
+      return { authorized: false };
+    }
+  };
 
   const handleLogoClick = () => {
     // 1. If currently in admin view, return directly to site/home view
@@ -75,31 +97,124 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
   }, []);
 
+  // Restore and synchronize Supabase Auth session across browser refreshes
+  useEffect(() => {
+    if (isSupabaseConfigured && supabase) {
+      supabase.auth.getSession().then(async ({ data, error }) => {
+        if (!error && data?.session?.user) {
+          const verification = await verifyAdminProfile(data.session.user.id);
+          if (verification.authorized) {
+            setIsAdminLoggedIn(true);
+            const user: AdminUser = {
+              username: verification.fullName || data.session.user.email || 'Administrator',
+              role: 'Central Union Administrator',
+            };
+            setAdminUser(user);
+            localStorage.setItem('anjuman_admin_logged', 'true');
+            localStorage.setItem('anjuman_admin_user', JSON.stringify(user));
+            localStorage.setItem('anjuman_supabase_session', 'true');
+          } else {
+            setIsAdminLoggedIn(false);
+            setAdminUser(null);
+            localStorage.removeItem('anjuman_admin_logged');
+            localStorage.removeItem('anjuman_admin_user');
+            localStorage.removeItem('anjuman_supabase_session');
+          }
+        } else {
+          setIsAdminLoggedIn(false);
+          setAdminUser(null);
+          localStorage.removeItem('anjuman_admin_logged');
+          localStorage.removeItem('anjuman_admin_user');
+          localStorage.removeItem('anjuman_supabase_session');
+        }
+      });
+
+      const { data: authListener } = supabase.auth.onAuthStateChange(async (_event, session) => {
+        if (session?.user) {
+          const verification = await verifyAdminProfile(session.user.id);
+          if (verification.authorized) {
+            setIsAdminLoggedIn(true);
+            const user: AdminUser = {
+              username: verification.fullName || session.user.email || 'Administrator',
+              role: 'Central Union Administrator',
+            };
+            setAdminUser(user);
+            localStorage.setItem('anjuman_admin_logged', 'true');
+            localStorage.setItem('anjuman_admin_user', JSON.stringify(user));
+            localStorage.setItem('anjuman_supabase_session', 'true');
+          } else {
+            setIsAdminLoggedIn(false);
+            setAdminUser(null);
+            localStorage.removeItem('anjuman_admin_logged');
+            localStorage.removeItem('anjuman_admin_user');
+            localStorage.removeItem('anjuman_supabase_session');
+          }
+        } else {
+          setIsAdminLoggedIn(false);
+          setAdminUser(null);
+          localStorage.removeItem('anjuman_admin_logged');
+          localStorage.removeItem('anjuman_admin_user');
+          localStorage.removeItem('anjuman_supabase_session');
+        }
+      });
+
+      return () => {
+        authListener?.subscription?.unsubscribe();
+      };
+    }
+  }, []);
+
   const login = async (username: string, password: string): Promise<{ success: boolean; message?: string }> => {
     try {
-      // 1. If Supabase is configured and input looks like an email or Supabase is preferred
+      // 1. Production Path: Supabase Auth
       if (isSupabaseConfigured && supabase) {
+        const email = username.includes('@')
+          ? username.trim()
+          : (username.trim() === 'admin' || username.trim() === 'anjuman'
+              ? 'admin@anjumanehuda.org'
+              : `${username.trim()}@anjumanehuda.org`);
+
         const { data: supaData, error: supaError } = await supabase.auth.signInWithPassword({
-          email: username.includes('@') ? username : `${username}@anjumanehuda.org`,
+          email,
           password,
         });
 
-        if (!supaError && supaData.user) {
-          setIsAdminLoggedIn(true);
-          const user = {
-            username: supaData.user.email || username,
-            role: 'Central Union Administrator',
+        if (supaError) {
+          return {
+            success: false,
+            message: supaError.message || 'Authentication failed. Please verify your credentials.',
           };
-          setAdminUser(user);
-          localStorage.setItem('anjuman_admin_logged', 'true');
-          localStorage.setItem('anjuman_admin_user', JSON.stringify(user));
-          setIsLoginModalOpen(false);
-          setActiveView('admin');
-          return { success: true };
         }
+
+        if (!supaData?.user) {
+          return { success: false, message: 'Authentication failed. No user session returned.' };
+        }
+
+        // Verify that user is officially granted administrator rights in public.admin_profiles
+        const verification = await verifyAdminProfile(supaData.user.id);
+        if (!verification.authorized) {
+          await supabase.auth.signOut();
+          return {
+            success: false,
+            message: 'Access Denied: Authenticated user is not registered as an administrator in admin_profiles.',
+          };
+        }
+
+        setIsAdminLoggedIn(true);
+        const user: AdminUser = {
+          username: verification.fullName || supaData.user.email || username,
+          role: 'Central Union Administrator',
+        };
+        setAdminUser(user);
+        localStorage.setItem('anjuman_admin_logged', 'true');
+        localStorage.setItem('anjuman_admin_user', JSON.stringify(user));
+        localStorage.setItem('anjuman_supabase_session', 'true');
+        setIsLoginModalOpen(false);
+        setActiveView('admin');
+        return { success: true };
       }
 
-      // 2. Standard backend check
+      // 2. Offline / Local Development Fallback (only when Supabase is not configured)
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -108,7 +223,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const data = await res.json();
       if (res.ok && data.success) {
         setIsAdminLoggedIn(true);
-        const user = data.user || { username: 'anjuman', role: 'Central Union Administrator' };
+        const user = data.user || { username: 'Administrator', role: 'Central Union Administrator' };
         setAdminUser(user);
         localStorage.setItem('anjuman_admin_logged', 'true');
         localStorage.setItem('anjuman_admin_user', JSON.stringify(user));
@@ -118,19 +233,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       } else {
         return { success: false, message: data.message || 'Invalid credentials.' };
       }
-    } catch (err) {
-      // Local fallback for offline/preview robustness
-      if (username === 'anjuman' && password === 'anjuman2026') {
-        setIsAdminLoggedIn(true);
-        const user = { username: 'anjuman', role: 'Central Union Administrator' };
-        setAdminUser(user);
-        localStorage.setItem('anjuman_admin_logged', 'true');
-        localStorage.setItem('anjuman_admin_user', JSON.stringify(user));
-        setIsLoginModalOpen(false);
-        setActiveView('admin');
-        return { success: true };
-      }
-      return { success: false, message: 'Invalid credentials. Required: anjuman / anjuman2026' };
+    } catch (err: any) {
+      return { success: false, message: err?.message || 'Authentication service unavailable.' };
     }
   };
 
@@ -146,6 +250,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setAdminUser(null);
     localStorage.removeItem('anjuman_admin_logged');
     localStorage.removeItem('anjuman_admin_user');
+    localStorage.removeItem('anjuman_supabase_session');
     setActiveView('site');
   };
 

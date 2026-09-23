@@ -174,6 +174,7 @@ export const AdminDashboard: React.FC = () => {
     category: 'Circular' as Announcement['category'],
     date: new Date().toISOString().split('T')[0],
     summary: '',
+    fileUrl: '',
     isPinned: false,
     urgency: 'normal' as Announcement['urgency'],
   });
@@ -185,6 +186,7 @@ export const AdminDashboard: React.FC = () => {
       category: 'Circular',
       date: new Date().toISOString().split('T')[0],
       summary: '',
+      fileUrl: '',
       isPinned: false,
       urgency: 'normal',
     });
@@ -198,6 +200,7 @@ export const AdminDashboard: React.FC = () => {
       category: ann.category,
       date: ann.date,
       summary: ann.summary,
+      fileUrl: ann.fileUrl || '',
       isPinned: !!ann.isPinned,
       urgency: ann.urgency || 'normal',
     });
@@ -874,6 +877,7 @@ export const AdminDashboard: React.FC = () => {
 
                 {/* Drag and Drop Image Upload Zone for Hero */}
                 <MediaUploadZone
+                  bucket="gallery"
                   label="Upload New Hero Background Banner"
                   currentUrl={hpForm.heroBgUrl}
                   onUploadSuccess={(url) => setHpForm({ ...hpForm, heroBgUrl: url })}
@@ -1983,6 +1987,7 @@ export const AdminDashboard: React.FC = () => {
 
               <div className="bg-stone-900 border border-stone-800 rounded-2xl p-6 space-y-6">
                 <MediaUploadZone
+                  bucket="gallery"
                   label="Central Photo Upload Zone"
                   onUploadSuccess={(url) => {
                     showToast(`File uploaded successfully! URL copied.`);
@@ -2072,6 +2077,7 @@ export const AdminDashboard: React.FC = () => {
               </div>
 
               <MediaUploadZone
+                bucket="members"
                 label="Official Portrait Photo"
                 currentUrl={leaderForm.photo}
                 onUploadSuccess={(url) => setLeaderForm({ ...leaderForm, photo: url })}
@@ -2170,6 +2176,7 @@ export const AdminDashboard: React.FC = () => {
               </div>
 
               <MediaUploadZone
+                bucket="members"
                 label="NIICS In-Charge Portrait Image"
                 currentUrl={niicsForm.photo}
                 onUploadSuccess={(url) => setNIICSForm({ ...niicsForm, photo: url })}
@@ -2347,6 +2354,7 @@ export const AdminDashboard: React.FC = () => {
               </div>
 
               <MediaUploadZone
+                bucket="events"
                 label="Event Banner Image"
                 currentUrl={progForm.banner}
                 onUploadSuccess={(url) => setProgForm({ ...progForm, banner: url })}
@@ -2458,6 +2466,13 @@ export const AdminDashboard: React.FC = () => {
                 />
               </div>
 
+              <MediaUploadZone
+                bucket="notices"
+                label="Attach Document / Circular PDF (Optional)"
+                currentUrl={annForm.fileUrl}
+                onUploadSuccess={(url) => setAnnForm({ ...annForm, fileUrl: url })}
+              />
+
               <div className="flex items-center gap-2">
                 <input
                   type="checkbox"
@@ -2508,6 +2523,7 @@ export const AdminDashboard: React.FC = () => {
                 />
               </div>
               <MediaUploadZone
+                bucket="activities"
                 label="Highlight Image"
                 currentUrl={hlForm.imageUrl}
                 onUploadSuccess={(url) => setHlForm({ ...hlForm, imageUrl: url })}
@@ -2931,6 +2947,7 @@ export const AdminDashboard: React.FC = () => {
               </div>
 
               <MediaUploadZone
+                bucket="members"
                 label="Portrait Photo"
                 currentUrl={topPartForm.photo}
                 onUploadSuccess={(url) => setTopPartForm({ ...topPartForm, photo: url })}

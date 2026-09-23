@@ -37,8 +37,7 @@ export const SecretAdminLoginModal: React.FC = () => {
   };
 
   const handleFillDemo = () => {
-    setUsername('anjuman');
-    setPassword('anjuman2026');
+    setUsername('admin@anjumanehuda.org');
   };
 
   return (
@@ -178,13 +177,13 @@ export const SecretAdminLoginModal: React.FC = () => {
               </form>
 
               <div className="mt-6 pt-5 border-t border-stone-800 flex items-center justify-between text-xs text-stone-400">
-                <span>Required: anjuman / anjuman2026</span>
+                <span>Administrator Authentication Portal</span>
                 <button
                   type="button"
                   onClick={handleFillDemo}
                   className="text-emerald-400 hover:text-emerald-300 font-medium underline underline-offset-4 cursor-pointer"
                 >
-                  Auto-fill
+                  Fill Admin User
                 </button>
               </div>
             </div>

@@ -181,13 +181,18 @@ ALTER TABLE public.gallery ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.documents ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.student_inquiries ENABLE ROW LEVEL SECURITY;
 
--- Helper function: Check if authenticated user is admin
+-- Helper function: Check if authenticated user is verified in public.admin_profiles
 CREATE OR REPLACE FUNCTION public.is_admin()
 RETURNS BOOLEAN AS $$
 BEGIN
-  RETURN (auth.role() = 'authenticated');
+  RETURN EXISTS (
+    SELECT 1 
+    FROM public.admin_profiles 
+    WHERE id = auth.uid() 
+      AND (role = 'admin' OR role = 'superadmin')
+  );
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER STABLE;
 
 -- Public READ policies (anyone can read public website content)
 CREATE POLICY "Public Read Site Settings" ON public.site_settings FOR SELECT USING (true);
@@ -200,21 +205,24 @@ CREATE POLICY "Public Read Wings" ON public.wings FOR SELECT USING (true);
 CREATE POLICY "Public Read Gallery" ON public.gallery FOR SELECT USING (true);
 CREATE POLICY "Public Read Documents" ON public.documents FOR SELECT USING (true);
 
--- Anyone can submit inquiries
-CREATE POLICY "Public Insert Inquiries" ON public.student_inquiries FOR INSERT WITH CHECK (true);
+-- Admin Profiles Security: Only authenticated admin can read their own profile; no public exposure
+CREATE POLICY "Admin Read Own Profile" ON public.admin_profiles FOR SELECT TO authenticated USING (auth.uid() = id);
+CREATE POLICY "Admin Full Access Admin Profiles" ON public.admin_profiles FOR ALL TO authenticated USING (public.is_admin()) WITH CHECK (public.is_admin());
 
--- Authenticated Admin Policies (Write, Update, Delete)
-CREATE POLICY "Admin Full Access Admin Profiles" ON public.admin_profiles FOR ALL TO authenticated USING (true) WITH CHECK (true);
-CREATE POLICY "Admin Full Access Site Settings" ON public.site_settings FOR ALL TO authenticated USING (true) WITH CHECK (true);
-CREATE POLICY "Admin Full Access Events" ON public.events FOR ALL TO authenticated USING (true) WITH CHECK (true);
-CREATE POLICY "Admin Full Access Notices" ON public.notices FOR ALL TO authenticated USING (true) WITH CHECK (true);
-CREATE POLICY "Admin Full Access Activities" ON public.activities FOR ALL TO authenticated USING (true) WITH CHECK (true);
-CREATE POLICY "Admin Full Access Members" ON public.members FOR ALL TO authenticated USING (true) WITH CHECK (true);
-CREATE POLICY "Admin Full Access NIICS Directors" ON public.niics_directors FOR ALL TO authenticated USING (true) WITH CHECK (true);
-CREATE POLICY "Admin Full Access Wings" ON public.wings FOR ALL TO authenticated USING (true) WITH CHECK (true);
-CREATE POLICY "Admin Full Access Gallery" ON public.gallery FOR ALL TO authenticated USING (true) WITH CHECK (true);
-CREATE POLICY "Admin Full Access Documents" ON public.documents FOR ALL TO authenticated USING (true) WITH CHECK (true);
-CREATE POLICY "Admin Full Access Inquiries" ON public.student_inquiries FOR ALL TO authenticated USING (true) WITH CHECK (true);
+-- Student Inquiries: Public can submit; only verified admins can view/update/delete
+CREATE POLICY "Public Insert Inquiries" ON public.student_inquiries FOR INSERT WITH CHECK (true);
+CREATE POLICY "Admin Full Access Inquiries" ON public.student_inquiries FOR ALL TO authenticated USING (public.is_admin()) WITH CHECK (public.is_admin());
+
+-- Verified Admin Write Policies (Strictly require valid auth session & presence in admin_profiles)
+CREATE POLICY "Admin Full Access Site Settings" ON public.site_settings FOR ALL TO authenticated USING (public.is_admin()) WITH CHECK (public.is_admin());
+CREATE POLICY "Admin Full Access Events" ON public.events FOR ALL TO authenticated USING (public.is_admin()) WITH CHECK (public.is_admin());
+CREATE POLICY "Admin Full Access Notices" ON public.notices FOR ALL TO authenticated USING (public.is_admin()) WITH CHECK (public.is_admin());
+CREATE POLICY "Admin Full Access Activities" ON public.activities FOR ALL TO authenticated USING (public.is_admin()) WITH CHECK (public.is_admin());
+CREATE POLICY "Admin Full Access Members" ON public.members FOR ALL TO authenticated USING (public.is_admin()) WITH CHECK (public.is_admin());
+CREATE POLICY "Admin Full Access NIICS Directors" ON public.niics_directors FOR ALL TO authenticated USING (public.is_admin()) WITH CHECK (public.is_admin());
+CREATE POLICY "Admin Full Access Wings" ON public.wings FOR ALL TO authenticated USING (public.is_admin()) WITH CHECK (public.is_admin());
+CREATE POLICY "Admin Full Access Gallery" ON public.gallery FOR ALL TO authenticated USING (public.is_admin()) WITH CHECK (public.is_admin());
+CREATE POLICY "Admin Full Access Documents" ON public.documents FOR ALL TO authenticated USING (public.is_admin()) WITH CHECK (public.is_admin());
 
 -- Seed initial site_settings if row does not exist
 INSERT INTO public.site_settings (id, union_name)
