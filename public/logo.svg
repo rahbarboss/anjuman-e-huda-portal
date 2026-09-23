@@ -1,0 +1,130 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" width="100%" height="100%">
+  <defs>
+    <!-- Gradients -->
+    <linearGradient id="nibMetallic" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8" />
+      <stop offset="35%" stop-color="#0284c7" />
+      <stop offset="70%" stop-color="#0369a1" />
+      <stop offset="100%" stop-color="#0c4a6e" />
+    </linearGradient>
+    <linearGradient id="nibGrip" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#0284c7" />
+      <stop offset="50%" stop-color="#38bdf8" />
+      <stop offset="100%" stop-color="#0369a1" />
+    </linearGradient>
+    <linearGradient id="bookTeal" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#0d9488" />
+      <stop offset="50%" stop-color="#0f766e" />
+      <stop offset="100%" stop-color="#115e59" />
+    </linearGradient>
+    <linearGradient id="archRibbon" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#3b0764" />
+      <stop offset="50%" stop-color="#581c87" />
+      <stop offset="100%" stop-color="#3b0764" />
+    </linearGradient>
+
+    <!-- Curved Text Paths -->
+    <path id="outerArchPath" d="M 75 240 A 185 185 0 0 1 425 240" fill="none" />
+    <path id="innerArchRight" d="M 255 125 A 145 145 0 0 1 390 235" fill="none" />
+    <path id="innerArchLeft" d="M 110 235 A 145 145 0 0 1 245 125" fill="none" />
+  </defs>
+
+  <g id="anjuman-logo-root">
+    <!-- 1. OUTER ARCH AND PILLARS FRAME -->
+    <path d="M 55 245 L 55 240 A 195 195 0 0 1 445 240 L 445 245"
+          fill="none" stroke="#2e1065" stroke-width="2.5" />
+    <path d="M 95 245 L 95 240 A 155 155 0 0 1 405 240 L 405 245"
+          fill="none" stroke="#2e1065" stroke-width="2.5" />
+    <line x1="55" y1="240" x2="95" y2="240" stroke="#2e1065" stroke-width="2.5" />
+    <line x1="405" y1="240" x2="445" y2="240" stroke="#2e1065" stroke-width="2.5" />
+
+    <!-- Outer English Arched Text: ANJUMAN-E-HUDA -->
+    <text font-family="'Cinzel', 'Times New Roman', serif" font-weight="700" font-size="28" fill="#0284c7" letter-spacing="9">
+      <textPath href="#outerArchPath" startOffset="50%" text-anchor="middle">
+        ANJUMAN - E - HUDA
+      </textPath>
+    </text>
+
+    <!-- 2. INNER PURPLE / PLUM ARCH RIBBON -->
+    <path d="M 132 250 A 122 122 0 0 1 368 250 L 392 250 A 146 146 0 0 0 108 250 Z"
+          fill="url(#archRibbon)" stroke="#2e1065" stroke-width="1.5" />
+
+    <!-- Urdu Inscription inside Purple Arch Ribbon: فرد قائم ربط ملت سے ہے تنہا کچھ نہیں -->
+    <text font-family="'Noto Nastaliq Urdu', 'Scheherazade New', 'Amiri', serif" font-size="14.5" fill="#ffffff" font-weight="600" letter-spacing="1">
+      <textPath href="#innerArchRight" startOffset="20%" text-anchor="start">
+        فرد قائم ربط ملت
+      </textPath>
+    </text>
+
+    <text font-family="'Noto Nastaliq Urdu', 'Scheherazade New', 'Amiri', serif" font-size="14.5" fill="#ffffff" font-weight="600" letter-spacing="1">
+      <textPath href="#innerArchLeft" startOffset="25%" text-anchor="start">
+        سے ہے تنہا کچھ نہیں
+      </textPath>
+    </text>
+
+    <!-- 3. OPEN BOOK (Spread Pages in Teal/Cyan and White) -->
+    <path d="M 90 325 C 130 338 200 330 250 305 C 300 330 370 338 410 325 L 405 340 C 365 352 295 342 250 318 C 205 342 135 352 95 340 Z"
+          fill="#cffafe" stroke="#0e7490" stroke-width="1.5" />
+    <path d="M 95 315 C 135 328 205 320 250 298 C 295 320 365 328 405 315 L 400 328 C 360 340 295 330 250 308 C 205 330 140 340 100 328 Z"
+          fill="#ffffff" stroke="#0e7490" stroke-width="1.5" />
+
+    <path d="M 92 322 C 135 310 210 270 250 288 C 290 270 365 310 408 322 C 380 275 320 230 250 248 C 180 230 120 275 92 322 Z"
+          fill="url(#bookTeal)" stroke="#0e7490" stroke-width="2" />
+    <path d="M 250 248 L 250 305" stroke="#ffffff" stroke-width="2" stroke-linecap="round" />
+    <path d="M 235 258 C 190 248 140 278 115 315" fill="none" stroke="#67e8f9" stroke-width="1.5" opacity="0.8" />
+    <path d="M 265 258 C 310 248 360 278 385 315" fill="none" stroke="#67e8f9" stroke-width="1.5" opacity="0.8" />
+
+    <!-- 4. FOUNTAIN PEN NIB -->
+    <rect x="238" y="210" width="24" height="22" rx="2" fill="url(#nibGrip)" stroke="#0f172a" stroke-width="1.5" />
+    <rect x="234" y="214" width="32" height="4" rx="1.5" fill="#38bdf8" stroke="#0f172a" stroke-width="1" />
+    <rect x="236" y="226" width="28" height="5" rx="1" fill="#0284c7" stroke="#0f172a" stroke-width="1" />
+
+    <path d="M 238 210 C 238 185 225 155 250 105 C 275 155 262 185 262 210 Z"
+          fill="url(#nibMetallic)" stroke="#0f172a" stroke-width="2" />
+    <path d="M 245 208 C 244 185 236 155 250 115"
+          fill="none" stroke="#ffffff" stroke-width="1.8" opacity="0.9" stroke-linecap="round" />
+
+    <circle cx="250" cy="160" r="3.8" fill="#ffffff" stroke="#0f172a" stroke-width="1.5" />
+    <line x1="250" y1="105" x2="250" y2="156" stroke="#0f172a" stroke-width="1.5" />
+    <line x1="250" y1="164" x2="250" y2="190" stroke="#0f172a" stroke-width="1" opacity="0.6" />
+
+    <!-- 5. CALLIGRAPHIC EMBLEM TITLES: "ھدیٰ" AND "انجمن" -->
+    <g id="huda-calligraphy" transform="translate(140, 238)">
+      <path d="M 12 4 C 12 4 48 4 60 4 C 72 4 72 24 60 24 L 28 24 L 28 42 C 28 48 20 48 12 48 L 12 4 Z"
+            fill="#ffffff" stroke="#0284c7" stroke-width="3" stroke-linejoin="round" />
+      <path d="M 68 8 L 84 8 C 92 8 96 14 96 22 C 96 32 88 40 76 40 L 76 48 L 68 48 Z"
+            fill="#ffffff" stroke="#0284c7" stroke-width="3" stroke-linejoin="round" />
+      <rect x="76" y="-8" width="10" height="10" transform="rotate(45 81 -3)" fill="#0284c7" />
+    </g>
+
+    <g id="anjuman-calligraphy">
+      <path d="M 64 260 L 92 260 L 92 370 L 420 370 L 420 260 L 445 260 L 445 395 C 445 408 435 418 422 418 L 80 418 C 70 418 64 410 64 395 Z"
+            fill="#ffffff" stroke="#4c1d95" stroke-width="3" stroke-linejoin="round" />
+
+      <path d="M 85 270 L 105 270 L 105 380 L 85 380 Z" fill="#ffffff" stroke="#4c1d95" stroke-width="2.5" />
+      <path d="M 120 335 C 130 310 160 310 175 335 L 200 335 C 215 310 245 310 260 335 L 290 335 C 310 300 360 300 380 335 L 400 335 L 400 380 L 120 380 Z"
+            fill="#ffffff" stroke="#4c1d95" stroke-width="2.5" stroke-linejoin="round" />
+
+      <rect x="150" y="325" width="9" height="9" transform="rotate(45 154.5 329.5)" fill="#4c1d95" />
+      <rect x="235" y="355" width="9" height="9" transform="rotate(45 239.5 359.5)" fill="#4c1d95" />
+    </g>
+
+    <!-- Subtext: برائے طلبہ دارالهدى -->
+    <text x="250" y="440" font-family="'Noto Nastaliq Urdu', 'Amiri', 'Traditional Arabic', serif"
+          font-size="22" font-weight="600" fill="#0284c7" text-anchor="middle" direction="rtl">
+      برائے طلبہ دارالهدى
+    </text>
+
+    <!-- 6. BASE FOUNDATION RECTANGULAR BOX -->
+    <rect x="52" y="452" width="396" height="42" rx="4"
+          fill="#ffffff" stroke="#3b0764" stroke-width="2" />
+    <rect x="56" y="456" width="388" height="34" rx="2"
+          fill="none" stroke="#0284c7" stroke-width="1" />
+
+    <!-- Arabic Inscription: جامعة دارالهدى الإسلامية -->
+    <text x="250" y="479" font-family="'Amiri', 'Scheherazade New', 'Traditional Arabic', serif"
+          font-size="21" font-weight="bold" fill="#0369a1" text-anchor="middle" direction="rtl">
+      جامعة دارالهدى الإسلامية
+    </text>
+  </g>
+</svg>

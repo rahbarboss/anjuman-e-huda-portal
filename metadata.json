@@ -1,0 +1,6 @@
+{
+  "name": "ANJUMAN-E-HUDA",
+  "description": "Official portal of ANJUMAN-E-HUDA College Union: Empowered through Ta'lim. Leaders, dynamic programs, wings, live announcements, and achievements.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
