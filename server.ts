@@ -346,6 +346,66 @@ app.delete('/api/announcements/:id', (req, res) => {
   res.json({ success: true, announcements: db.announcements });
 });
 
+// CAU Operations
+app.put('/api/cau', (req, res) => {
+  const db = readDb();
+  db.cau = { ...db.cau, ...req.body };
+  writeDb(db);
+  res.json({ success: true, data: db.cau });
+});
+
+app.delete('/api/cau/resolutions/:id', (req, res) => {
+  const db = readDb();
+  if (db.cau && db.cau.latestResolutions) {
+    db.cau.latestResolutions = db.cau.latestResolutions.filter((r) => r.id !== req.params.id);
+    writeDb(db);
+  }
+  res.json({ success: true, cau: db.cau });
+});
+
+// Rankings Operations
+app.put('/api/rankings', (req, res) => {
+  const db = readDb();
+  db.rankings = { ...db.rankings, ...req.body };
+  writeDb(db);
+  res.json({ success: true, data: db.rankings });
+});
+
+app.delete('/api/rankings/wings/:name', (req, res) => {
+  const db = readDb();
+  if (db.rankings && db.rankings.topWings) {
+    db.rankings.topWings = db.rankings.topWings.filter((w) => w.wingName !== decodeURIComponent(req.params.name));
+    writeDb(db);
+  }
+  res.json({ success: true, rankings: db.rankings });
+});
+
+app.delete('/api/rankings/participants/:name', (req, res) => {
+  const db = readDb();
+  if (db.rankings && db.rankings.topParticipants) {
+    db.rankings.topParticipants = db.rankings.topParticipants.filter((p) => p.name !== decodeURIComponent(req.params.name));
+    writeDb(db);
+  }
+  res.json({ success: true, rankings: db.rankings });
+});
+
+// Contact & Inquiries Operations
+app.put('/api/contact-settings', (req, res) => {
+  const db = readDb();
+  db.contactSettings = { ...db.contactSettings, ...req.body };
+  writeDb(db);
+  res.json({ success: true, data: db.contactSettings });
+});
+
+app.delete('/api/inquiries/:id', (req, res) => {
+  const db = readDb();
+  if (db.inquiries) {
+    db.inquiries = db.inquiries.filter((inq) => inq.id !== req.params.id);
+    writeDb(db);
+  }
+  res.json({ success: true, inquiries: db.inquiries });
+});
+
 // Reset to seed data
 app.post('/api/reset-seed', (_req, res) => {
   writeDb(initialDatabase);

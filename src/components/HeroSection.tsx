@@ -58,7 +58,7 @@ export const HeroSection: React.FC = () => {
             transition={{ duration: 0.6, delay: 0.1 }}
             className="text-4xl sm:text-6xl lg:text-7xl font-bold tracking-tight text-white font-heading leading-tight"
           >
-            {homepage.heroTitle || "ANJUMAN-E-HUDA"}
+            ANJUMAN-E-HUDA
           </motion.h1>
 
           {/* Subtitle */}

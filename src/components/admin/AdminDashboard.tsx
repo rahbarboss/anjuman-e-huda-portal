@@ -49,6 +49,8 @@ import {
   Search,
   Crown,
   Building2,
+  RefreshCw,
+  AlertTriangle,
 } from 'lucide-react';
 
 export type AdminTab =
@@ -112,6 +114,31 @@ export const AdminDashboard: React.FC = () => {
   const showToast = (msg: string) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 3500);
+  };
+
+  // Dedicated In-App Delete Confirmation Modal State (bypasses iframe sandbox confirm() blockage)
+  const [deleteModal, setDeleteModal] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    confirmLabel?: string;
+    onConfirm: () => Promise<void> | void;
+  } | null>(null);
+  const [isDeleting, setIsDeleting] = useState<boolean>(false);
+
+  const requestDelete = (opts: {
+    title: string;
+    message: string;
+    confirmLabel?: string;
+    onConfirm: () => Promise<void> | void;
+  }) => {
+    setDeleteModal({
+      isOpen: true,
+      title: opts.title,
+      message: opts.message,
+      confirmLabel: opts.confirmLabel || 'Delete',
+      onConfirm: opts.onConfirm,
+    });
   };
 
   // ================= 1. HOME TAB FORM STATE =================
@@ -670,11 +697,16 @@ export const AdminDashboard: React.FC = () => {
             </div>
 
             <button
-              onClick={async () => {
-                if (confirm('Reset all content back to factory default seed data?')) {
-                  await resetToDefaultSeed();
-                  showToast('Database reset to initial sample records.');
-                }
+              onClick={() => {
+                requestDelete({
+                  title: 'Reset Database to Factory Defaults',
+                  message: 'Are you sure you want to reset all portal content, events, wings, and members back to initial seed data? Any recent custom modifications will be reverted.',
+                  confirmLabel: 'Reset Data',
+                  onConfirm: async () => {
+                    await resetToDefaultSeed();
+                    showToast('Database reset to initial sample records.');
+                  },
+                });
               }}
               className="text-[11px] text-stone-400 hover:text-amber-400 flex items-center gap-1 cursor-pointer"
             >
@@ -1011,11 +1043,16 @@ export const AdminDashboard: React.FC = () => {
                         <Edit2 className="w-4 h-4" />
                       </button>
                       <button
-                        onClick={async () => {
-                          if (confirm(`Remove announcement "${ann.title}"?`)) {
-                            await deleteAnnouncement(ann.id);
-                            showToast('Announcement removed.');
-                          }
+                        onClick={() => {
+                          requestDelete({
+                            title: 'Delete Circular',
+                            message: `Are you sure you want to remove circular "${ann.title}"?`,
+                            confirmLabel: 'Delete Notice',
+                            onConfirm: async () => {
+                              await deleteAnnouncement(ann.id);
+                              showToast(`Announcement "${ann.title}" removed.`);
+                            },
+                          });
                         }}
                         className="p-2 text-stone-400 hover:text-red-400 rounded-lg hover:bg-stone-800 cursor-pointer"
                         title="Delete Circular"
@@ -1132,11 +1169,16 @@ export const AdminDashboard: React.FC = () => {
                             <Edit2 className="w-4 h-4" />
                           </button>
                           <button
-                            onClick={async () => {
-                              if (confirm(`Remove leader "${leader.name}"?`)) {
-                                await deleteLeader(leader.id);
-                                showToast(`Leader "${leader.name}" deleted.`);
-                              }
+                            onClick={() => {
+                              requestDelete({
+                                title: 'Remove Central Cabinet Leader',
+                                message: `Are you sure you want to remove "${leader.name}" (${leader.role}) from the Central Cabinet?`,
+                                confirmLabel: 'Delete Leader',
+                                onConfirm: async () => {
+                                  await deleteLeader(leader.id);
+                                  showToast(`Leader "${leader.name}" deleted.`);
+                                },
+                              });
                             }}
                             className="p-1.5 text-stone-300 hover:text-red-400 rounded hover:bg-stone-800 cursor-pointer"
                             title="Delete Leader"
@@ -1276,11 +1318,16 @@ export const AdminDashboard: React.FC = () => {
                               <span>Edit</span>
                             </button>
                             <button
-                              onClick={async () => {
-                                if (confirm(`Remove NIICS In-Charge "${item.name}"?`)) {
-                                  await deleteNIICSInCharge(item.id);
-                                  showToast(`NIICS In-Charge "${item.name}" deleted.`);
-                                }
+                              onClick={() => {
+                                requestDelete({
+                                  title: 'Remove NIICS In-Charge',
+                                  message: `Are you sure you want to remove NIICS In-Charge "${item.name}"?`,
+                                  confirmLabel: 'Delete In-Charge',
+                                  onConfirm: async () => {
+                                    await deleteNIICSInCharge(item.id);
+                                    showToast(`NIICS In-Charge "${item.name}" deleted.`);
+                                  },
+                                });
                               }}
                               className="px-3 py-1.5 bg-red-950/60 hover:bg-red-900 text-red-300 rounded-lg text-xs font-semibold flex items-center gap-1.5 cursor-pointer border border-red-800/60"
                               title="Delete NIICS In-Charge"
@@ -1353,11 +1400,16 @@ export const AdminDashboard: React.FC = () => {
 
                     <div className="flex items-center justify-between pt-3 border-t border-stone-800">
                       <button
-                        onClick={async () => {
-                          if (confirm(`Delete wing "${wing.name}"?`)) {
-                            await deleteWing(wing.id);
-                            showToast(`Wing "${wing.name}" deleted.`);
-                          }
+                        onClick={() => {
+                          requestDelete({
+                            title: 'Delete Specialized Wing',
+                            message: `Are you sure you want to delete the "${wing.name}" (${wing.shortName}) portfolio?`,
+                            confirmLabel: 'Delete Wing',
+                            onConfirm: async () => {
+                              await deleteWing(wing.id);
+                              showToast(`Wing "${wing.name}" deleted.`);
+                            },
+                          });
                         }}
                         className="text-stone-400 hover:text-red-400 text-xs flex items-center gap-1 cursor-pointer"
                       >
@@ -1440,13 +1492,19 @@ export const AdminDashboard: React.FC = () => {
                           <Edit2 className="w-4 h-4" />
                         </button>
                         <button
-                          onClick={async () => {
-                            if (confirm(`Delete program "${prog.title}"?`)) {
-                              await deleteProgram(prog.id);
-                              showToast('Program deleted.');
-                            }
+                          onClick={() => {
+                            requestDelete({
+                              title: 'Delete Program',
+                              message: `Are you sure you want to permanently delete "${prog.title}"?`,
+                              confirmLabel: 'Delete Program',
+                              onConfirm: async () => {
+                                await deleteProgram(prog.id);
+                                showToast(`Program "${prog.title}" deleted.`);
+                              },
+                            });
                           }}
                           className="p-1.5 text-stone-300 hover:text-red-400 cursor-pointer"
+                          title="Delete Program"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -1467,13 +1525,19 @@ export const AdminDashboard: React.FC = () => {
                       <img src={h.imageUrl} alt={h.title} className="w-full h-24 object-cover rounded-lg mb-1.5" />
                       <span className="text-[10px] text-stone-300 truncate block font-medium">{h.title}</span>
                       <button
-                        onClick={async () => {
-                          if (confirm(`Delete highlight photo "${h.title}"?`)) {
-                            await deleteHighlight(h.id);
-                            showToast('Highlight photo removed.');
-                          }
+                        onClick={() => {
+                          requestDelete({
+                            title: 'Delete Highlight Photo',
+                            message: `Are you sure you want to delete highlight "${h.title}"?`,
+                            confirmLabel: 'Delete Photo',
+                            onConfirm: async () => {
+                              await deleteHighlight(h.id);
+                              showToast(`Highlight "${h.title}" removed.`);
+                            },
+                          });
                         }}
                         className="absolute top-3 right-3 p-1 rounded bg-black/80 text-red-400 hover:text-red-300 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                        title="Delete Highlight Photo"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
@@ -1528,13 +1592,19 @@ export const AdminDashboard: React.FC = () => {
                           <td className="py-2.5 px-3 text-stone-400">{w.badge}</td>
                           <td className="py-2.5 px-3 text-right">
                             <button
-                              onClick={async () => {
-                                if (confirm(`Remove wing "${w.wingName}" from rankings?`)) {
-                                  await deleteTopWing(w.wingName);
-                                  showToast('Wing removed from standings.');
-                                }
+                              onClick={() => {
+                                requestDelete({
+                                  title: 'Remove Wing Standing',
+                                  message: `Are you sure you want to remove "${w.wingName}" from the rankings scoreboard?`,
+                                  confirmLabel: 'Remove Standing',
+                                  onConfirm: async () => {
+                                    await deleteTopWing(w.wingName);
+                                    showToast(`Wing "${w.wingName}" removed from standings.`);
+                                  },
+                                });
                               }}
                               className="text-stone-400 hover:text-red-400 cursor-pointer"
+                              title="Delete Standing"
                             >
                               <Trash2 className="w-3.5 h-3.5 inline" />
                             </button>
@@ -1572,13 +1642,19 @@ export const AdminDashboard: React.FC = () => {
                         </div>
                       </div>
                       <button
-                        onClick={async () => {
-                          if (confirm(`Remove participant "${p.name}"?`)) {
-                            await deleteTopParticipant(p.name);
-                            showToast('Participant removed.');
-                          }
+                        onClick={() => {
+                          requestDelete({
+                            title: 'Remove Scholastic Laureate',
+                            message: `Are you sure you want to remove scholar "${p.name}" from laureates?`,
+                            confirmLabel: 'Remove Scholar',
+                            onConfirm: async () => {
+                              await deleteTopParticipant(p.name);
+                              showToast(`Participant "${p.name}" removed.`);
+                            },
+                          });
                         }}
                         className="text-stone-400 hover:text-red-400 p-1 cursor-pointer"
+                        title="Delete Participant"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
@@ -1726,13 +1802,19 @@ export const AdminDashboard: React.FC = () => {
                       </div>
 
                       <button
-                        onClick={async () => {
-                          if (confirm(`Remove resolution "${res.fileNumber}"?`)) {
-                            await deleteCAUResolution(res.id);
-                            showToast('Resolution removed.');
-                          }
+                        onClick={() => {
+                          requestDelete({
+                            title: 'Remove CAU Resolution',
+                            message: `Are you sure you want to remove resolution "${res.fileNumber}" (${res.title})?`,
+                            confirmLabel: 'Remove Decree',
+                            onConfirm: async () => {
+                              await deleteCAUResolution(res.id);
+                              showToast(`Resolution "${res.fileNumber}" removed.`);
+                            },
+                          });
                         }}
                         className="text-stone-400 hover:text-red-400 p-2 cursor-pointer"
+                        title="Delete Resolution"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -1865,13 +1947,19 @@ export const AdminDashboard: React.FC = () => {
                         </select>
 
                         <button
-                          onClick={async () => {
-                            if (confirm(`Delete inquiry from ${inq.name}?`)) {
-                              await deleteInquiry(inq.id);
-                              showToast('Inquiry deleted.');
-                            }
+                          onClick={() => {
+                            requestDelete({
+                              title: 'Delete Student Inquiry',
+                              message: `Are you sure you want to delete inquiry from ${inq.name} (${inq.email})?`,
+                              confirmLabel: 'Delete Inquiry',
+                              onConfirm: async () => {
+                                await deleteInquiry(inq.id);
+                                showToast(`Inquiry from ${inq.name} deleted.`);
+                              },
+                            });
                           }}
                           className="p-1.5 text-stone-400 hover:text-red-400 cursor-pointer"
+                          title="Delete Inquiry"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -2537,6 +2625,54 @@ export const AdminDashboard: React.FC = () => {
                     + Add Archive
                   </button>
                 </div>
+
+                {/* List of existing historical tenures with delete option */}
+                {editingWing.history && editingWing.history.length > 0 && (
+                  <div className="pt-2 border-t border-stone-800 space-y-1.5">
+                    <span className="text-[10px] font-mono text-stone-400 uppercase block">
+                      Saved Historical Tenures ({editingWing.history.length}):
+                    </span>
+                    <div className="space-y-1.5 max-h-36 overflow-y-auto pr-1">
+                      {editingWing.history.map((h, hIdx) => (
+                        <div
+                          key={`wing-hist-entry-${hIdx}`}
+                          className="p-2 rounded-lg bg-stone-900 border border-stone-800 flex items-center justify-between text-xs"
+                        >
+                          <div className="flex items-center gap-3">
+                            <span className="font-mono text-amber-400 font-bold">{h.tenure}</span>
+                            <span className="text-stone-300">
+                              <strong className="text-white">Chairman:</strong> {h.chairman || h.manager || 'N/A'}
+                            </span>
+                            <span className="text-stone-600">•</span>
+                            <span className="text-stone-300">
+                              <strong className="text-white">Convener:</strong> {h.convener || 'N/A'}
+                            </span>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              requestDelete({
+                                title: 'Delete Historical Tenure Record',
+                                message: `Remove tenure ${h.tenure} archive from ${editingWing.name}?`,
+                                confirmLabel: 'Delete Record',
+                                onConfirm: async () => {
+                                  const updatedHistory = (editingWing.history || []).filter((_, idx) => idx !== hIdx);
+                                  await updateWing(editingWing.id, { history: updatedHistory });
+                                  setEditingWing({ ...editingWing, history: updatedHistory });
+                                  showToast(`Tenure ${h.tenure} archive removed.`);
+                                },
+                              });
+                            }}
+                            className="p-1 text-stone-400 hover:text-red-400 rounded cursor-pointer"
+                            title="Delete tenure record"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div className="flex items-center justify-end gap-3 pt-3">
@@ -2886,6 +3022,62 @@ export const AdminDashboard: React.FC = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* ================= IN-APP DELETE CONFIRMATION MODAL ================= */}
+      {deleteModal?.isOpen && (
+        <div className="fixed inset-0 z-[100] bg-stone-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-stone-900 border border-stone-800 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-red-500/20 border border-red-500/30 flex items-center justify-center shrink-0">
+                <AlertTriangle className="w-5 h-5 text-red-400" />
+              </div>
+              <div>
+                <h3 className="text-base font-bold text-white">{deleteModal.title}</h3>
+                <p className="text-xs text-stone-400">Irreversible Action</p>
+              </div>
+            </div>
+
+            <p className="text-sm text-stone-300 leading-relaxed bg-stone-950/60 p-3.5 rounded-xl border border-stone-800/80">
+              {deleteModal.message}
+            </p>
+
+            <div className="flex items-center justify-end gap-3 pt-3 border-t border-stone-800">
+              <button
+                type="button"
+                disabled={isDeleting}
+                onClick={() => setDeleteModal(null)}
+                className="px-4 py-2 bg-stone-800 hover:bg-stone-700 text-stone-300 rounded-xl text-xs font-medium cursor-pointer transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={isDeleting}
+                onClick={async () => {
+                  setIsDeleting(true);
+                  try {
+                    await deleteModal.onConfirm();
+                    setDeleteModal(null);
+                  } catch (err) {
+                    console.error('Delete error:', err);
+                    showToast('Failed to complete delete operation');
+                  } finally {
+                    setIsDeleting(false);
+                  }
+                }}
+                className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-xl text-xs font-bold flex items-center gap-2 cursor-pointer shadow-lg shadow-red-950/50 transition-colors"
+              >
+                {isDeleting ? (
+                  <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                ) : (
+                  <Trash2 className="w-3.5 h-3.5" />
+                )}
+                <span>{isDeleting ? 'Deleting...' : (deleteModal.confirmLabel || 'Yes, Delete')}</span>
+              </button>
+            </div>
           </div>
         </div>
       )}

@@ -99,7 +99,7 @@ export async function fetchContentFromSupabase(): Promise<AppDatabase | null> {
     const settings = settingsRes.data;
 
     const homepage: HomepageContent = {
-      heroTitle: settings?.hero_title || 'Unified Intellect. Virtuous Leadership.',
+      heroTitle: settings?.hero_title || 'ANJUMAN-E-HUDA',
       heroSubtitle: settings?.hero_subtitle || 'The official apex central student organization steering intellectual vigor, cultural distinction, and student welfare across campus.',
       heroBadge: settings?.hero_badge || 'OFFICIAL APEX STUDENT BODY',
       heroBgUrl: settings?.hero_bg_url || 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=1920&q=80',

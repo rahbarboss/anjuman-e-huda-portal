@@ -635,6 +635,11 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const deleteCAUResolution = async (id: string): Promise<boolean> => {
+    try {
+      await fetch(`/api/cau/resolutions/${id}`, { method: 'DELETE' });
+    } catch (err) {
+      console.error(err);
+    }
     setDatabase((prev) => ({
       ...prev,
       cau: {
@@ -647,6 +652,15 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // ================= RANKINGS OPERATIONS =================
   const updateRankings = async (rankings: Partial<RankingData>): Promise<boolean> => {
+    try {
+      await fetch('/api/rankings', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(rankings),
+      });
+    } catch (err) {
+      console.error(err);
+    }
     setDatabase((prev) => ({
       ...prev,
       rankings: { ...prev.rankings, ...rankings },
@@ -655,30 +669,55 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const addTopWing = async (wing: RankingData['topWings'][0]): Promise<boolean> => {
+    const updatedWings = [...database.rankings.topWings, wing].sort((a, b) => a.rank - b.rank);
+    try {
+      await fetch('/api/rankings', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ topWings: updatedWings }),
+      });
+    } catch (err) {
+      console.error(err);
+    }
     setDatabase((prev) => ({
       ...prev,
       rankings: {
         ...prev.rankings,
-        topWings: [...prev.rankings.topWings, wing].sort((a, b) => a.rank - b.rank),
+        topWings: updatedWings,
       },
     }));
     return true;
   };
 
   const updateTopWing = async (wingName: string, updated: Partial<RankingData['topWings'][0]>): Promise<boolean> => {
+    const updatedWings = database.rankings.topWings.map((w) =>
+      w.wingName === wingName ? { ...w, ...updated } : w
+    );
+    try {
+      await fetch('/api/rankings', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ topWings: updatedWings }),
+      });
+    } catch (err) {
+      console.error(err);
+    }
     setDatabase((prev) => ({
       ...prev,
       rankings: {
         ...prev.rankings,
-        topWings: prev.rankings.topWings.map((w) =>
-          w.wingName === wingName ? { ...w, ...updated } : w
-        ),
+        topWings: updatedWings,
       },
     }));
     return true;
   };
 
   const deleteTopWing = async (wingName: string): Promise<boolean> => {
+    try {
+      await fetch(`/api/rankings/wings/${encodeURIComponent(wingName)}`, { method: 'DELETE' });
+    } catch (err) {
+      console.error(err);
+    }
     setDatabase((prev) => ({
       ...prev,
       rankings: {
@@ -690,30 +729,55 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const addTopParticipant = async (p: RankingData['topParticipants'][0]): Promise<boolean> => {
+    const updatedParticipants = [...database.rankings.topParticipants, p].sort((a, b) => a.rank - b.rank);
+    try {
+      await fetch('/api/rankings', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ topParticipants: updatedParticipants }),
+      });
+    } catch (err) {
+      console.error(err);
+    }
     setDatabase((prev) => ({
       ...prev,
       rankings: {
         ...prev.rankings,
-        topParticipants: [...prev.rankings.topParticipants, p].sort((a, b) => a.rank - b.rank),
+        topParticipants: updatedParticipants,
       },
     }));
     return true;
   };
 
   const updateTopParticipant = async (name: string, updated: Partial<RankingData['topParticipants'][0]>): Promise<boolean> => {
+    const updatedParticipants = database.rankings.topParticipants.map((p) =>
+      p.name === name ? { ...p, ...updated } : p
+    );
+    try {
+      await fetch('/api/rankings', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ topParticipants: updatedParticipants }),
+      });
+    } catch (err) {
+      console.error(err);
+    }
     setDatabase((prev) => ({
       ...prev,
       rankings: {
         ...prev.rankings,
-        topParticipants: prev.rankings.topParticipants.map((p) =>
-          p.name === name ? { ...p, ...updated } : p
-        ),
+        topParticipants: updatedParticipants,
       },
     }));
     return true;
   };
 
   const deleteTopParticipant = async (name: string): Promise<boolean> => {
+    try {
+      await fetch(`/api/rankings/participants/${encodeURIComponent(name)}`, { method: 'DELETE' });
+    } catch (err) {
+      console.error(err);
+    }
     setDatabase((prev) => ({
       ...prev,
       rankings: {
@@ -726,6 +790,15 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // ================= CONTACT SETTINGS & INQUIRIES =================
   const updateContactSettings = async (settings: Partial<ContactSettings>): Promise<boolean> => {
+    try {
+      await fetch('/api/contact-settings', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(settings),
+      });
+    } catch (err) {
+      console.error(err);
+    }
     setDatabase((prev) => ({
       ...prev,
       contactSettings: {
@@ -756,6 +829,11 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const deleteInquiry = async (id: string): Promise<boolean> => {
+    try {
+      await fetch(`/api/inquiries/${id}`, { method: 'DELETE' });
+    } catch (err) {
+      console.error(err);
+    }
     setDatabase((prev) => ({
       ...prev,
       inquiries: (prev.inquiries || []).filter((item) => item.id !== id),
