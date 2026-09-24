@@ -4,7 +4,8 @@ export type LeaderRole =
   | 'Treasurer'
   | 'Vice President'
   | 'Joint Secretary'
-  | 'Executive Member';
+  | 'Executive Member'
+  | (string & {});
 
 export interface Leader {
   id: string;

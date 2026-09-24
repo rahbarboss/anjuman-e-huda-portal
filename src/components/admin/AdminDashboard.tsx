@@ -292,8 +292,18 @@ export const AdminDashboard: React.FC = () => {
   };
 
   // ================= 4. LEADERSHIP MODAL & FORM STATE =================
+  const STANDARD_LEADER_ROLES = [
+    'President',
+    'General Secretary',
+    'Treasurer',
+    'Vice President',
+    'Joint Secretary',
+    'Executive Member',
+  ];
   const [editingLeader, setEditingLeader] = useState<Leader | null>(null);
   const [isLeaderModalOpen, setIsLeaderModalOpen] = useState(false);
+  const [isCustomLeaderRole, setIsCustomLeaderRole] = useState(false);
+  const [customRoleInput, setCustomRoleInput] = useState('');
   const [leaderForm, setLeaderForm] = useState({
     name: '',
     role: 'President' as Leader['role'],
@@ -307,6 +317,8 @@ export const AdminDashboard: React.FC = () => {
 
   const handleOpenAddLeader = () => {
     setEditingLeader(null);
+    setIsCustomLeaderRole(false);
+    setCustomRoleInput('');
     setLeaderForm({
       name: '',
       role: 'President',
@@ -322,6 +334,9 @@ export const AdminDashboard: React.FC = () => {
 
   const handleOpenEditLeader = (ldr: Leader) => {
     setEditingLeader(ldr);
+    const isCustom = !STANDARD_LEADER_ROLES.includes(ldr.role);
+    setIsCustomLeaderRole(isCustom);
+    setCustomRoleInput(isCustom ? ldr.role : '');
     setLeaderForm({
       name: ldr.name,
       role: ldr.role,
@@ -337,11 +352,20 @@ export const AdminDashboard: React.FC = () => {
 
   const handleSaveLeader = async (e: React.FormEvent) => {
     e.preventDefault();
+    const finalRole = isCustomLeaderRole ? customRoleInput.trim() : leaderForm.role;
+    if (!finalRole) {
+      showToast('Please specify a role or designation.');
+      return;
+    }
+    const payload = {
+      ...leaderForm,
+      role: finalRole,
+    };
     if (editingLeader) {
-      await updateLeader(editingLeader.id, leaderForm);
+      await updateLeader(editingLeader.id, payload);
       showToast(`Leader "${leaderForm.name}" updated successfully.`);
     } else {
-      await addLeader(leaderForm);
+      await addLeader(payload);
       showToast(`New Leader "${leaderForm.name}" appointed.`);
     }
     setIsLeaderModalOpen(false);
@@ -2189,21 +2213,63 @@ export const AdminDashboard: React.FC = () => {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-medium text-stone-300 mb-1">Role</label>
-                  <select
-                    value={leaderForm.role}
-                    onChange={(e) =>
-                      setLeaderForm({ ...leaderForm, role: e.target.value as Leader['role'] })
-                    }
-                    className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-xs text-white"
-                  >
-                    <option>President</option>
-                    <option>General Secretary</option>
-                    <option>Treasurer</option>
-                    <option>Vice President</option>
-                    <option>Joint Secretary</option>
-                    <option>Executive Member</option>
-                  </select>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="block text-xs font-medium text-stone-300">Role</label>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const next = !isCustomLeaderRole;
+                        setIsCustomLeaderRole(next);
+                        if (next) {
+                          setCustomRoleInput(
+                            STANDARD_LEADER_ROLES.includes(leaderForm.role) ? '' : leaderForm.role
+                          );
+                        } else {
+                          setLeaderForm({ ...leaderForm, role: 'President' });
+                        }
+                      }}
+                      className="text-[10px] text-emerald-400 hover:text-emerald-300 underline font-mono cursor-pointer"
+                    >
+                      {isCustomLeaderRole ? '← Preset Roles' : '+ Custom Role'}
+                    </button>
+                  </div>
+
+                  {!isCustomLeaderRole ? (
+                    <select
+                      value={STANDARD_LEADER_ROLES.includes(leaderForm.role) ? leaderForm.role : '__custom__'}
+                      onChange={(e) => {
+                        if (e.target.value === '__custom__') {
+                          setIsCustomLeaderRole(true);
+                          setCustomRoleInput('');
+                        } else {
+                          setLeaderForm({ ...leaderForm, role: e.target.value as Leader['role'] });
+                        }
+                      }}
+                      className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
+                    >
+                      {STANDARD_LEADER_ROLES.map((r) => (
+                        <option key={r} value={r}>
+                          {r}
+                        </option>
+                      ))}
+                      <option value="__custom__">+ Enter Custom Role (Khud se likhein)...</option>
+                    </select>
+                  ) : (
+                    <div>
+                      <input
+                        type="text"
+                        required
+                        placeholder="Type custom role (e.g. Cultural Secretary)..."
+                        value={customRoleInput}
+                        onChange={(e) => {
+                          setCustomRoleInput(e.target.value);
+                          setLeaderForm({ ...leaderForm, role: e.target.value });
+                        }}
+                        className="w-full bg-stone-950 border border-emerald-500/80 rounded-xl px-3 py-2 text-xs text-white placeholder-stone-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                        autoFocus
+                      />
+                    </div>
+                  )}
                 </div>
 
                 <div>
@@ -2218,6 +2284,24 @@ export const AdminDashboard: React.FC = () => {
                   />
                 </div>
               </div>
+
+              {isCustomLeaderRole && (
+                <div className="-mt-2 flex items-center justify-between text-[11px] text-stone-400 bg-emerald-950/30 border border-emerald-800/40 rounded-lg px-2.5 py-1.5">
+                  <span className="text-emerald-400 font-mono text-[10px]">
+                    ✍ Custom Role: <strong className="text-white">{customRoleInput || '(typing...)'}</strong>
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsCustomLeaderRole(false);
+                      setLeaderForm({ ...leaderForm, role: 'President' });
+                    }}
+                    className="text-stone-400 hover:text-white underline text-[10px] cursor-pointer"
+                  >
+                    Reset to Presets
+                  </button>
+                </div>
+              )}
 
               <div>
                 <label className="block text-xs font-medium text-stone-300 mb-1">Department</label>
