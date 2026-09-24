@@ -2,7 +2,7 @@
   "homepage": {
     "heroTitle": "ANJUMAN-E-HUDA",
     "heroSubtitle": "Dedicated to intellectual rigor, moral stewardship, student empowerment, and visionary community leadership at the heart of our campus.",
-    "heroBadge": "ESTD. 1994 • STUDENTS' UNION",
+    "heroBadge": "NIICS STUDENTS' UNION",
     "heroBgUrl": "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=2000&q=80",
     "ctaMissionLabel": "Discover Mission",
     "ctaProgramsLabel": "Recent Programs",
@@ -801,5 +801,79 @@
       "phone": "+91 98765 43220",
       "officeLocation": "Directorate Wing, Central Secretariat Quadrangle, Gate 4"
     }
-  ]
+  ],
+  "pillars": [
+    {
+      "id": "talim",
+      "name": "Ta'lim",
+      "englishTitle": "Illuminated Education",
+      "desc": "Rigor in modern disciplines and scholastic literacy.",
+      "arabicMotto": "اقْرَأْ بِاسْمِ رَبِّكَ الَّذِي خَلَقَ",
+      "arabicMeaning": "Scholastic Depth & Enlightened Inquiry",
+      "colorName": "emerald",
+      "badge": "Academic Council • 1,200+ Scholars",
+      "keyPoints": [
+        "Inter-Departmental Research Colloquiums",
+        "Classical Islamic & Contemporary Discourse",
+        "Annual Grand Ta'lim Convocation"
+      ],
+      "wingAffiliation": "Central Academic Union & Research Wing"
+    },
+    {
+      "id": "tarbiyah",
+      "name": "Tarbiyah",
+      "englishTitle": "Character Stewardship",
+      "desc": "Moral discipline, ethics, and empathetic consciousness.",
+      "arabicMotto": "إِنَّمَا بُعِثْتُ لِأُتَمِّمَ مَكَارِمَ الْأَخْلَاقِ",
+      "arabicMeaning": "Noble Character & Moral Rectitude",
+      "colorName": "amber",
+      "badge": "Ethics Guild • Unbroken Lineage",
+      "keyPoints": [
+        "Moral Stewardship & Mentorship Circles",
+        "Spiritual Assemblies & Tahajjud Vigils",
+        "Ethical Leadership Incubation"
+      ],
+      "wingAffiliation": "Spiritual & Ethical Development Council"
+    },
+    {
+      "id": "khidmah",
+      "name": "Khidmah",
+      "englishTitle": "Public Service",
+      "desc": "Welfare drives, student aid, and altruistic relief.",
+      "arabicMotto": "خَيْرُ النَّاسِ أَنْفَعُهُمْ لِلنَّاسِ",
+      "arabicMeaning": "Selfless Benevolence & Community Relief",
+      "colorName": "sky",
+      "badge": "Social Relief • 24/7 Response",
+      "keyPoints": [
+        "State-Wide Blood Donor Registry",
+        "Needy Student Hardship Welfare Grants",
+        "Campus Health Camps & Relief Convoys"
+      ],
+      "wingAffiliation": "Rahma Public Welfare & Relief Wing"
+    },
+    {
+      "id": "ittihad",
+      "name": "Ittihad",
+      "englishTitle": "Harmonious Unity",
+      "desc": "Inter-departmental camaraderie, fraternity, and peace.",
+      "arabicMotto": "وَاعْتَصِمُوا بِحَبْلِ اللَّهِ جَمِيعًا",
+      "arabicMeaning": "Harmonious Fraternity & Democratic Voice",
+      "colorName": "purple",
+      "badge": "Student Parliament • 100% Representation",
+      "keyPoints": [
+        "Democratic Student Council Deliberations",
+        "Inter-Collegiate Cultural Symposia",
+        "Equal Voice Across Every Department"
+      ],
+      "wingAffiliation": "Central Executive Secretariat & Parliament"
+    }
+  ],
+  "contactSettings": {
+    "campusAddress": "Darul Huda Islamic University",
+    "officialEmail": "anjumanehuda@dhiu.in",
+    "helplinePhone": "+91 98765 43210",
+    "secondaryPhone": "+91 98765 43211",
+    "officeHours": "Monday – Saturday: 08:30 AM – 06:00 PM (IST)",
+    "emergencyDesk": "24/7 Student Grievance Desk Available Online"
+  }
 }

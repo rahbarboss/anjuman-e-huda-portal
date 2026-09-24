@@ -111,8 +111,7 @@ export const ContactPage: React.FC = () => {
               </div>
 
               <div className="p-4 rounded-xl bg-stone-950 border border-stone-800/80 text-xs sm:text-sm text-stone-300 leading-relaxed font-mono">
-                {contactSettings?.campusAddress ||
-                  'Central Union Administrative Complex, Student Activity Quadrangle, University Main Campus, Gate No. 4, Pin 247554'}
+                {contactSettings?.campusAddress || 'Darul Huda Islamic University'}
               </div>
 
               <div className="space-y-4 text-xs sm:text-sm">
@@ -121,10 +120,10 @@ export const ContactPage: React.FC = () => {
                   <div>
                     <span className="block text-[10px] text-stone-400 font-mono uppercase">Official Email</span>
                     <a
-                      href={`mailto:${contactSettings?.officialEmail || 'secretariat@anjumanehuda.org'}`}
+                      href={`mailto:${contactSettings?.officialEmail || 'anjumanehuda@dhiu.in'}`}
                       className="text-white hover:text-emerald-400 font-semibold transition-colors"
                     >
-                      {contactSettings?.officialEmail || 'secretariat@anjumanehuda.org'}
+                      {contactSettings?.officialEmail || 'anjumanehuda@dhiu.in'}
                     </a>
                   </div>
                 </div>

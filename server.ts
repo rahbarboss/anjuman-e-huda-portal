@@ -188,6 +188,44 @@ app.delete('/api/leaders/:id', (req, res) => {
   res.json({ success: true, leaders: db.leaders });
 });
 
+// Pillars CRUD
+app.get('/api/pillars', (_req, res) => {
+  const db = readDb();
+  res.json({ success: true, pillars: db.pillars || [] });
+});
+
+app.post('/api/pillars', (req, res) => {
+  const db = readDb();
+  if (!db.pillars) db.pillars = [];
+  const newItem = {
+    id: `pillar-${Date.now()}`,
+    ...req.body,
+  };
+  db.pillars.push(newItem);
+  writeDb(db);
+  res.json({ success: true, item: newItem, pillars: db.pillars });
+});
+
+app.put('/api/pillars/:id', (req, res) => {
+  const db = readDb();
+  if (!db.pillars) db.pillars = [];
+  const index = db.pillars.findIndex((p: any) => p.id === req.params.id);
+  if (index === -1) {
+    return res.status(404).json({ success: false, message: 'Pillar not found' });
+  }
+  db.pillars[index] = { ...db.pillars[index], ...req.body };
+  writeDb(db);
+  res.json({ success: true, item: db.pillars[index], pillars: db.pillars });
+});
+
+app.delete('/api/pillars/:id', (req, res) => {
+  const db = readDb();
+  if (!db.pillars) db.pillars = [];
+  db.pillars = db.pillars.filter((p: any) => p.id !== req.params.id);
+  writeDb(db);
+  res.json({ success: true, pillars: db.pillars });
+});
+
 // NIICS In-Charge CRUD
 app.get('/api/niics-incharge', (_req, res) => {
   const db = readDb();

@@ -1,6 +1,7 @@
 import React from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigation, NavPage } from '../context/NavigationContext';
+import { useData } from '../context/DataContext';
 import {
   Sparkles,
   MapPin,
@@ -19,6 +20,8 @@ import {
 export const Footer: React.FC = () => {
   const { handleLogoClick, isAdminLoggedIn, setActiveView } = useAuth();
   const { navigateTo } = useNavigation();
+  const { database } = useData();
+  const contactSettings = database.contactSettings;
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -51,7 +54,7 @@ export const Footer: React.FC = () => {
                   ANJUMAN-E-HUDA
                 </span>
                 <p className="text-[10px] font-mono uppercase tracking-widest text-stone-400">
-                  STUDENTS' UNION • ESTD. 1994
+                  NIICS STUDENTS' UNION
                 </p>
               </div>
             </button>
@@ -203,15 +206,20 @@ export const Footer: React.FC = () => {
             <div className="space-y-2.5 text-xs text-stone-400">
               <div className="flex items-start gap-2">
                 <MapPin className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
-                <span>Student Activity Quadrangle, Main Campus, Gate 4</span>
+                <span>{contactSettings?.campusAddress || 'Darul Huda Islamic University'}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Phone className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                <span>+91 98765 43210</span>
+                <span>{contactSettings?.helplinePhone || '+91 98765 43210'}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Mail className="w-3.5 h-3.5 text-sky-400 shrink-0" />
-                <span>secretariat@anjumanehuda.org</span>
+                <a
+                  href={`mailto:${contactSettings?.officialEmail || 'anjumanehuda@dhiu.in'}`}
+                  className="hover:text-emerald-400 transition-colors"
+                >
+                  {contactSettings?.officialEmail || 'anjumanehuda@dhiu.in'}
+                </a>
               </div>
             </div>
           </div>

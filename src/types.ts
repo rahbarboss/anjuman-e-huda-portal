@@ -169,6 +169,19 @@ export interface StudentInquiry {
   status: 'Pending' | 'Reviewed' | 'Resolved';
 }
 
+export interface PillarItem {
+  id: string;
+  name: string; // e.g. "Ta'lim"
+  englishTitle: string; // e.g. "Illuminated Education"
+  desc: string; // e.g. "Rigor in modern disciplines and scholastic literacy."
+  arabicMotto?: string;
+  arabicMeaning?: string;
+  colorName?: string;
+  badge?: string;
+  keyPoints?: string[];
+  wingAffiliation?: string;
+}
+
 export interface AppDatabase {
   homepage: HomepageContent;
   announcements: Announcement[];
@@ -182,4 +195,5 @@ export interface AppDatabase {
   rankings: RankingData;
   contactSettings?: ContactSettings;
   inquiries?: StudentInquiry[];
+  pillars?: PillarItem[];
 }

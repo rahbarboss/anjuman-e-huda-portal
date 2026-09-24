@@ -43,7 +43,7 @@ export const HeroSection: React.FC = () => {
           >
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-950/80 border border-emerald-500/40 text-emerald-400 text-xs font-semibold tracking-wider uppercase font-mono shadow-sm">
               <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-              {homepage.heroBadge || "ESTD. 1994 • STUDENTS' UNION"}
+              {homepage.heroBadge || "NIICS STUDENTS' UNION"}
             </span>
 
             <span className="text-stone-400 text-xs font-serif italic border-l border-stone-800 pl-3 hidden sm:inline-block">

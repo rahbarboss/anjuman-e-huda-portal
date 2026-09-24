@@ -43,34 +43,80 @@ export const AboutSection: React.FC = () => {
 
   const [activePillar, setActivePillar] = useState<PillarDetail | null>(null);
 
-  const pillars: PillarDetail[] = [
+  // Helper to generate full styles & icon for any pillar
+  const getPillarStyling = (colorName: string = 'emerald', id: string = '') => {
+    const effectiveColor = colorName || (id.includes('talim') ? 'emerald' : id.includes('tarbiyah') ? 'amber' : id.includes('khidmah') ? 'sky' : 'purple');
+    switch (effectiveColor) {
+      case 'amber':
+        return {
+          icon: Target,
+          gradient: 'from-amber-950/50 via-stone-900 to-stone-950',
+          borderHover: 'hover:border-amber-500/50 hover:shadow-amber-950/40',
+          badgeStyle: 'bg-amber-950/80 text-amber-300 border-amber-700/60',
+          iconBg: 'bg-amber-950/80 border-amber-500/40 text-amber-400',
+        };
+      case 'sky':
+      case 'blue':
+        return {
+          icon: ShieldCheck,
+          gradient: 'from-sky-950/50 via-stone-900 to-stone-950',
+          borderHover: 'hover:border-sky-500/50 hover:shadow-sky-950/40',
+          badgeStyle: 'bg-sky-950/80 text-sky-300 border-sky-700/60',
+          iconBg: 'bg-sky-950/80 border-sky-500/40 text-sky-400',
+        };
+      case 'purple':
+        return {
+          icon: Award,
+          gradient: 'from-purple-950/50 via-stone-900 to-stone-950',
+          borderHover: 'hover:border-purple-500/50 hover:shadow-purple-950/40',
+          badgeStyle: 'bg-purple-950/80 text-purple-300 border-purple-700/60',
+          iconBg: 'bg-purple-950/80 border-purple-500/40 text-purple-400',
+        };
+      case 'rose':
+      case 'red':
+        return {
+          icon: Flame,
+          gradient: 'from-rose-950/50 via-stone-900 to-stone-950',
+          borderHover: 'hover:border-rose-500/50 hover:shadow-rose-950/40',
+          badgeStyle: 'bg-rose-950/80 text-rose-300 border-rose-700/60',
+          iconBg: 'bg-rose-950/80 border-rose-500/40 text-rose-400',
+        };
+      case 'emerald':
+      default:
+        return {
+          icon: BookOpenCheck,
+          gradient: 'from-emerald-950/60 via-stone-900 to-stone-950',
+          borderHover: 'hover:border-emerald-500/50 hover:shadow-emerald-950/40',
+          badgeStyle: 'bg-emerald-950/80 text-emerald-300 border-emerald-700/60',
+          iconBg: 'bg-emerald-950/80 border-emerald-500/40 text-emerald-400',
+        };
+    }
+  };
+
+  const rawPillars = database.pillars && database.pillars.length > 0 ? database.pillars : [
     {
       id: 'talim',
-      title: "Ta'lim (Illuminated Education)",
+      name: "Ta'lim",
+      englishTitle: 'Illuminated Education',
       arabicMotto: 'اقْرَأْ بِاسْمِ رَبِّكَ الَّذِي خَلَقَ',
       arabicMeaning: 'Scholastic Depth & Enlightened Inquiry',
       desc: 'Advancing intellectual depth through rigorous scholarly colloquiums, departmental research guilds, access to classical Islamic treatises, and modern technological synthesis.',
-      icon: BookOpenCheck,
       colorName: 'emerald',
       badge: 'Academic Council • 1,200+ Scholars',
       keyPoints: [
         'Inter-Departmental Research Colloquiums',
         'Classical Islamic & Contemporary Discourse',
-        'Annual Grand Ta\'lim Convocation',
+        "Annual Grand Ta'lim Convocation",
       ],
       wingAffiliation: 'Central Academic Union & Research Wing',
-      gradient: 'from-emerald-950/60 via-stone-900 to-stone-950',
-      borderHover: 'hover:border-emerald-500/50 hover:shadow-emerald-950/40',
-      badgeStyle: 'bg-emerald-950/80 text-emerald-300 border-emerald-700/60',
-      iconBg: 'bg-emerald-950/80 border-emerald-500/40 text-emerald-400',
     },
     {
       id: 'tarbiyah',
-      title: 'Tarbiyah (Character Stewardship)',
+      name: 'Tarbiyah',
+      englishTitle: 'Character Stewardship',
       arabicMotto: 'إِنَّمَا بُعِثْتُ لِأُتَمِّمَ مَكَارِمَ الْأَخْلَاقِ',
       arabicMeaning: 'Noble Character & Moral Rectitude',
       desc: 'Nurturing conscious self-discipline, ethical leadership, moral compass, and humble brotherhood inside campus corridors, living halls, and civic life.',
-      icon: Target,
       colorName: 'amber',
       badge: 'Ethics Guild • Unbroken Lineage',
       keyPoints: [
@@ -79,18 +125,14 @@ export const AboutSection: React.FC = () => {
         'Ethical Leadership Incubation',
       ],
       wingAffiliation: 'Spiritual & Ethical Development Council',
-      gradient: 'from-amber-950/50 via-stone-900 to-stone-950',
-      borderHover: 'hover:border-amber-500/50 hover:shadow-amber-950/40',
-      badgeStyle: 'bg-amber-950/80 text-amber-300 border-amber-700/60',
-      iconBg: 'bg-amber-950/80 border-amber-500/40 text-amber-400',
     },
     {
       id: 'khidmah',
-      title: 'Khidmah (Selfless Public Service)',
+      name: 'Khidmah',
+      englishTitle: 'Public Service',
       arabicMotto: 'خَيْرُ النَّاسِ أَنْفَعُهُمْ لِلنَّاسِ',
       arabicMeaning: 'Selfless Benevolence & Community Relief',
       desc: 'Mobilizing rapid humanitarian relief, state blood donor networks, student medical welfare funds, and emergency disaster assistance with compassion.',
-      icon: ShieldCheck,
       colorName: 'sky',
       badge: 'Social Relief • 24/7 Response',
       keyPoints: [
@@ -99,18 +141,14 @@ export const AboutSection: React.FC = () => {
         'Campus Health Camps & Relief Convoys',
       ],
       wingAffiliation: 'Rahma Public Welfare & Relief Wing',
-      gradient: 'from-sky-950/50 via-stone-900 to-stone-950',
-      borderHover: 'hover:border-sky-500/50 hover:shadow-sky-950/40',
-      badgeStyle: 'bg-sky-950/80 text-sky-300 border-sky-700/60',
-      iconBg: 'bg-sky-950/80 border-sky-500/40 text-sky-400',
     },
     {
       id: 'ittihad',
-      title: 'Ittihad (Harmonious Unity)',
+      name: 'Ittihad',
+      englishTitle: 'Harmonious Unity',
       arabicMotto: 'وَاعْتَصِمُوا بِحَبْلِ اللَّهِ جَمِيعًا',
       arabicMeaning: 'Harmonious Fraternity & Democratic Voice',
       desc: 'Uniting diverse departmental voices, academic batches, and collegiate faculties into one vibrant, transparent, democratic collegiate parliament.',
-      icon: Award,
       colorName: 'purple',
       badge: 'Student Parliament • 100% Representation',
       keyPoints: [
@@ -119,12 +157,28 @@ export const AboutSection: React.FC = () => {
         'Equal Voice Across Every Department',
       ],
       wingAffiliation: 'Central Executive Secretariat & Parliament',
-      gradient: 'from-purple-950/50 via-stone-900 to-stone-950',
-      borderHover: 'hover:border-purple-500/50 hover:shadow-purple-950/40',
-      badgeStyle: 'bg-purple-950/80 text-purple-300 border-purple-700/60',
-      iconBg: 'bg-purple-950/80 border-purple-500/40 text-purple-400',
     },
   ];
+
+  const pillars: PillarDetail[] = rawPillars.map((p) => {
+    const styling = getPillarStyling(p.colorName, p.id);
+    return {
+      id: p.id,
+      title: `${p.name} (${p.englishTitle})`,
+      arabicMotto: p.arabicMotto || 'وَقُل رَّبِّ زِدْنِي عِلْمًا',
+      arabicMeaning: p.arabicMeaning || p.englishTitle,
+      desc: p.desc,
+      icon: styling.icon,
+      colorName: p.colorName || 'emerald',
+      badge: p.badge || `${p.name} Pillar • Apex Council`,
+      keyPoints: p.keyPoints && p.keyPoints.length > 0 ? p.keyPoints : [p.englishTitle, p.desc],
+      wingAffiliation: p.wingAffiliation || 'Central Executive Secretariat',
+      gradient: styling.gradient,
+      borderHover: styling.borderHover,
+      badgeStyle: styling.badgeStyle,
+      iconBg: styling.iconBg,
+    };
+  });
 
   return (
     <section id="about" className="py-24 bg-stone-900 border-b border-stone-800 text-stone-100 relative overflow-hidden">

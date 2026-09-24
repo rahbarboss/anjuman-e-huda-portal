@@ -11,7 +11,9 @@ import {
   ContactSettings,
   CAUResolution,
   StudentInquiry,
+  PillarItem,
 } from '../types';
+import { initialDatabase } from '../defaultData';
 
 export type StorageBucket =
   | 'events'
@@ -258,6 +260,8 @@ export async function fetchContentFromSupabase(): Promise<AppDatabase | null> {
     }
 
     const inquiries = await fetchInquiriesFromSupabase();
+    const cloudPillars = await fetchPillarsFromSupabase();
+    const pillars = cloudPillars.length > 0 ? cloudPillars : (initialDatabase.pillars || []);
 
     return {
       homepage,
@@ -268,6 +272,7 @@ export async function fetchContentFromSupabase(): Promise<AppDatabase | null> {
       highlights,
       wings,
       inquiries,
+      pillars,
       achievements: {
         totalAchievements: 48,
         totalOutreachInitiatives: 120,
@@ -288,9 +293,17 @@ export async function fetchContentFromSupabase(): Promise<AppDatabase | null> {
       },
       contactSettings: {
         campusAddress:
-          settings?.campus_address ||
-          'Central Secretariat Quadrangle, Gate 4, Main Campus, Chemmad, Kerala 676306',
-        officialEmail: settings?.official_email || 'central.union@anjumanehuda.org',
+          settings?.campus_address &&
+          settings.campus_address !== 'Central Secretariat Quadrangle, Gate 4, Main Campus, Chemmad, Kerala 676306' &&
+          !settings.campus_address.includes('Gate 4')
+            ? settings.campus_address
+            : 'Darul Huda Islamic University',
+        officialEmail:
+          settings?.official_email &&
+          settings.official_email !== 'central.union@anjumanehuda.org' &&
+          settings.official_email !== 'secretariat@anjumanehuda.org'
+            ? settings.official_email
+            : 'anjumanehuda@dhiu.in',
         helplinePhone: settings?.helpline_phone || '+91 98765 43210',
         secondaryPhone: settings?.secondary_phone || '+91 98765 43211',
         officeHours: settings?.office_hours || 'Mon - Sat: 08:30 AM - 05:30 PM (IST)',
@@ -349,6 +362,13 @@ export async function seedSupabaseDatabase(db: AppDatabase): Promise<boolean> {
     // 8. Documents / CAU
     for (const res of db.cau.latestResolutions) {
       await saveCAUResolutionInSupabase(res, res.id);
+    }
+
+    // 9. Foundational Pillars
+    if (db.pillars && db.pillars.length > 0) {
+      for (const p of db.pillars) {
+        await savePillarInSupabase(p, p.id);
+      }
     }
 
     return true;
@@ -1011,5 +1031,104 @@ export async function deleteInquiryInSupabase(id: string): Promise<{ success: bo
   } catch (err: any) {
     console.error('[Supabase DB / inquiries] Unexpected delete error:', err);
     return { success: false, message: err?.message };
+  }
+}
+
+/* =========================================================================
+   FOUNDATIONAL PILLARS CRUD (Persisted to Supabase PostgreSQL documents table)
+========================================================================= */
+
+export async function fetchPillarsFromSupabase(): Promise<PillarItem[]> {
+  if (!supabase || !isSupabaseConfigured) return [];
+  try {
+    const { data, error } = await supabase
+      .from('documents')
+      .select('*')
+      .eq('category', 'Pillar')
+      .order('created_at', { ascending: true });
+
+    if (error || !data || data.length === 0) return [];
+    return data.map((d: any) => {
+      try {
+        const parsed = JSON.parse(d.file_url) as PillarItem;
+        return {
+          ...parsed,
+          id: parsed.id || d.id.replace(/^pillar_/, ''),
+          name: parsed.name || d.title,
+          englishTitle: parsed.englishTitle || d.file_number || '',
+          desc: parsed.desc || d.date || '',
+          arabicMotto: parsed.arabicMotto || d.status || '',
+        };
+      } catch {
+        return {
+          id: d.id.replace(/^pillar_/, ''),
+          name: d.title,
+          englishTitle: d.file_number || '',
+          desc: d.date || '',
+          arabicMotto: d.status || '',
+          colorName: 'emerald',
+        };
+      }
+    });
+  } catch (err) {
+    console.error('[Supabase DB / documents] Error fetching pillars:', err);
+    return [];
+  }
+}
+
+export async function savePillarInSupabase(
+  pillar: PillarItem,
+  existingId?: string
+): Promise<{ success: boolean; data?: PillarItem; message?: string }> {
+  if (!supabase || !isSupabaseConfigured) {
+    return { success: false, message: 'Supabase is not configured' };
+  }
+  try {
+    const rawId = existingId || pillar.id || `p_${Date.now()}`;
+    const pId = rawId.startsWith('pillar_') ? rawId : `pillar_${rawId}`;
+    const pillarPayload: PillarItem = {
+      ...pillar,
+      id: rawId.replace(/^pillar_/, ''),
+    };
+
+    const { error } = await supabase.from('documents').upsert({
+      id: pId,
+      title: pillarPayload.name,
+      category: 'Pillar',
+      file_url: JSON.stringify(pillarPayload),
+      file_number: pillarPayload.englishTitle,
+      date: pillarPayload.desc,
+      status: pillarPayload.arabicMotto || '',
+      created_at: new Date().toISOString(),
+    });
+
+    if (error) {
+      console.error('[Supabase DB / documents] Save pillar failed:', error.message);
+      return { success: false, message: error.message };
+    }
+    return { success: true, data: pillarPayload };
+  } catch (err: any) {
+    console.error('[Supabase DB / documents] Unexpected error saving pillar:', err);
+    return { success: false, message: err?.message || 'Failed to save pillar' };
+  }
+}
+
+export async function deletePillarInSupabase(id: string): Promise<{ success: boolean; message?: string }> {
+  if (!supabase || !isSupabaseConfigured) {
+    return { success: false, message: 'Supabase is not configured' };
+  }
+  try {
+    const rawId = id.replace(/^pillar_/, '');
+    const pId = `pillar_${rawId}`;
+    // Delete both possible id formats to be safe
+    const { error } = await supabase.from('documents').delete().in('id', [pId, id, rawId]);
+    if (error) {
+      console.error('[Supabase DB / documents] Delete pillar failed:', error.message);
+      return { success: false, message: error.message };
+    }
+    return { success: true };
+  } catch (err: any) {
+    console.error('[Supabase DB / documents] Unexpected error deleting pillar:', err);
+    return { success: false, message: err?.message || 'Failed to delete pillar' };
   }
 }

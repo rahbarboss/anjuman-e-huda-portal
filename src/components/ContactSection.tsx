@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
 import { MapPin, Phone, Mail, Clock, Send, CheckCircle2, MessageSquare } from 'lucide-react';
+import { useData } from '../context/DataContext';
 
 export const ContactSection: React.FC = () => {
+  const { database } = useData();
+  const contactSettings = database.contactSettings;
   const [formData, setFormData] = useState({
     name: '',
     department: '',
@@ -58,7 +61,7 @@ export const ContactSection: React.FC = () => {
                 <div>
                   <h4 className="text-xs font-bold text-stone-300 uppercase font-mono">Address</h4>
                   <p className="text-sm text-stone-200 mt-0.5">
-                    Central Student Union Complex, Gate No. 3, University Campus, New Delhi 110025
+                    {contactSettings?.campusAddress || 'Darul Huda Islamic University'}
                   </p>
                 </div>
               </div>
@@ -69,7 +72,9 @@ export const ContactSection: React.FC = () => {
                 </div>
                 <div>
                   <h4 className="text-xs font-bold text-stone-300 uppercase font-mono">Helpline</h4>
-                  <p className="text-sm text-stone-200 mt-0.5">+91 (011) 2698-4321 / +91 98765 43210</p>
+                  <p className="text-sm text-stone-200 mt-0.5">
+                    {contactSettings?.helplinePhone || '+91 98765 43210'}
+                  </p>
                 </div>
               </div>
 
@@ -79,8 +84,13 @@ export const ContactSection: React.FC = () => {
                 </div>
                 <div>
                   <h4 className="text-xs font-bold text-stone-300 uppercase font-mono">Email Secretariat</h4>
-                  <p className="text-sm text-stone-200 mt-0.5">secretariat@anjumanehuda.org</p>
-                  <p className="text-xs text-stone-400">grievance@anjumanehuda.org</p>
+                  <a
+                    href={`mailto:${contactSettings?.officialEmail || 'anjumanehuda@dhiu.in'}`}
+                    className="text-sm text-stone-200 hover:text-emerald-400 mt-0.5 block transition-colors"
+                  >
+                    {contactSettings?.officialEmail || 'anjumanehuda@dhiu.in'}
+                  </a>
+                  <p className="text-xs text-stone-400">grievance@dhiu.in</p>
                 </div>
               </div>
 

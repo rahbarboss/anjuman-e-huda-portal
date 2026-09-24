@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useData } from '../../context/DataContext';
 import {
@@ -14,6 +14,7 @@ import {
   CAUResolution,
   ContactSettings,
   StudentInquiry,
+  PillarItem,
 } from '../../types';
 import { MediaUploadZone } from './MediaUploadZone';
 import {
@@ -71,6 +72,9 @@ export const AdminDashboard: React.FC = () => {
   const {
     database,
     updateHomepage,
+    addPillar,
+    updatePillar,
+    deletePillar,
     addLeader,
     updateLeader,
     deleteLeader,
@@ -164,6 +168,74 @@ export const AdminDashboard: React.FC = () => {
       mission: aboutForm.mission,
     });
     showToast('About narrative, Vision 2030, and Mission saved.');
+  };
+
+  // ================= 2.1 FOUNDATIONAL PILLARS STATE & MODALS =================
+  const [isPillarModalOpen, setIsPillarModalOpen] = useState(false);
+  const [editingPillar, setEditingPillar] = useState<PillarItem | null>(null);
+  const [pillarForm, setPillarForm] = useState({
+    name: '',
+    englishTitle: '',
+    desc: '',
+    arabicMotto: '',
+    arabicMeaning: '',
+    colorName: 'emerald',
+    badge: '',
+    wingAffiliation: '',
+  });
+
+  const handleOpenAddPillar = () => {
+    setEditingPillar(null);
+    setPillarForm({
+      name: '',
+      englishTitle: '',
+      desc: '',
+      arabicMotto: 'وَقُل رَّبِّ زِدْنِي عِلْمًا',
+      arabicMeaning: '',
+      colorName: 'emerald',
+      badge: '',
+      wingAffiliation: '',
+    });
+    setIsPillarModalOpen(true);
+  };
+
+  const handleOpenEditPillar = (p: PillarItem) => {
+    setEditingPillar(p);
+    setPillarForm({
+      name: p.name,
+      englishTitle: p.englishTitle,
+      desc: p.desc,
+      arabicMotto: p.arabicMotto || '',
+      arabicMeaning: p.arabicMeaning || '',
+      colorName: p.colorName || 'emerald',
+      badge: p.badge || '',
+      wingAffiliation: p.wingAffiliation || '',
+    });
+    setIsPillarModalOpen(true);
+  };
+
+  const handleSavePillar = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!pillarForm.name.trim() || !pillarForm.desc.trim()) {
+      showToast('Please provide at least a Pillar Name and Description.');
+      return;
+    }
+
+    if (editingPillar) {
+      await updatePillar(editingPillar.id, pillarForm);
+      showToast(`Pillar "${pillarForm.name}" updated successfully.`);
+    } else {
+      await addPillar(pillarForm);
+      showToast(`New Pillar "${pillarForm.name}" added successfully.`);
+    }
+    setIsPillarModalOpen(false);
+  };
+
+  const handleDeletePillar = async (id: string, name: string) => {
+    if (window.confirm(`Are you sure you want to delete the foundational pillar "${name}"?`)) {
+      await deletePillar(id);
+      showToast(`Pillar "${name}" deleted.`);
+    }
   };
 
   // ================= 3. UPDATES (ANNOUNCEMENTS) STATE & MODALS =================
@@ -590,14 +662,20 @@ export const AdminDashboard: React.FC = () => {
   // ================= 9. CONTACT MODAL & STATE =================
   const [contactForm, setContactForm] = useState<ContactSettings>(
     database.contactSettings || {
-      campusAddress: 'Student Activity Quadrangle, Main Campus, Gate 4',
-      officialEmail: 'secretariat@anjumanehuda.org',
+      campusAddress: 'Darul Huda Islamic University',
+      officialEmail: 'anjumanehuda@dhiu.in',
       helplinePhone: '+91 98765 43210',
       secondaryPhone: '+91 98765 43211',
       officeHours: 'Monday – Saturday: 08:30 AM – 06:00 PM',
       emergencyDesk: 'Active',
     }
   );
+
+  useEffect(() => {
+    if (database.contactSettings) {
+      setContactForm(database.contactSettings);
+    }
+  }, [database.contactSettings]);
 
   const handleSaveContactSettings = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -973,26 +1051,102 @@ export const AdminDashboard: React.FC = () => {
                 </button>
               </form>
 
-              {/* Foundational Pillars Display */}
+              {/* Foundational Pillars Management (Add, Edit, Delete, Text Changes) */}
               <div className="p-6 bg-stone-900 border border-stone-800 rounded-2xl space-y-4">
-                <h3 className="text-sm font-bold text-white uppercase tracking-wider font-mono">
-                  The 4 Pillars of the Union (Ta'lim, Tarbiyah, Khidmah, Ittihad)
-                </h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {[
-                    { name: "Ta'lim", en: 'Illuminated Education', desc: 'Rigor in modern disciplines and scholastic literacy.' },
-                    { name: 'Tarbiyah', en: 'Character Stewardship', desc: 'Moral discipline, ethics, and empathetic consciousness.' },
-                    { name: 'Khidmah', en: 'Public Service', desc: 'Welfare drives, student aid, and altruistic relief.' },
-                    { name: 'Ittihad', en: 'Harmonious Unity', desc: 'Inter-departmental camaraderie, fraternity, and peace.' },
-                  ].map((p, idx) => (
-                    <div key={`about-p-${idx}`} className="p-3.5 rounded-xl bg-stone-950 border border-stone-800 text-xs">
-                      <div className="flex items-center justify-between text-emerald-400 font-bold font-heading mb-1">
-                        <span>{p.name}</span>
-                        <span className="text-stone-400 text-[10px] font-mono">{p.en}</span>
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3 border-b border-stone-800">
+                  <div>
+                    <h3 className="text-sm font-bold text-white uppercase tracking-wider font-mono flex items-center gap-2">
+                      <span>The Foundational Pillars of the Union</span>
+                      <span className="px-2 py-0.5 rounded-full text-[10px] bg-emerald-950 text-emerald-300 border border-emerald-800">
+                        {(database.pillars || []).length} Pillars
+                      </span>
+                    </h3>
+                    <p className="text-stone-400 text-xs mt-0.5">
+                      Add, edit, change text/motto, or delete pillars displayed in the About section on the front page.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleOpenAddPillar}
+                    className="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow self-start sm:self-auto cursor-pointer"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>Add New Pillar</span>
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                  {(database.pillars || []).map((p) => {
+                    const colorBadge =
+                      p.colorName === 'amber'
+                        ? 'text-amber-400 bg-amber-950/40 border-amber-800/60'
+                        : p.colorName === 'sky'
+                        ? 'text-sky-400 bg-sky-950/40 border-sky-800/60'
+                        : p.colorName === 'purple'
+                        ? 'text-purple-400 bg-purple-950/40 border-purple-800/60'
+                        : p.colorName === 'rose'
+                        ? 'text-rose-400 bg-rose-950/40 border-rose-800/60'
+                        : 'text-emerald-400 bg-emerald-950/40 border-emerald-800/60';
+
+                    return (
+                      <div
+                        key={`about-pillar-${p.id}`}
+                        className="p-4 rounded-xl bg-stone-950 border border-stone-800 text-xs flex flex-col justify-between group hover:border-stone-700 transition-all"
+                      >
+                        <div>
+                          <div className="flex items-start justify-between gap-2 mb-1.5">
+                            <div>
+                              <span className="font-bold text-sm text-emerald-400 font-heading block">
+                                {p.name}
+                              </span>
+                              <span className="text-stone-400 text-[11px] font-mono">
+                                {p.englishTitle}
+                              </span>
+                            </div>
+                            <span className={`text-[10px] font-mono px-2 py-0.5 rounded-full border ${colorBadge}`}>
+                              {p.colorName || 'emerald'}
+                            </span>
+                          </div>
+
+                          <p className="text-stone-300 leading-relaxed text-xs mb-2">
+                            {p.desc}
+                          </p>
+
+                          {p.arabicMotto && (
+                            <div className="text-[11px] font-serif italic text-amber-300/80 mb-1 border-t border-stone-900 pt-1.5">
+                              {p.arabicMotto}
+                            </div>
+                          )}
+                          {p.arabicMeaning && (
+                            <div className="text-[10px] text-stone-500 font-mono">
+                              Meaning: {p.arabicMeaning}
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="flex items-center justify-end gap-2 pt-3 mt-2 border-t border-stone-900">
+                          <button
+                            type="button"
+                            onClick={() => handleOpenEditPillar(p)}
+                            className="px-2.5 py-1.5 rounded-lg text-stone-300 hover:text-emerald-400 bg-stone-900 hover:bg-stone-800 border border-stone-800 transition-colors flex items-center gap-1 cursor-pointer"
+                            title="Edit this pillar"
+                          >
+                            <Edit2 className="w-3.5 h-3.5" />
+                            <span className="text-[10px] font-medium">Edit</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleDeletePillar(p.id, p.name)}
+                            className="px-2.5 py-1.5 rounded-lg text-stone-300 hover:text-red-400 bg-stone-900 hover:bg-stone-800 border border-stone-800 transition-colors flex items-center gap-1 cursor-pointer"
+                            title="Delete this pillar"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                            <span className="text-[10px] font-medium">Delete</span>
+                          </button>
+                        </div>
                       </div>
-                      <p className="text-stone-300">{p.desc}</p>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             </div>
@@ -2819,6 +2973,137 @@ export const AdminDashboard: React.FC = () => {
                   className="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-semibold cursor-pointer"
                 >
                   Create Wing
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ================= MODAL: ADD / EDIT FOUNDATIONAL PILLAR ================= */}
+      {isPillarModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm">
+          <div className="bg-stone-900 border border-stone-700 rounded-2xl p-6 w-full max-w-lg shadow-2xl text-stone-100 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between pb-3 mb-4 border-b border-stone-800">
+              <h3 className="text-base font-bold text-white flex items-center gap-2">
+                <span>{editingPillar ? 'Edit Foundational Pillar' : 'Add New Foundational Pillar'}</span>
+                {editingPillar && (
+                  <span className="text-xs px-2 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800">
+                    {editingPillar.name}
+                  </span>
+                )}
+              </h3>
+              <button
+                type="button"
+                onClick={() => setIsPillarModalOpen(false)}
+                className="text-stone-400 hover:text-white p-1 rounded-lg hover:bg-stone-800 text-sm"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleSavePillar} className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-stone-300 mb-1">
+                    Pillar Name (Primary) *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Ta'lim, Tarbiyah, Khidmah"
+                    value={pillarForm.name}
+                    onChange={(e) => setPillarForm({ ...pillarForm, name: e.target.value })}
+                    className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-stone-300 mb-1">
+                    English Title / Subtitle *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Illuminated Education"
+                    value={pillarForm.englishTitle}
+                    onChange={(e) => setPillarForm({ ...pillarForm, englishTitle: e.target.value })}
+                    className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-stone-300 mb-1">
+                  Description / Principle Text *
+                </label>
+                <textarea
+                  required
+                  rows={3}
+                  placeholder="Describe the ethos, scholastic depth, or moral mission of this pillar..."
+                  value={pillarForm.desc}
+                  onChange={(e) => setPillarForm({ ...pillarForm, desc: e.target.value })}
+                  className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-stone-300 mb-1">
+                    Arabic Motto / Verse
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. اقْرَأْ بِاسْمِ رَبِّكَ الَّذِي خَلَقَ"
+                    value={pillarForm.arabicMotto}
+                    onChange={(e) => setPillarForm({ ...pillarForm, arabicMotto: e.target.value })}
+                    className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-xs text-amber-200 font-serif focus:border-emerald-500 focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-stone-300 mb-1">
+                    Motto Meaning / Translation
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Scholastic Depth & Enlightened Inquiry"
+                    value={pillarForm.arabicMeaning}
+                    onChange={(e) => setPillarForm({ ...pillarForm, arabicMeaning: e.target.value })}
+                    className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-stone-300 mb-1">
+                  Color Accent Theme
+                </label>
+                <select
+                  value={pillarForm.colorName}
+                  onChange={(e) => setPillarForm({ ...pillarForm, colorName: e.target.value })}
+                  className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none cursor-pointer"
+                >
+                  <option value="emerald">Emerald Green (Knowledge & Ta'lim)</option>
+                  <option value="amber">Amber Gold (Tarbiyah & Character)</option>
+                  <option value="sky">Sky Blue (Khidmah & Public Service)</option>
+                  <option value="purple">Royal Purple (Ittihad & Unity)</option>
+                  <option value="rose">Rose Red (Vigor & Leadership)</option>
+                </select>
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-4 border-t border-stone-800">
+                <button
+                  type="button"
+                  onClick={() => setIsPillarModalOpen(false)}
+                  className="px-4 py-2 bg-stone-800 hover:bg-stone-700 text-stone-300 rounded-xl text-xs font-medium cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-semibold shadow-lg shadow-emerald-950 flex items-center gap-1.5 cursor-pointer"
+                >
+                  <Save className="w-3.5 h-3.5" />
+                  <span>{editingPillar ? 'Save Pillar Changes' : 'Create Pillar'}</span>
                 </button>
               </div>
             </form>

@@ -80,10 +80,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenNotifications }) => {
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-[10px] tracking-widest font-semibold uppercase text-stone-400 font-mono">
-                    STUDENTS' UNION
-                  </span>
-                  <span className="text-[10px] text-amber-400/90 font-serif hidden sm:inline-block">
-                    • ESTD. 1994
+                    NIICS STUDENTS' UNION
                   </span>
                 </div>
               </div>

@@ -13,6 +13,7 @@ import {
   RankingData,
   ContactSettings,
   StudentInquiry,
+  PillarItem,
 } from '../types';
 import { initialDatabase } from '../defaultData';
 import { isSupabaseConfigured } from '../lib/supabase';
@@ -39,6 +40,8 @@ import {
   addInquiryInSupabase,
   updateInquiryStatusInSupabase,
   deleteInquiryInSupabase,
+  savePillarInSupabase,
+  deletePillarInSupabase,
   seedSupabaseDatabase,
   StorageBucket,
 } from '../services/supabaseService';
@@ -49,6 +52,9 @@ interface DataContextType {
   error: string | null;
   refreshData: () => Promise<void>;
   updateHomepage: (data: Partial<HomepageContent>) => Promise<boolean>;
+  addPillar: (pillar: Omit<PillarItem, 'id'>) => Promise<boolean>;
+  updatePillar: (id: string, pillar: Partial<PillarItem>) => Promise<boolean>;
+  deletePillar: (id: string) => Promise<boolean>;
   addLeader: (leader: Omit<Leader, 'id'>) => Promise<boolean>;
   updateLeader: (id: string, leader: Partial<Leader>) => Promise<boolean>;
   deleteLeader: (id: string) => Promise<boolean>;
@@ -153,6 +159,106 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.error(err);
     }
     setDatabase((prev) => ({ ...prev, homepage: { ...prev.homepage, ...data } }));
+    return true;
+  };
+
+  /* =========================================================================
+     FOUNDATIONAL PILLARS CRUD
+  ========================================================================= */
+
+  const addPillar = async (pillar: Omit<PillarItem, 'id'>): Promise<boolean> => {
+    const rawId = `p_${Date.now()}`;
+    const newPillar: PillarItem = {
+      ...pillar,
+      id: rawId,
+    };
+
+    if (isSupabaseConfigured) {
+      const res = await savePillarInSupabase(newPillar);
+      if (res.success && res.data) {
+        setDatabase((prev) => ({
+          ...prev,
+          pillars: [...(prev.pillars || []), res.data!],
+        }));
+        return true;
+      }
+      return false;
+    }
+
+    try {
+      await fetch('/api/pillars', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newPillar),
+      });
+    } catch (err) {
+      console.error(err);
+    }
+
+    setDatabase((prev) => ({
+      ...prev,
+      pillars: [...(prev.pillars || []), newPillar],
+    }));
+    return true;
+  };
+
+  const updatePillar = async (id: string, pillar: Partial<PillarItem>): Promise<boolean> => {
+    const existing = (database.pillars || []).find((p) => p.id === id);
+    if (!existing) return false;
+    const updated: PillarItem = { ...existing, ...pillar, id };
+
+    if (isSupabaseConfigured) {
+      const res = await savePillarInSupabase(updated, id);
+      if (res.success) {
+        setDatabase((prev) => ({
+          ...prev,
+          pillars: (prev.pillars || []).map((p) => (p.id === id ? updated : p)),
+        }));
+        return true;
+      }
+      return false;
+    }
+
+    try {
+      await fetch(`/api/pillars/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(pillar),
+      });
+    } catch (err) {
+      console.error(err);
+    }
+
+    setDatabase((prev) => ({
+      ...prev,
+      pillars: (prev.pillars || []).map((p) => (p.id === id ? updated : p)),
+    }));
+    return true;
+  };
+
+  const deletePillar = async (id: string): Promise<boolean> => {
+    if (isSupabaseConfigured) {
+      const res = await deletePillarInSupabase(id);
+      if (res.success) {
+        setDatabase((prev) => ({
+          ...prev,
+          pillars: (prev.pillars || []).filter((p) => p.id !== id),
+        }));
+        return true;
+      }
+      return false;
+    }
+
+    try {
+      await fetch(`/api/pillars/${id}`, { method: 'DELETE' });
+    } catch (err) {
+      console.error(err);
+    }
+
+    setDatabase((prev) => ({
+      ...prev,
+      pillars: (prev.pillars || []).filter((p) => p.id !== id),
+    }));
     return true;
   };
 
@@ -1219,6 +1325,9 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         error,
         refreshData: fetchContent,
         updateHomepage,
+        addPillar,
+        updatePillar,
+        deletePillar,
         addLeader,
         updateLeader,
         deleteLeader,
