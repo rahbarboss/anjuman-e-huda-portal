@@ -48,7 +48,7 @@ export interface Announcement {
 export interface Program {
   id: string;
   title: string;
-  category: 'Academic' | 'Cultural' | 'Leadership' | 'Outreach' | 'Sports' | "Religious & Ta'lim";
+  category: 'Academic' | 'Cultural' | 'Leadership' | 'Outreach' | 'Sports' | "Religious & Ta'lim" | string;
   banner: string;
   date: string;
   time: string;

@@ -31,7 +31,14 @@ export const LatestProgramsAndAnnouncements: React.FC<Props> = ({ onOpenNotifica
   const [activeModalProgram, setActiveModalProgram] = useState<Program | null>(null);
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
 
-  const categories = ['All', 'Academic', 'Cultural', 'Outreach', 'Sports', 'Leadership'];
+  // Dynamic categories including any custom categories added by admin
+  const categories = React.useMemo(() => {
+    const set = new Set(['Academic', 'Cultural', 'Leadership', 'Outreach', 'Sports']);
+    programs.forEach((p) => {
+      if (p.category) set.add(p.category);
+    });
+    return ['All', ...Array.from(set)];
+  }, [programs]);
 
   // Filter programs based on selected category
   const filteredPrograms = programs.filter((p) => {
@@ -161,7 +168,11 @@ export const LatestProgramsAndAnnouncements: React.FC<Props> = ({ onOpenNotifica
                 >
                   <div>
                     {/* Banner Image with status & category badge */}
-                    <div className="relative h-52 w-full overflow-hidden bg-stone-100">
+                    <div
+                      className="relative h-52 w-full overflow-hidden bg-stone-100 cursor-pointer"
+                      onClick={() => setActiveModalProgram(prog)}
+                      title="Click to view full agenda & details"
+                    >
                       <img
                         src={prog.banner}
                         alt={prog.title}
@@ -212,7 +223,11 @@ export const LatestProgramsAndAnnouncements: React.FC<Props> = ({ onOpenNotifica
 
                     {/* Content Body */}
                     <div className="p-5">
-                      <h3 className="text-lg font-bold font-heading text-stone-900 group-hover:text-emerald-800 transition-colors line-clamp-2 leading-snug mb-2.5">
+                      <h3
+                        onClick={() => setActiveModalProgram(prog)}
+                        className="text-lg font-bold font-heading text-stone-900 group-hover:text-emerald-800 transition-colors line-clamp-2 leading-snug mb-2.5 cursor-pointer"
+                        title="Click to view full agenda & details"
+                      >
                         {prog.title}
                       </h3>
 
@@ -254,26 +269,28 @@ export const LatestProgramsAndAnnouncements: React.FC<Props> = ({ onOpenNotifica
                       <ChevronRight className="w-3.5 h-3.5" />
                     </button>
 
-                    {prog.registrationLink ? (
-                      <a
-                        href={prog.registrationLink}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-flex items-center gap-1 px-3 py-1.5 bg-emerald-700 hover:bg-emerald-600 text-white rounded-lg text-xs font-semibold shadow-sm transition-colors"
-                      >
-                        <span>Register</span>
-                        <ExternalLink className="w-3 h-3" />
-                      </a>
-                    ) : (
+                    <div className="flex items-center gap-2">
                       <button
                         type="button"
-                        onClick={scrollToAllPrograms}
-                        className="inline-flex items-center gap-1 px-3 py-1.5 bg-stone-900 hover:bg-stone-800 text-stone-100 rounded-lg text-xs font-medium transition-colors cursor-pointer"
+                        onClick={() => setActiveModalProgram(prog)}
+                        className="inline-flex items-center gap-1 px-3 py-1.5 bg-stone-900 hover:bg-stone-800 text-stone-100 rounded-lg text-xs font-medium transition-colors cursor-pointer shadow-sm hover:shadow"
                       >
                         <span>Details</span>
                         <ArrowRight className="w-3 h-3" />
                       </button>
-                    )}
+
+                      {prog.registrationLink && (
+                        <a
+                          href={prog.registrationLink}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex items-center gap-1 px-3 py-1.5 bg-emerald-700 hover:bg-emerald-600 text-white rounded-lg text-xs font-semibold shadow-sm transition-colors"
+                        >
+                          <span>Register</span>
+                          <ExternalLink className="w-3 h-3" />
+                        </a>
+                      )}
+                    </div>
                   </div>
                 </div>
               );

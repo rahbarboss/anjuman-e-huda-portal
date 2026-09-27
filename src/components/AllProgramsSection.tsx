@@ -107,15 +107,21 @@ export const AllProgramsSection: React.FC = () => {
     );
   };
 
-  const programCategories = [
-    'All',
-    'Academic',
-    'Cultural',
-    'Leadership',
-    'Outreach',
-    'Sports',
-    "Religious & Ta'lim",
-  ];
+  const programCategories = useMemo(() => {
+    const cats = new Set([
+      'All',
+      'Academic',
+      'Cultural',
+      'Leadership',
+      'Outreach',
+      'Sports',
+      "Religious & Ta'lim",
+    ]);
+    programs.forEach((p) => {
+      if (p.category) cats.add(p.category);
+    });
+    return Array.from(cats);
+  }, [programs]);
 
   const sidebarMenus = [
     { id: 'all-programs' as ProgramSidebarTab, label: 'All Program', icon: Layers },
@@ -357,6 +363,7 @@ export const AllProgramsSection: React.FC = () => {
 
                           <button
                             onClick={() => {
+                              setSelectedProgramAgenda(prog);
                               setRegistrationNotice(`Registration & Inquiry open for: "${prog.title}". Please visit the Central Secretariat Desk or contact the respective Wing Manager.`);
                             }}
                             className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-semibold transition-colors cursor-pointer shrink-0"

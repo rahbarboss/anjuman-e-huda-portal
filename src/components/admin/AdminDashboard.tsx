@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useData } from '../../context/DataContext';
 import {
@@ -539,6 +539,50 @@ export const AdminDashboard: React.FC = () => {
   // ================= 6. PROGRAMS MODAL & STATE =================
   const [editingProgram, setEditingProgram] = useState<Program | null>(null);
   const [isProgramModalOpen, setIsProgramModalOpen] = useState(false);
+  const [customProgramCategories, setCustomProgramCategories] = useState<string[]>(() => {
+    try {
+      const saved = localStorage.getItem('anjuman_custom_program_categories');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+  const [isAddingProgramCategory, setIsAddingProgramCategory] = useState(false);
+  const [newProgramCategoryInput, setNewProgramCategoryInput] = useState('');
+
+  const availableProgramCategories = useMemo(() => {
+    const set = new Set([
+      'Academic',
+      'Cultural',
+      'Leadership',
+      'Outreach',
+      'Sports',
+      ...customProgramCategories,
+    ]);
+    database.programs.forEach((p) => {
+      if (p.category) set.add(p.category);
+    });
+    return Array.from(set);
+  }, [customProgramCategories, database.programs]);
+
+  const handleAddNewCategory = (catName: string) => {
+    const trimmed = catName.trim();
+    if (!trimmed) return;
+    if (!customProgramCategories.includes(trimmed)) {
+      const updated = [...customProgramCategories, trimmed];
+      setCustomProgramCategories(updated);
+      try {
+        localStorage.setItem('anjuman_custom_program_categories', JSON.stringify(updated));
+      } catch (e) {
+        console.error(e);
+      }
+    }
+    setProgForm((prev) => ({ ...prev, category: trimmed }));
+    setIsAddingProgramCategory(false);
+    setNewProgramCategoryInput('');
+    showToast(`New category "${trimmed}" added!`);
+  };
+
   const [progForm, setProgForm] = useState({
     title: '',
     category: 'Academic' as Program['category'],
@@ -3241,22 +3285,79 @@ export const AdminDashboard: React.FC = () => {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-medium text-stone-300 mb-1">Category</label>
-                  <select
-                    value={progForm.category}
-                    onChange={(e) =>
-                      setProgForm({ ...progForm, category: e.target.value as Program['category'] })
-                    }
-                    className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-xs text-white"
-                  >
-                    <option>Academic</option>
-                    <option>Cultural</option>
-                    <option>Leadership</option>
-                    <option>Outreach</option>
-                    <option>Sports</option>
-                  </select>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="block text-xs font-medium text-stone-300">Category</label>
+                    {!isAddingProgramCategory ? (
+                      <button
+                        type="button"
+                        onClick={() => setIsAddingProgramCategory(true)}
+                        className="text-[11px] text-emerald-400 hover:text-emerald-300 font-semibold cursor-pointer flex items-center gap-0.5 transition-colors"
+                      >
+                        <Plus className="w-3 h-3" />
+                        <span>Add Category</span>
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsAddingProgramCategory(false);
+                          setNewProgramCategoryInput('');
+                        }}
+                        className="text-[11px] text-stone-400 hover:text-stone-300 font-medium cursor-pointer"
+                      >
+                        Cancel
+                      </button>
+                    )}
+                  </div>
+
+                  {isAddingProgramCategory ? (
+                    <div className="flex items-center gap-1.5 animate-fadeIn">
+                      <input
+                        type="text"
+                        placeholder="Type new category..."
+                        value={newProgramCategoryInput}
+                        onChange={(e) => setNewProgramCategoryInput(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            handleAddNewCategory(newProgramCategoryInput);
+                          }
+                        }}
+                        className="flex-1 bg-stone-950 border border-emerald-500 rounded-xl px-2.5 py-1.5 text-xs text-white placeholder-stone-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                        autoFocus
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleAddNewCategory(newProgramCategoryInput)}
+                        className="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-semibold shrink-0 cursor-pointer shadow transition-colors"
+                      >
+                        Save
+                      </button>
+                    </div>
+                  ) : (
+                    <select
+                      value={progForm.category}
+                      onChange={(e) => {
+                        if (e.target.value === '__ADD_NEW__') {
+                          setIsAddingProgramCategory(true);
+                        } else {
+                          setProgForm({ ...progForm, category: e.target.value });
+                        }
+                      }}
+                      className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500"
+                    >
+                      {availableProgramCategories.map((cat) => (
+                        <option key={`pcat-opt-${cat}`} value={cat}>
+                          {cat}
+                        </option>
+                      ))}
+                      <option value="__ADD_NEW__" className="text-emerald-400 font-semibold">
+                        + Add Custom Category...
+                      </option>
+                    </select>
+                  )}
                 </div>
 
                 <div>
