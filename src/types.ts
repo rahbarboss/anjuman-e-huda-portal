@@ -197,4 +197,23 @@ export interface AppDatabase {
   contactSettings?: ContactSettings;
   inquiries?: StudentInquiry[];
   pillars?: PillarItem[];
+  telemetry?: TelemetrySettings;
+}
+
+export interface TelemetryCard {
+  id: string;
+  value: number;
+  suffix: string;
+  label: string;
+  badge: string;
+  trend: string;
+  targetSection: string;
+  color: 'emerald' | 'amber' | 'cyan' | 'purple' | string;
+}
+
+export interface TelemetrySettings {
+  title: string;
+  academicSession: string;
+  hintText: string;
+  cards: TelemetryCard[];
 }

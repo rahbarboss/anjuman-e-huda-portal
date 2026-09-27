@@ -15,7 +15,10 @@ import {
   ContactSettings,
   StudentInquiry,
   PillarItem,
+  TelemetrySettings,
+  TelemetryCard,
 } from '../../types';
+import { defaultTelemetrySettings } from '../../defaultData';
 import { MediaUploadZone } from './MediaUploadZone';
 import {
   LayoutDashboard,
@@ -52,11 +55,14 @@ import {
   Building2,
   RefreshCw,
   AlertTriangle,
+  Activity,
+  ArrowUpRight,
 } from 'lucide-react';
 
 export type AdminTab =
   | 'overview'
   | 'home'
+  | 'telemetry'
   | 'about'
   | 'updates'
   | 'leadership'
@@ -72,6 +78,7 @@ export const AdminDashboard: React.FC = () => {
   const {
     database,
     updateHomepage,
+    updateTelemetry,
     addPillar,
     updatePillar,
     deletePillar,
@@ -707,10 +714,63 @@ export const AdminDashboard: React.FC = () => {
     showToast('Central Secretariat contact settings updated.');
   };
 
+  // ================= TELEMETRY (HERO STATS) STATE & HANDLERS =================
+  const [telemetryForm, setTelemetryForm] = useState<TelemetrySettings>(
+    database.telemetry || defaultTelemetrySettings
+  );
+  const [isSavingTelemetry, setIsSavingTelemetry] = useState(false);
+
+  useEffect(() => {
+    if (database.telemetry) {
+      setTelemetryForm(database.telemetry);
+    }
+  }, [database.telemetry]);
+
+  const handleCardFieldChange = (
+    index: number,
+    field: keyof TelemetryCard,
+    value: string | number
+  ) => {
+    setTelemetryForm((prev) => {
+      const currentCards =
+        prev.cards && prev.cards.length > 0 ? [...prev.cards] : [...defaultTelemetrySettings.cards];
+      currentCards[index] = {
+        ...currentCards[index],
+        [field]: value,
+      };
+      return {
+        ...prev,
+        cards: currentCards,
+      };
+    });
+  };
+
+  const handleSaveTelemetry = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    setIsSavingTelemetry(true);
+    try {
+      await updateTelemetry(telemetryForm);
+      showToast('Real-Time Union Telemetry & Hero Stats saved to Supabase successfully!');
+    } catch (err: any) {
+      showToast('Failed to save telemetry. Please check connection.');
+    } finally {
+      setIsSavingTelemetry(false);
+    }
+  };
+
+  const handleResetTelemetry = async () => {
+    if (window.confirm('Reset all Telemetry & Hero Stats to default recommended values?')) {
+      setTelemetryForm(defaultTelemetrySettings);
+      await updateTelemetry(defaultTelemetrySettings);
+      showToast('Telemetry reset to defaults and saved to Supabase.');
+    }
+  };
+
   // Admin Navigation Menu Items - EXACT 1:1 Match with the user requested layout
   const navMenuItems = [
     { id: 'overview' as AdminTab, label: 'Overview', icon: LayoutDashboard },
     { id: 'home' as AdminTab, label: 'Home', icon: Home },
+    { id: 'telemetry' as AdminTab, label: 'Telemetry & Stats', icon: Activity },
     { id: 'about' as AdminTab, label: 'About', icon: BookOpen },
     { id: 'updates' as AdminTab, label: 'Updates', icon: Bell },
     { id: 'leadership' as AdminTab, label: 'Leadership', icon: Users },
@@ -910,6 +970,13 @@ export const AdminDashboard: React.FC = () => {
                     <Plus className="w-4 h-4 text-sky-400" />
                     <span>Issue Circular / Notice</span>
                   </button>
+                  <button
+                    onClick={() => setActiveTab('telemetry')}
+                    className="p-3.5 bg-stone-950 hover:bg-stone-800 border border-stone-800 rounded-xl text-xs font-semibold text-stone-200 flex items-center gap-2 cursor-pointer"
+                  >
+                    <Activity className="w-4 h-4 text-emerald-400" />
+                    <span>Manage Telemetry & Stats</span>
+                  </button>
                 </div>
               </div>
             </div>
@@ -1018,6 +1085,658 @@ export const AdminDashboard: React.FC = () => {
                   <Save className="w-4 h-4" />
                   <span>Save Home Settings</span>
                 </button>
+              </form>
+            </div>
+          )}
+
+          {/* ================= TAB: TELEMETRY & HERO STATS ================= */}
+          {activeTab === 'telemetry' && (
+            <div className="space-y-6 max-w-5xl">
+              {/* Header */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <Activity className="w-5 h-5 text-emerald-400" />
+                    <h2 className="text-xl font-bold font-heading text-white">
+                      Real-Time Union Telemetry & Hero Stats
+                    </h2>
+                  </div>
+                  <p className="text-xs text-stone-400 mt-1">
+                    Live control panel for homepage hero metrics cards, academic session tag, trends, and counter values. All data syncs with Supabase.
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={handleResetTelemetry}
+                    className="px-3.5 py-2 bg-stone-900 hover:bg-stone-800 text-stone-300 border border-stone-700 font-semibold text-xs rounded-xl flex items-center gap-1.5 transition-colors cursor-pointer"
+                  >
+                    <RotateCcw className="w-3.5 h-3.5" />
+                    <span>Reset Defaults</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleSaveTelemetry()}
+                    disabled={isSavingTelemetry}
+                    className="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-semibold text-xs rounded-xl shadow-lg shadow-emerald-950 flex items-center gap-2 transition-all cursor-pointer"
+                  >
+                    {isSavingTelemetry ? (
+                      <RefreshCw className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Save className="w-4 h-4" />
+                    )}
+                    <span>{isSavingTelemetry ? 'Saving to Supabase...' : 'Save to Supabase'}</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Real-time Interactive Live Preview */}
+              <div className="bg-stone-900/90 border border-stone-800 rounded-2xl p-5 space-y-3">
+                <div className="flex items-center justify-between border-b border-stone-800 pb-3">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+                    <span className="text-xs font-mono font-bold uppercase tracking-wider text-emerald-400">
+                      Live Front-End Preview
+                    </span>
+                  </div>
+                  <span className="text-[10px] text-stone-400 font-mono">
+                    Instant preview of homepage telemetry banner
+                  </span>
+                </div>
+
+                {/* Banner Preview */}
+                <div className="bg-stone-950 rounded-xl p-4 sm:p-5 border border-stone-800/80 space-y-4">
+                  <div className="flex flex-wrap items-center justify-between gap-2 text-xs font-mono pb-2 border-b border-stone-900">
+                    <div className="flex items-center gap-2">
+                      <span className="relative flex h-2 w-2">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+                      </span>
+                      <span className="font-semibold uppercase text-stone-300">
+                        {telemetryForm.title || 'Real-Time Union Telemetry'}
+                      </span>
+                      <span className="text-stone-600">•</span>
+                      <span className="text-emerald-400">
+                        {telemetryForm.academicSession || 'Academic Session 2026–27'}
+                      </span>
+                    </div>
+                    <div className="text-[11px] text-stone-500 flex items-center gap-1">
+                      <span>{telemetryForm.hintText || 'Click any card to explore section'}</span>
+                      <ArrowUpRight className="w-3.5 h-3.5 text-stone-400" />
+                    </div>
+                  </div>
+
+                  {/* 4 Cards Grid Preview */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                    {/* Card 1 Preview */}
+                    <div className="relative p-4 rounded-xl bg-gradient-to-b from-stone-900/90 to-stone-900/40 border border-stone-800/80 shadow-md">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-[9px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-950/70 border border-emerald-500/30 text-emerald-400">
+                          {telemetryForm.cards?.[0]?.badge || 'CAMPUS WIDE'}
+                        </span>
+                        <div className="w-7 h-7 rounded-lg bg-emerald-950/60 border border-emerald-500/40 text-emerald-400 flex items-center justify-center">
+                          <Users className="w-3.5 h-3.5" />
+                        </div>
+                      </div>
+                      <div className="text-2xl font-bold font-mono text-white tracking-tight">
+                        {telemetryForm.cards?.[0]?.value || 0}
+                        {telemetryForm.cards?.[0]?.suffix || '+'}
+                      </div>
+                      <div className="text-xs font-semibold text-stone-200 mt-1">
+                        {telemetryForm.cards?.[0]?.label || 'Active Scholars & Members'}
+                      </div>
+                      <div className="text-[11px] text-emerald-400/90 font-mono mt-2">
+                        {telemetryForm.cards?.[0]?.trend || '+14% Growth'}
+                      </div>
+                    </div>
+
+                    {/* Card 2 Preview */}
+                    <div className="relative p-4 rounded-xl bg-gradient-to-b from-stone-900/90 to-stone-900/40 border border-stone-800/80 shadow-md">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-[9px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-950/70 border border-amber-500/30 text-amber-400">
+                          {telemetryForm.cards?.[1]?.badge || 'STATE & NATIONAL'}
+                        </span>
+                        <div className="w-7 h-7 rounded-lg bg-amber-950/60 border border-amber-500/40 text-amber-400 flex items-center justify-center">
+                          <Trophy className="w-3.5 h-3.5" />
+                        </div>
+                      </div>
+                      <div className="text-2xl font-bold font-mono text-white tracking-tight">
+                        {telemetryForm.cards?.[1]?.value || 0}
+                        {telemetryForm.cards?.[1]?.suffix || '+'}
+                      </div>
+                      <div className="text-xs font-semibold text-stone-200 mt-1">
+                        {telemetryForm.cards?.[1]?.label || 'Recognized Achievements'}
+                      </div>
+                      <div className="text-[11px] text-amber-400/90 font-mono mt-2">
+                        {telemetryForm.cards?.[1]?.trend || '38 Laurels 2026'}
+                      </div>
+                    </div>
+
+                    {/* Card 3 Preview */}
+                    <div className="relative p-4 rounded-xl bg-gradient-to-b from-stone-900/90 to-stone-900/40 border border-stone-800/80 shadow-md">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-[9px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-full bg-cyan-950/70 border border-cyan-500/30 text-cyan-400">
+                          {telemetryForm.cards?.[2]?.badge || '7 DYNAMIC WINGS'}
+                        </span>
+                        <div className="w-7 h-7 rounded-lg bg-cyan-950/60 border border-cyan-500/40 text-cyan-400 flex items-center justify-center">
+                          <Calendar className="w-3.5 h-3.5" />
+                        </div>
+                      </div>
+                      <div className="text-2xl font-bold font-mono text-white tracking-tight">
+                        {telemetryForm.cards?.[2]?.value || 0}
+                        {telemetryForm.cards?.[2]?.suffix || '+'}
+                      </div>
+                      <div className="text-xs font-semibold text-stone-200 mt-1">
+                        {telemetryForm.cards?.[2]?.label || 'Programs Conducted'}
+                      </div>
+                      <div className="text-[11px] text-cyan-400/90 font-mono mt-2">
+                        {telemetryForm.cards?.[2]?.trend || 'Live Calendars'}
+                      </div>
+                    </div>
+
+                    {/* Card 4 Preview */}
+                    <div className="relative p-4 rounded-xl bg-gradient-to-b from-stone-900/90 to-stone-900/40 border border-stone-800/80 shadow-md">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-[9px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-full bg-purple-950/70 border border-purple-500/30 text-purple-300">
+                          {telemetryForm.cards?.[3]?.badge || 'ESTD. 1994'}
+                        </span>
+                        <div className="w-7 h-7 rounded-lg bg-purple-950/60 border border-purple-500/40 text-purple-300 flex items-center justify-center">
+                          <BookOpen className="w-3.5 h-3.5" />
+                        </div>
+                      </div>
+                      <div className="text-2xl font-bold font-mono text-white tracking-tight">
+                        {telemetryForm.cards?.[3]?.value || 0}
+                        {telemetryForm.cards?.[3]?.suffix || ' Years'}
+                      </div>
+                      <div className="text-xs font-semibold text-stone-200 mt-1">
+                        {telemetryForm.cards?.[3]?.label || 'Unbroken Student Legacy'}
+                      </div>
+                      <div className="text-[11px] text-purple-400/90 font-mono mt-2">
+                        {telemetryForm.cards?.[3]?.trend || '32nd Cabinet'}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Form customizer */}
+              <form onSubmit={handleSaveTelemetry} className="space-y-6">
+                {/* Global Status Bar Settings */}
+                <div className="bg-stone-900 border border-stone-800 rounded-2xl p-6 space-y-4">
+                  <div className="flex items-center gap-2 pb-2 border-b border-stone-800">
+                    <Tag className="w-4 h-4 text-emerald-400" />
+                    <h3 className="text-sm font-bold text-white uppercase tracking-wider font-mono">
+                      Telemetry Header & Academic Session
+                    </h3>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-xs font-semibold text-stone-300 mb-1">
+                        Telemetry Title
+                      </label>
+                      <input
+                        type="text"
+                        value={telemetryForm.title}
+                        onChange={(e) =>
+                          setTelemetryForm({ ...telemetryForm, title: e.target.value })
+                        }
+                        placeholder="Real-Time Union Telemetry"
+                        className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-emerald-500"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-stone-300 mb-1">
+                        Academic Session Tag
+                      </label>
+                      <input
+                        type="text"
+                        value={telemetryForm.academicSession}
+                        onChange={(e) =>
+                          setTelemetryForm({ ...telemetryForm, academicSession: e.target.value })
+                        }
+                        placeholder="Academic Session 2026–27"
+                        className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-emerald-500"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-stone-300 mb-1">
+                        Right Hint / Guide Text
+                      </label>
+                      <input
+                        type="text"
+                        value={telemetryForm.hintText}
+                        onChange={(e) =>
+                          setTelemetryForm({ ...telemetryForm, hintText: e.target.value })
+                        }
+                        placeholder="Click any card to explore section"
+                        className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-emerald-500"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Individual 4 Bento Cards Editors */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Card 1: Active Scholars */}
+                  <div className="bg-stone-900 border border-emerald-900/40 rounded-2xl p-5 space-y-4">
+                    <div className="flex items-center justify-between pb-2 border-b border-stone-800">
+                      <div className="flex items-center gap-2">
+                        <div className="w-7 h-7 rounded-lg bg-emerald-950 border border-emerald-500/50 text-emerald-400 flex items-center justify-center">
+                          <Users className="w-4 h-4" />
+                        </div>
+                        <h4 className="text-xs font-bold font-mono text-emerald-400 uppercase tracking-wider">
+                          Card 1: Scholars & Members
+                        </h4>
+                      </div>
+                      <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-800">
+                        Emerald Theme
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-[11px] font-semibold text-stone-300 mb-1">
+                          Counter Value (Number)
+                        </label>
+                        <input
+                          type="number"
+                          value={telemetryForm.cards?.[0]?.value ?? 15}
+                          onChange={(e) =>
+                            handleCardFieldChange(0, 'value', parseInt(e.target.value) || 0)
+                          }
+                          className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-xs text-white focus:border-emerald-500 font-mono"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[11px] font-semibold text-stone-300 mb-1">
+                          Number Suffix
+                        </label>
+                        <input
+                          type="text"
+                          value={telemetryForm.cards?.[0]?.suffix ?? '+'}
+                          onChange={(e) => handleCardFieldChange(0, 'suffix', e.target.value)}
+                          placeholder="+"
+                          className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-xs text-white focus:border-emerald-500 font-mono"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-semibold text-stone-300 mb-1">
+                        Card Label
+                      </label>
+                      <input
+                        type="text"
+                        value={telemetryForm.cards?.[0]?.label ?? ''}
+                        onChange={(e) => handleCardFieldChange(0, 'label', e.target.value)}
+                        placeholder="Active Scholars & Members"
+                        className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-xs text-white focus:border-emerald-500"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-[11px] font-semibold text-stone-300 mb-1">
+                          Badge Text (Pill)
+                        </label>
+                        <input
+                          type="text"
+                          value={telemetryForm.cards?.[0]?.badge ?? ''}
+                          onChange={(e) => handleCardFieldChange(0, 'badge', e.target.value)}
+                          placeholder="CAMPUS WIDE"
+                          className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-xs text-white focus:border-emerald-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[11px] font-semibold text-stone-300 mb-1">
+                          Trend / Subtext
+                        </label>
+                        <input
+                          type="text"
+                          value={telemetryForm.cards?.[0]?.trend ?? ''}
+                          onChange={(e) => handleCardFieldChange(0, 'trend', e.target.value)}
+                          placeholder="+14% Growth"
+                          className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-xs text-white focus:border-emerald-500"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-semibold text-stone-300 mb-1">
+                        Section Navigation Link
+                      </label>
+                      <input
+                        type="text"
+                        value={telemetryForm.cards?.[0]?.targetSection ?? '#leadership'}
+                        onChange={(e) => handleCardFieldChange(0, 'targetSection', e.target.value)}
+                        placeholder="#leadership"
+                        className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-xs text-stone-300 focus:border-emerald-500 font-mono"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Card 2: Recognized Achievements */}
+                  <div className="bg-stone-900 border border-amber-900/40 rounded-2xl p-5 space-y-4">
+                    <div className="flex items-center justify-between pb-2 border-b border-stone-800">
+                      <div className="flex items-center gap-2">
+                        <div className="w-7 h-7 rounded-lg bg-amber-950 border border-amber-500/50 text-amber-400 flex items-center justify-center">
+                          <Trophy className="w-4 h-4" />
+                        </div>
+                        <h4 className="text-xs font-bold font-mono text-amber-400 uppercase tracking-wider">
+                          Card 2: Recognized Achievements
+                        </h4>
+                      </div>
+                      <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-950 text-amber-300 border border-amber-800">
+                        Amber Theme
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-[11px] font-semibold text-stone-300 mb-1">
+                          Counter Value (Number)
+                        </label>
+                        <input
+                          type="number"
+                          value={telemetryForm.cards?.[1]?.value ?? 142}
+                          onChange={(e) =>
+                            handleCardFieldChange(1, 'value', parseInt(e.target.value) || 0)
+                          }
+                          className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-xs text-white focus:border-amber-500 font-mono"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[11px] font-semibold text-stone-300 mb-1">
+                          Number Suffix
+                        </label>
+                        <input
+                          type="text"
+                          value={telemetryForm.cards?.[1]?.suffix ?? '+'}
+                          onChange={(e) => handleCardFieldChange(1, 'suffix', e.target.value)}
+                          placeholder="+"
+                          className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-xs text-white focus:border-amber-500 font-mono"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-semibold text-stone-300 mb-1">
+                        Card Label
+                      </label>
+                      <input
+                        type="text"
+                        value={telemetryForm.cards?.[1]?.label ?? ''}
+                        onChange={(e) => handleCardFieldChange(1, 'label', e.target.value)}
+                        placeholder="Recognized Achievements"
+                        className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-xs text-white focus:border-amber-500"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-[11px] font-semibold text-stone-300 mb-1">
+                          Badge Text (Pill)
+                        </label>
+                        <input
+                          type="text"
+                          value={telemetryForm.cards?.[1]?.badge ?? ''}
+                          onChange={(e) => handleCardFieldChange(1, 'badge', e.target.value)}
+                          placeholder="STATE & NATIONAL"
+                          className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-xs text-white focus:border-amber-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[11px] font-semibold text-stone-300 mb-1">
+                          Trend / Subtext
+                        </label>
+                        <input
+                          type="text"
+                          value={telemetryForm.cards?.[1]?.trend ?? ''}
+                          onChange={(e) => handleCardFieldChange(1, 'trend', e.target.value)}
+                          placeholder="38 Laurels 2026"
+                          className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-xs text-white focus:border-amber-500"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-semibold text-stone-300 mb-1">
+                        Section Navigation Link
+                      </label>
+                      <input
+                        type="text"
+                        value={telemetryForm.cards?.[1]?.targetSection ?? '#rankings'}
+                        onChange={(e) => handleCardFieldChange(1, 'targetSection', e.target.value)}
+                        placeholder="#rankings"
+                        className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-xs text-stone-300 focus:border-amber-500 font-mono"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Card 3: Programs Conducted */}
+                  <div className="bg-stone-900 border border-cyan-900/40 rounded-2xl p-5 space-y-4">
+                    <div className="flex items-center justify-between pb-2 border-b border-stone-800">
+                      <div className="flex items-center gap-2">
+                        <div className="w-7 h-7 rounded-lg bg-cyan-950 border border-cyan-500/50 text-cyan-400 flex items-center justify-center">
+                          <Calendar className="w-4 h-4" />
+                        </div>
+                        <h4 className="text-xs font-bold font-mono text-cyan-400 uppercase tracking-wider">
+                          Card 3: Programs Conducted
+                        </h4>
+                      </div>
+                      <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-cyan-950 text-cyan-300 border border-cyan-800">
+                        Cyan Theme
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-[11px] font-semibold text-stone-300 mb-1">
+                          Counter Value (Number)
+                        </label>
+                        <input
+                          type="number"
+                          value={telemetryForm.cards?.[2]?.value ?? 310}
+                          onChange={(e) =>
+                            handleCardFieldChange(2, 'value', parseInt(e.target.value) || 0)
+                          }
+                          className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-xs text-white focus:border-cyan-500 font-mono"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[11px] font-semibold text-stone-300 mb-1">
+                          Number Suffix
+                        </label>
+                        <input
+                          type="text"
+                          value={telemetryForm.cards?.[2]?.suffix ?? '+'}
+                          onChange={(e) => handleCardFieldChange(2, 'suffix', e.target.value)}
+                          placeholder="+"
+                          className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-xs text-white focus:border-cyan-500 font-mono"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-semibold text-stone-300 mb-1">
+                        Card Label
+                      </label>
+                      <input
+                        type="text"
+                        value={telemetryForm.cards?.[2]?.label ?? ''}
+                        onChange={(e) => handleCardFieldChange(2, 'label', e.target.value)}
+                        placeholder="Programs Conducted"
+                        className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-xs text-white focus:border-cyan-500"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-[11px] font-semibold text-stone-300 mb-1">
+                          Badge Text (Pill)
+                        </label>
+                        <input
+                          type="text"
+                          value={telemetryForm.cards?.[2]?.badge ?? ''}
+                          onChange={(e) => handleCardFieldChange(2, 'badge', e.target.value)}
+                          placeholder="7 DYNAMIC WINGS"
+                          className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-xs text-white focus:border-cyan-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[11px] font-semibold text-stone-300 mb-1">
+                          Trend / Subtext
+                        </label>
+                        <input
+                          type="text"
+                          value={telemetryForm.cards?.[2]?.trend ?? ''}
+                          onChange={(e) => handleCardFieldChange(2, 'trend', e.target.value)}
+                          placeholder="Live Calendars"
+                          className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-xs text-white focus:border-cyan-500"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-semibold text-stone-300 mb-1">
+                        Section Navigation Link
+                      </label>
+                      <input
+                        type="text"
+                        value={telemetryForm.cards?.[2]?.targetSection ?? '#programs'}
+                        onChange={(e) => handleCardFieldChange(2, 'targetSection', e.target.value)}
+                        placeholder="#programs"
+                        className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-xs text-stone-300 focus:border-cyan-500 font-mono"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Card 4: Unbroken Legacy */}
+                  <div className="bg-stone-900 border border-purple-900/40 rounded-2xl p-5 space-y-4">
+                    <div className="flex items-center justify-between pb-2 border-b border-stone-800">
+                      <div className="flex items-center gap-2">
+                        <div className="w-7 h-7 rounded-lg bg-purple-950 border border-purple-500/50 text-purple-300 flex items-center justify-center">
+                          <BookOpen className="w-4 h-4" />
+                        </div>
+                        <h4 className="text-xs font-bold font-mono text-purple-300 uppercase tracking-wider">
+                          Card 4: Unbroken Legacy
+                        </h4>
+                      </div>
+                      <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-purple-950 text-purple-300 border border-purple-800">
+                        Purple Theme
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-[11px] font-semibold text-stone-300 mb-1">
+                          Counter Value (Years)
+                        </label>
+                        <input
+                          type="number"
+                          value={telemetryForm.cards?.[3]?.value ?? 32}
+                          onChange={(e) =>
+                            handleCardFieldChange(3, 'value', parseInt(e.target.value) || 0)
+                          }
+                          className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-xs text-white focus:border-purple-500 font-mono"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[11px] font-semibold text-stone-300 mb-1">
+                          Suffix Text
+                        </label>
+                        <input
+                          type="text"
+                          value={telemetryForm.cards?.[3]?.suffix ?? ' Years'}
+                          onChange={(e) => handleCardFieldChange(3, 'suffix', e.target.value)}
+                          placeholder=" Years"
+                          className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-xs text-white focus:border-purple-500 font-mono"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-semibold text-stone-300 mb-1">
+                        Card Label
+                      </label>
+                      <input
+                        type="text"
+                        value={telemetryForm.cards?.[3]?.label ?? ''}
+                        onChange={(e) => handleCardFieldChange(3, 'label', e.target.value)}
+                        placeholder="Unbroken Student Legacy"
+                        className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-xs text-white focus:border-purple-500"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-[11px] font-semibold text-stone-300 mb-1">
+                          Badge Text (Pill)
+                        </label>
+                        <input
+                          type="text"
+                          value={telemetryForm.cards?.[3]?.badge ?? ''}
+                          onChange={(e) => handleCardFieldChange(3, 'badge', e.target.value)}
+                          placeholder="ESTD. 1994"
+                          className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-xs text-white focus:border-purple-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[11px] font-semibold text-stone-300 mb-1">
+                          Trend / Subtext
+                        </label>
+                        <input
+                          type="text"
+                          value={telemetryForm.cards?.[3]?.trend ?? ''}
+                          onChange={(e) => handleCardFieldChange(3, 'trend', e.target.value)}
+                          placeholder="32nd Cabinet"
+                          className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-xs text-white focus:border-purple-500"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-semibold text-stone-300 mb-1">
+                        Section Navigation Link
+                      </label>
+                      <input
+                        type="text"
+                        value={telemetryForm.cards?.[3]?.targetSection ?? '#about'}
+                        onChange={(e) => handleCardFieldChange(3, 'targetSection', e.target.value)}
+                        placeholder="#about"
+                        className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-xs text-stone-300 focus:border-purple-500 font-mono"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Bottom Save Action */}
+                <div className="flex items-center justify-between p-4 bg-stone-900 border border-stone-800 rounded-2xl">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                    <span className="text-xs text-stone-300">
+                      Changes synchronize instantly to the homepage and persist in Supabase.
+                    </span>
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={isSavingTelemetry}
+                    className="px-6 py-3 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-semibold text-xs rounded-xl shadow-lg shadow-emerald-950 flex items-center gap-2 cursor-pointer transition-all"
+                  >
+                    {isSavingTelemetry ? (
+                      <RefreshCw className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Save className="w-4 h-4" />
+                    )}
+                    <span>{isSavingTelemetry ? 'Saving to Supabase...' : 'Save Telemetry Changes'}</span>
+                  </button>
+                </div>
               </form>
             </div>
           )}

@@ -158,6 +158,18 @@ app.put('/api/achievements', (req, res) => {
   res.json({ success: true, data: db.achievements });
 });
 
+app.get('/api/telemetry', (_req, res) => {
+  const db = readDb();
+  res.json({ success: true, data: db.telemetry });
+});
+
+app.put('/api/telemetry', (req, res) => {
+  const db = readDb();
+  db.telemetry = { ...db.telemetry, ...req.body };
+  writeDb(db);
+  res.json({ success: true, data: db.telemetry });
+});
+
 // Leaders CRUD
 app.post('/api/leaders', (req, res) => {
   const db = readDb();

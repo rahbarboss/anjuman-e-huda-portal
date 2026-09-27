@@ -15,6 +15,8 @@ import {
   X,
   Layers,
   ChevronRight,
+  ZoomIn,
+  Maximize2,
 } from 'lucide-react';
 
 interface Props {
@@ -27,6 +29,7 @@ export const LatestProgramsAndAnnouncements: React.FC<Props> = ({ onOpenNotifica
 
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [activeModalProgram, setActiveModalProgram] = useState<Program | null>(null);
+  const [lightboxImage, setLightboxImage] = useState<string | null>(null);
 
   const categories = ['All', 'Academic', 'Cultural', 'Outreach', 'Sports', 'Leadership'];
 
@@ -303,50 +306,90 @@ export const LatestProgramsAndAnnouncements: React.FC<Props> = ({ onOpenNotifica
         </div>
       </div>
 
-      {/* Program Details Modal Popup */}
+      {/* Program Details Modal Popup - Shows full uploaded agenda without clipping */}
       {activeModalProgram && (
         <div
           id="program-details-modal"
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-sm"
           onClick={() => setActiveModalProgram(null)}
         >
           <div
-            className="relative w-full max-w-2xl bg-white rounded-2xl shadow-2xl overflow-hidden border border-stone-300 flex flex-col text-stone-900 max-h-[90vh]"
+            className="relative w-full max-w-4xl bg-white rounded-2xl shadow-2xl overflow-hidden border border-stone-300 flex flex-col text-stone-900 max-h-[92vh]"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Modal Image Header */}
-            <div className="relative h-56 w-full bg-stone-900 overflow-hidden">
-              <img
-                src={activeModalProgram.banner}
-                alt={activeModalProgram.title}
-                className="w-full h-full object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
-
-              <button
-                type="button"
-                onClick={() => setActiveModalProgram(null)}
-                className="absolute top-4 right-4 p-2 rounded-full bg-black/60 text-white hover:bg-black/90 transition-colors"
-                title="Close modal"
-              >
-                <X className="w-5 h-5" />
-              </button>
-
-              <div className="absolute bottom-4 left-6 right-6">
-                <span className="inline-block text-[11px] font-bold px-2.5 py-0.5 rounded uppercase tracking-wider bg-emerald-600 text-white mb-2">
+            {/* Modal Header Bar */}
+            <div className="px-5 py-3.5 bg-stone-900 border-b border-stone-800 flex items-center justify-between gap-4 text-white">
+              <div className="flex items-center gap-2.5 overflow-hidden">
+                <span className="inline-block text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider bg-emerald-600 text-white shrink-0 font-mono">
                   {activeModalProgram.category} • {activeModalProgram.status}
                 </span>
-                <h3 className="text-xl sm:text-2xl font-bold font-heading text-white leading-tight">
+                <h3 className="text-base sm:text-lg font-bold font-heading text-white truncate">
                   {activeModalProgram.title}
                 </h3>
               </div>
+
+              <div className="flex items-center gap-2 shrink-0">
+                {activeModalProgram.banner && (
+                  <button
+                    type="button"
+                    onClick={() => setLightboxImage(activeModalProgram.banner)}
+                    className="p-1.5 rounded-lg bg-stone-800 text-stone-300 hover:text-white hover:bg-stone-700 transition-colors cursor-pointer text-xs flex items-center gap-1.5 px-2.5"
+                    title="Fullscreen zoom"
+                  >
+                    <ZoomIn className="w-3.5 h-3.5" />
+                    <span className="hidden sm:inline text-xs">Full Screen</span>
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={() => setActiveModalProgram(null)}
+                  className="p-1.5 rounded-lg bg-stone-800 text-stone-300 hover:text-white hover:bg-stone-700 transition-colors cursor-pointer"
+                  title="Close modal"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
             </div>
 
-            {/* Modal Body */}
-            <div className="p-6 overflow-y-auto space-y-5">
+            {/* Modal Body - Scrollable so entire image + all details can be seen at any scale */}
+            <div className="p-4 sm:p-6 overflow-y-auto space-y-6">
+              {/* Full Agenda Poster / Image Section - Uncropped, shows 100% of uploaded flyer */}
+              {activeModalProgram.banner && (
+                <div className="w-full bg-stone-950 rounded-xl p-3 sm:p-4 border border-stone-800 flex flex-col items-center justify-center relative group">
+                  <div className="w-full flex items-center justify-between pb-2 mb-2 border-b border-stone-800/80 text-[11px] font-mono text-stone-400">
+                    <span className="flex items-center gap-1.5 text-emerald-400 font-medium">
+                      <Sparkles className="w-3.5 h-3.5" />
+                      Complete Program Agenda & Official Notice (Full Uncropped View)
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setLightboxImage(activeModalProgram.banner)}
+                      className="text-stone-400 hover:text-emerald-400 transition-colors flex items-center gap-1 cursor-pointer"
+                    >
+                      <Maximize2 className="w-3 h-3" />
+                      <span>Click to enlarge</span>
+                    </button>
+                  </div>
+
+                  <div className="w-full flex items-center justify-center overflow-hidden">
+                    <img
+                      src={activeModalProgram.banner}
+                      alt={activeModalProgram.title}
+                      className="w-auto max-w-full max-h-[65vh] object-contain rounded-lg shadow-xl cursor-zoom-in hover:brightness-105 transition-all"
+                      onClick={() => setLightboxImage(activeModalProgram.banner)}
+                      title="Click to view full image in high resolution"
+                    />
+                  </div>
+
+                  <p className="mt-2 text-[10px] text-stone-400 font-mono text-center">
+                    Full dimensions preserved • Click image to zoom or view fullscreen
+                  </p>
+                </div>
+              )}
+
               {/* Event Metadata */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-4 rounded-xl bg-stone-100 border border-stone-200 text-xs">
-                <div className="flex items-center gap-2 text-stone-700">
+                <div className="flex items-center gap-2.5 text-stone-700">
                   <Calendar className="w-4 h-4 text-emerald-700 shrink-0" />
                   <div>
                     <span className="block text-[10px] text-stone-400 font-mono uppercase">Event Date</span>
@@ -354,7 +397,7 @@ export const LatestProgramsAndAnnouncements: React.FC<Props> = ({ onOpenNotifica
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2 text-stone-700">
+                <div className="flex items-center gap-2.5 text-stone-700">
                   <Clock className="w-4 h-4 text-emerald-700 shrink-0" />
                   <div>
                     <span className="block text-[10px] text-stone-400 font-mono uppercase">Time Schedule</span>
@@ -362,11 +405,11 @@ export const LatestProgramsAndAnnouncements: React.FC<Props> = ({ onOpenNotifica
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2 text-stone-700">
+                <div className="flex items-center gap-2.5 text-stone-700">
                   <MapPin className="w-4 h-4 text-emerald-700 shrink-0" />
                   <div>
                     <span className="block text-[10px] text-stone-400 font-mono uppercase">Assembly Venue</span>
-                    <strong className="font-semibold text-stone-900 truncate block max-w-[140px]">
+                    <strong className="font-semibold text-stone-900 truncate block max-w-[180px]">
                       {activeModalProgram.venue}
                     </strong>
                   </div>
@@ -376,7 +419,7 @@ export const LatestProgramsAndAnnouncements: React.FC<Props> = ({ onOpenNotifica
               {/* Comprehensive Description */}
               <div>
                 <h4 className="text-sm font-bold text-stone-900 mb-2">About this Program</h4>
-                <p className="text-sm text-stone-700 leading-relaxed font-normal">
+                <p className="text-sm text-stone-700 leading-relaxed font-normal whitespace-pre-line">
                   {activeModalProgram.description}
                 </p>
               </div>
@@ -402,27 +445,81 @@ export const LatestProgramsAndAnnouncements: React.FC<Props> = ({ onOpenNotifica
             </div>
 
             {/* Modal Action Footer */}
-            <div className="px-6 py-4 bg-stone-50 border-t border-stone-200 flex items-center justify-between">
+            <div className="px-6 py-4 bg-stone-50 border-t border-stone-200 flex flex-wrap items-center justify-between gap-3">
               <button
                 type="button"
                 onClick={() => setActiveModalProgram(null)}
-                className="px-4 py-2 bg-stone-200 hover:bg-stone-300 text-stone-800 text-xs font-semibold rounded-xl"
+                className="px-4 py-2 bg-stone-200 hover:bg-stone-300 text-stone-800 text-xs font-semibold rounded-xl cursor-pointer transition-colors"
               >
                 Close Window
               </button>
 
-              <button
-                type="button"
-                onClick={() => {
-                  setActiveModalProgram(null);
-                  scrollToAllPrograms();
-                }}
-                className="px-5 py-2 bg-emerald-700 hover:bg-emerald-600 text-white text-xs font-semibold rounded-xl flex items-center gap-1.5 shadow"
-              >
-                <span>View in Union Catalog</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </button>
+              <div className="flex items-center gap-2">
+                {activeModalProgram.registrationLink && (
+                  <a
+                    href={activeModalProgram.registrationLink}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="px-4 py-2 bg-emerald-700 hover:bg-emerald-600 text-white text-xs font-semibold rounded-xl flex items-center gap-1.5 shadow transition-colors"
+                  >
+                    <span>Register Online</span>
+                    <ExternalLink className="w-3.5 h-3.5" />
+                  </a>
+                )}
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveModalProgram(null);
+                    scrollToAllPrograms();
+                  }}
+                  className="px-5 py-2 bg-stone-900 hover:bg-stone-800 text-white text-xs font-semibold rounded-xl flex items-center gap-1.5 shadow cursor-pointer transition-colors"
+                >
+                  <span>View in Union Catalog</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Lightbox / Fullscreen Image Viewer */}
+      {lightboxImage && (
+        <div
+          className="fixed inset-0 z-60 bg-black/95 backdrop-blur-md flex flex-col items-center justify-center p-2 sm:p-4 animate-fadeIn"
+          onClick={() => setLightboxImage(null)}
+        >
+          <div className="absolute top-4 right-4 flex items-center gap-3 z-10">
+            <a
+              href={lightboxImage}
+              target="_blank"
+              rel="noreferrer"
+              onClick={(e) => e.stopPropagation()}
+              className="px-3 py-1.5 rounded-lg bg-stone-800/80 hover:bg-stone-700 text-stone-200 text-xs font-mono flex items-center gap-1.5 border border-stone-700 shadow"
+            >
+              <span>Open Raw URL</span>
+              <ExternalLink className="w-3.5 h-3.5" />
+            </a>
+            <button
+              type="button"
+              onClick={() => setLightboxImage(null)}
+              className="p-2 rounded-full bg-stone-800/80 hover:bg-stone-700 text-white border border-stone-700 shadow cursor-pointer"
+              title="Close Fullscreen"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+
+          <div
+            className="w-full h-full max-w-5xl flex items-center justify-center overflow-auto p-2"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <img
+              src={lightboxImage}
+              alt="Full resolution program agenda"
+              className="max-h-[90vh] max-w-full w-auto object-contain rounded-lg shadow-2xl border border-stone-800"
+            />
           </div>
         </div>
       )}

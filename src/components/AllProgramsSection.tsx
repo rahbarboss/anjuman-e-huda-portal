@@ -19,6 +19,9 @@ import {
   CheckCircle,
   ExternalLink,
   Menu,
+  X,
+  ZoomIn,
+  Maximize2,
 } from 'lucide-react';
 import { LightboxModal } from './LightboxModal';
 
@@ -34,6 +37,8 @@ export const AllProgramsSection: React.FC = () => {
   // Search & Category for All Programs
   const [programSearch, setProgramSearch] = useState('');
   const [programCategory, setProgramCategory] = useState<string>('All');
+  const [selectedProgramAgenda, setSelectedProgramAgenda] = useState<Program | null>(null);
+  const [agendaLightbox, setAgendaLightbox] = useState<string | null>(null);
 
   // Highlights state
   const [highlightFilter, setHighlightFilter] = useState<'All' | 'Event' | 'Announcement'>('All');
@@ -260,12 +265,22 @@ export const AllProgramsSection: React.FC = () => {
                     >
                       <div>
                         {/* Banner & Badges */}
-                        <div className="relative h-48 w-full overflow-hidden bg-stone-900">
+                        <div
+                          className="relative h-48 w-full overflow-hidden bg-stone-900 cursor-pointer group"
+                          onClick={() => setSelectedProgramAgenda(prog)}
+                          title="Click to view full uncropped agenda"
+                        >
                           <img
                             src={prog.banner}
                             alt={prog.title}
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                           />
+                          <div className="absolute inset-0 bg-stone-950/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                            <span className="px-3 py-1.5 rounded-lg bg-black/75 backdrop-blur-sm text-white text-xs font-medium flex items-center gap-1.5 shadow">
+                              <ZoomIn className="w-3.5 h-3.5 text-emerald-400" />
+                              View Full Agenda
+                            </span>
+                          </div>
                           <div className="absolute top-3 left-3">
                             <span className="bg-stone-950/85 backdrop-blur-sm text-emerald-400 border border-emerald-500/40 text-[11px] font-mono font-bold px-2.5 py-1 rounded-lg shadow">
                               {prog.category}
@@ -330,13 +345,21 @@ export const AllProgramsSection: React.FC = () => {
 
                       {/* Card Footer */}
                       <div className="p-5 pt-0">
-                        <div className="pt-4 border-t border-stone-800/80 flex items-center justify-between">
-                          <span className="text-xs text-stone-500">ANJUMAN-E-HUDA Official</span>
+                        <div className="pt-4 border-t border-stone-800/80 flex items-center justify-between gap-2">
+                          <button
+                            type="button"
+                            onClick={() => setSelectedProgramAgenda(prog)}
+                            className="text-xs font-semibold text-emerald-400 hover:text-emerald-300 flex items-center gap-1 cursor-pointer transition-colors"
+                          >
+                            <span>View Full Agenda</span>
+                            <ChevronRight className="w-3.5 h-3.5" />
+                          </button>
+
                           <button
                             onClick={() => {
                               setRegistrationNotice(`Registration & Inquiry open for: "${prog.title}". Please visit the Central Secretariat Desk or contact the respective Wing Manager.`);
                             }}
-                            className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-semibold transition-colors cursor-pointer"
+                            className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-semibold transition-colors cursor-pointer shrink-0"
                           >
                             Details & Registration
                           </button>
@@ -680,6 +703,210 @@ export const AllProgramsSection: React.FC = () => {
         onNext={handleNextHighlight}
         onPrev={handlePrevHighlight}
       />
+
+      {/* Program Agenda Full Modal */}
+      {selectedProgramAgenda && (
+        <div
+          id="all-program-agenda-modal"
+          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-sm"
+          onClick={() => setSelectedProgramAgenda(null)}
+        >
+          <div
+            className="relative w-full max-w-4xl bg-stone-900 rounded-2xl shadow-2xl overflow-hidden border border-stone-700 flex flex-col text-stone-100 max-h-[92vh]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="px-5 py-3.5 bg-stone-950 border-b border-stone-800 flex items-center justify-between gap-4">
+              <div className="flex items-center gap-2.5 overflow-hidden">
+                <span className="inline-block text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider bg-emerald-600 text-white shrink-0 font-mono">
+                  {selectedProgramAgenda.category} • {selectedProgramAgenda.status}
+                </span>
+                <h3 className="text-base sm:text-lg font-bold text-white truncate">
+                  {selectedProgramAgenda.title}
+                </h3>
+              </div>
+
+              <div className="flex items-center gap-2 shrink-0">
+                {selectedProgramAgenda.banner && (
+                  <button
+                    type="button"
+                    onClick={() => setAgendaLightbox(selectedProgramAgenda.banner)}
+                    className="p-1.5 rounded-lg bg-stone-800 text-stone-300 hover:text-white hover:bg-stone-700 transition-colors cursor-pointer text-xs flex items-center gap-1.5 px-2.5"
+                    title="Fullscreen zoom"
+                  >
+                    <ZoomIn className="w-3.5 h-3.5" />
+                    <span className="hidden sm:inline text-xs">Full Screen</span>
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={() => setSelectedProgramAgenda(null)}
+                  className="p-1.5 rounded-lg bg-stone-800 text-stone-300 hover:text-white hover:bg-stone-700 transition-colors cursor-pointer"
+                  title="Close modal"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+
+            {/* Scrollable Body */}
+            <div className="p-4 sm:p-6 overflow-y-auto space-y-6">
+              {/* Full Agenda Poster / Flyer - Uncropped Full View */}
+              {selectedProgramAgenda.banner && (
+                <div className="w-full bg-stone-950 rounded-xl p-3 sm:p-4 border border-stone-800 flex flex-col items-center justify-center">
+                  <div className="w-full flex items-center justify-between pb-2 mb-2 border-b border-stone-800/80 text-[11px] font-mono text-stone-400">
+                    <span className="flex items-center gap-1.5 text-emerald-400 font-medium">
+                      <Sparkles className="w-3.5 h-3.5" />
+                      Complete Program Agenda & Notice (Full Uncropped View)
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setAgendaLightbox(selectedProgramAgenda.banner)}
+                      className="text-stone-400 hover:text-emerald-400 transition-colors flex items-center gap-1 cursor-pointer"
+                    >
+                      <Maximize2 className="w-3 h-3" />
+                      <span>Click to enlarge</span>
+                    </button>
+                  </div>
+
+                  <div className="w-full flex items-center justify-center overflow-hidden">
+                    <img
+                      src={selectedProgramAgenda.banner}
+                      alt={selectedProgramAgenda.title}
+                      className="w-auto max-w-full max-h-[65vh] object-contain rounded-lg shadow-xl cursor-zoom-in hover:brightness-105 transition-all"
+                      onClick={() => setAgendaLightbox(selectedProgramAgenda.banner)}
+                      title="Click to view full image in high resolution"
+                    />
+                  </div>
+
+                  <p className="mt-2 text-[10px] text-stone-400 font-mono text-center">
+                    Original dimensions preserved • Click image to zoom or view fullscreen
+                  </p>
+                </div>
+              )}
+
+              {/* Event Metadata */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-4 rounded-xl bg-stone-950 border border-stone-800 text-xs">
+                <div className="flex items-center gap-2.5 text-stone-300">
+                  <CalendarIcon className="w-4 h-4 text-amber-400 shrink-0" />
+                  <div>
+                    <span className="block text-[10px] text-stone-500 font-mono uppercase">Event Date</span>
+                    <strong className="font-semibold text-white">{selectedProgramAgenda.date}</strong>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2.5 text-stone-300">
+                  <Clock className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <div>
+                    <span className="block text-[10px] text-stone-500 font-mono uppercase">Time Schedule</span>
+                    <strong className="font-semibold text-white">{selectedProgramAgenda.time}</strong>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2.5 text-stone-300">
+                  <MapPin className="w-4 h-4 text-rose-400 shrink-0" />
+                  <div>
+                    <span className="block text-[10px] text-stone-500 font-mono uppercase">Assembly Venue</span>
+                    <strong className="font-semibold text-white truncate block max-w-[180px]">
+                      {selectedProgramAgenda.venue}
+                    </strong>
+                  </div>
+                </div>
+              </div>
+
+              {/* About */}
+              <div>
+                <h4 className="text-sm font-bold text-white mb-2">Program Overview & Context</h4>
+                <p className="text-sm text-stone-300 leading-relaxed font-normal whitespace-pre-line">
+                  {selectedProgramAgenda.description}
+                </p>
+              </div>
+
+              {/* Tags */}
+              {selectedProgramAgenda.tags && selectedProgramAgenda.tags.length > 0 && (
+                <div>
+                  <h5 className="text-xs font-semibold text-stone-400 uppercase tracking-wider mb-2">
+                    Topic Keywords
+                  </h5>
+                  <div className="flex flex-wrap gap-1.5">
+                    {selectedProgramAgenda.tags.map((t, i) => (
+                      <span
+                        key={`modal-agenda-tag-${t}-${i}`}
+                        className="px-2.5 py-1 rounded-lg bg-stone-950 border border-stone-800 text-xs text-stone-300 font-mono"
+                      >
+                        #{t}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Footer */}
+            <div className="px-6 py-4 bg-stone-950 border-t border-stone-800 flex flex-wrap items-center justify-between gap-3">
+              <button
+                type="button"
+                onClick={() => setSelectedProgramAgenda(null)}
+                className="px-4 py-2 bg-stone-800 hover:bg-stone-700 text-stone-200 text-xs font-semibold rounded-xl cursor-pointer transition-colors"
+              >
+                Close Window
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedProgramAgenda(null);
+                  setRegistrationNotice(`Registration & Inquiry open for: "${selectedProgramAgenda.title}". Please visit the Central Secretariat Desk or contact the respective Wing Manager.`);
+                }}
+                className="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded-xl flex items-center gap-1.5 shadow transition-colors cursor-pointer"
+              >
+                <span>Register & Inquire</span>
+                <CheckCircle className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Agenda Lightbox */}
+      {agendaLightbox && (
+        <div
+          className="fixed inset-0 z-60 bg-black/95 backdrop-blur-md flex flex-col items-center justify-center p-2 sm:p-4 animate-fadeIn"
+          onClick={() => setAgendaLightbox(null)}
+        >
+          <div className="absolute top-4 right-4 flex items-center gap-3 z-10">
+            <a
+              href={agendaLightbox}
+              target="_blank"
+              rel="noreferrer"
+              onClick={(e) => e.stopPropagation()}
+              className="px-3 py-1.5 rounded-lg bg-stone-800/80 hover:bg-stone-700 text-stone-200 text-xs font-mono flex items-center gap-1.5 border border-stone-700 shadow"
+            >
+              <span>Open Raw URL</span>
+              <ExternalLink className="w-3.5 h-3.5" />
+            </a>
+            <button
+              type="button"
+              onClick={() => setAgendaLightbox(null)}
+              className="p-2 rounded-full bg-stone-800/80 hover:bg-stone-700 text-white border border-stone-700 shadow cursor-pointer"
+              title="Close Fullscreen"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+
+          <div
+            className="w-full h-full max-w-5xl flex items-center justify-center overflow-auto p-2"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <img
+              src={agendaLightbox}
+              alt="Full resolution program agenda"
+              className="max-h-[90vh] max-w-full w-auto object-contain rounded-lg shadow-2xl border border-stone-800"
+            />
+          </div>
+        </div>
+      )}
     </section>
   );
 };

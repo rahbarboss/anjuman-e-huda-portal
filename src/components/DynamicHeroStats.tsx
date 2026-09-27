@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
 import { useData } from '../context/DataContext';
+import { defaultTelemetrySettings } from '../defaultData';
 import {
   Users,
   Trophy,
@@ -59,14 +60,60 @@ const AnimatedCounter: React.FC<{ target: number; duration?: number; suffix?: st
 
 export const DynamicHeroStats: React.FC<DynamicHeroStatsProps> = ({ onNavigate }) => {
   const { database } = useData();
-  const { achievements, programs, wings, leaders } = database;
+  const telemetry = database.telemetry || defaultTelemetrySettings;
+  const cards = telemetry.cards && telemetry.cards.length > 0 ? telemetry.cards : defaultTelemetrySettings.cards;
 
-  // Real-time calculated values with fallbacks to achievements
-  const totalScholars = achievements?.activeMembers || 4250;
-  const totalAchievements = achievements?.totalAchievements || 142;
-  const totalPrograms = programs?.length ? Math.max(programs.length * 15, achievements?.eventsOrganized || 310) : (achievements?.eventsOrganized || 310);
-  const establishedYear = 1994;
-  const yearsLegacy = new Date().getFullYear() - establishedYear;
+  const cardConfigMap: Record<string, {
+    icon: React.ComponentType<{ className?: string }>;
+    trendIcon: React.ComponentType<{ className?: string }>;
+    color: string;
+    accentGlow: string;
+    badgeBg: string;
+    iconBox: string;
+    borderHover: string;
+    defaultTarget: string;
+  }> = {
+    'stat-scholars': {
+      icon: Users,
+      trendIcon: TrendingUp,
+      color: 'emerald',
+      accentGlow: 'from-emerald-500/20 via-emerald-500/5 to-transparent',
+      badgeBg: 'bg-emerald-950/70 border-emerald-500/30 text-emerald-400',
+      iconBox: 'bg-emerald-950/60 border-emerald-500/40 text-emerald-400 shadow-emerald-950/80',
+      borderHover: 'hover:border-emerald-500/50',
+      defaultTarget: '#leadership',
+    },
+    'stat-achievements': {
+      icon: Trophy,
+      trendIcon: Award,
+      color: 'amber',
+      accentGlow: 'from-amber-500/20 via-amber-500/5 to-transparent',
+      badgeBg: 'bg-amber-950/70 border-amber-500/30 text-amber-400',
+      iconBox: 'bg-amber-950/60 border-amber-500/40 text-amber-400 shadow-amber-950/80',
+      borderHover: 'hover:border-amber-500/50',
+      defaultTarget: '#rankings',
+    },
+    'stat-programs': {
+      icon: Calendar,
+      trendIcon: Sparkles,
+      color: 'cyan',
+      accentGlow: 'from-cyan-500/20 via-cyan-500/5 to-transparent',
+      badgeBg: 'bg-cyan-950/70 border-cyan-500/30 text-cyan-400',
+      iconBox: 'bg-cyan-950/60 border-cyan-500/40 text-cyan-400 shadow-cyan-950/80',
+      borderHover: 'hover:border-cyan-500/50',
+      defaultTarget: '#programs',
+    },
+    'stat-legacy': {
+      icon: BookOpen,
+      trendIcon: GraduationCap,
+      color: 'purple',
+      accentGlow: 'from-purple-500/20 via-purple-500/5 to-transparent',
+      badgeBg: 'bg-purple-950/70 border-purple-500/30 text-purple-300',
+      iconBox: 'bg-purple-950/60 border-purple-500/40 text-purple-300 shadow-purple-950/80',
+      borderHover: 'hover:border-purple-500/50',
+      defaultTarget: '#about',
+    },
+  };
 
   const handleCardClick = (selector: string) => {
     if (onNavigate) {
@@ -77,72 +124,25 @@ export const DynamicHeroStats: React.FC<DynamicHeroStatsProps> = ({ onNavigate }
     }
   };
 
-  const statItems = [
-    {
-      id: 'stat-scholars',
-      number: totalScholars,
-      suffix: '+',
-      label: 'Active Scholars & Members',
-      badge: 'Campus Wide',
-      trend: '+14% Growth',
-      trendIcon: TrendingUp,
-      icon: Users,
-      color: 'emerald',
-      targetSection: '#leadership',
-      accentGlow: 'from-emerald-500/20 via-emerald-500/5 to-transparent',
-      badgeBg: 'bg-emerald-950/70 border-emerald-500/30 text-emerald-400',
-      iconBox: 'bg-emerald-950/60 border-emerald-500/40 text-emerald-400 shadow-emerald-950/80',
-      borderHover: 'hover:border-emerald-500/50',
-    },
-    {
-      id: 'stat-achievements',
-      number: totalAchievements,
-      suffix: '+',
-      label: 'Recognized Achievements',
-      badge: 'State & National',
-      trend: '38 Laurels 2026',
-      trendIcon: Award,
-      icon: Trophy,
-      color: 'amber',
-      targetSection: '#rankings',
-      accentGlow: 'from-amber-500/20 via-amber-500/5 to-transparent',
-      badgeBg: 'bg-amber-950/70 border-amber-500/30 text-amber-400',
-      iconBox: 'bg-amber-950/60 border-amber-500/40 text-amber-400 shadow-amber-950/80',
-      borderHover: 'hover:border-amber-500/50',
-    },
-    {
-      id: 'stat-programs',
-      number: totalPrograms,
-      suffix: '+',
-      label: 'Programs Conducted',
-      badge: `${wings.length || 14} Dynamic Wings`,
-      trend: 'Live Calendars',
-      trendIcon: Sparkles,
-      icon: Calendar,
-      color: 'cyan',
-      targetSection: '#programs',
-      accentGlow: 'from-cyan-500/20 via-cyan-500/5 to-transparent',
-      badgeBg: 'bg-cyan-950/70 border-cyan-500/30 text-cyan-400',
-      iconBox: 'bg-cyan-950/60 border-cyan-500/40 text-cyan-400 shadow-cyan-950/80',
-      borderHover: 'hover:border-cyan-500/50',
-    },
-    {
-      id: 'stat-legacy',
-      number: yearsLegacy,
-      suffix: ' Years',
-      label: 'Unbroken Student Legacy',
-      badge: 'Estd. 1994',
-      trend: '32nd Cabinet',
-      trendIcon: GraduationCap,
-      icon: BookOpen,
-      color: 'purple',
-      targetSection: '#about',
-      accentGlow: 'from-purple-500/20 via-purple-500/5 to-transparent',
-      badgeBg: 'bg-purple-950/70 border-purple-500/30 text-purple-300',
-      iconBox: 'bg-purple-950/60 border-purple-500/40 text-purple-300 shadow-purple-950/80',
-      borderHover: 'hover:border-purple-500/50',
-    },
-  ];
+  const statItems = cards.map((c, idx) => {
+    const config = cardConfigMap[c.id] || Object.values(cardConfigMap)[idx % 4];
+    return {
+      id: c.id,
+      number: c.value,
+      suffix: c.suffix || '',
+      label: c.label,
+      badge: c.badge,
+      trend: c.trend,
+      trendIcon: config.trendIcon,
+      icon: config.icon,
+      color: c.color || config.color,
+      targetSection: c.targetSection || config.defaultTarget,
+      accentGlow: config.accentGlow,
+      badgeBg: config.badgeBg,
+      iconBox: config.iconBox,
+      borderHover: config.borderHover,
+    };
+  });
 
   return (
     <div className="relative z-10 w-full border-t border-stone-800/90 bg-stone-950/90 backdrop-blur-xl py-6 sm:py-7">
@@ -154,16 +154,16 @@ export const DynamicHeroStats: React.FC<DynamicHeroStatsProps> = ({ onNavigate }
             <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
           </span>
           <span className="text-[11px] font-mono font-semibold uppercase tracking-wider text-stone-400">
-            Real-Time Union Telemetry
+            {telemetry.title || 'Real-Time Union Telemetry'}
           </span>
           <span className="text-stone-600 hidden sm:inline">•</span>
           <span className="text-[11px] font-mono text-emerald-400/90 hidden sm:inline">
-            Academic Session 2026–27
+            {telemetry.academicSession || 'Academic Session 2026–27'}
           </span>
         </div>
 
         <div className="text-[11px] font-mono text-stone-500 hidden md:flex items-center gap-1.5">
-          <span>Click any card to explore section</span>
+          <span>{telemetry.hintText || 'Click any card to explore section'}</span>
           <ArrowUpRight className="w-3.5 h-3.5 text-stone-400" />
         </div>
       </div>

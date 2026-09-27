@@ -12,8 +12,9 @@ import {
   CAUResolution,
   StudentInquiry,
   PillarItem,
+  TelemetrySettings,
 } from '../types';
-import { initialDatabase } from '../defaultData';
+import { initialDatabase, defaultTelemetrySettings } from '../defaultData';
 
 export type StorageBucket =
   | 'events'
@@ -262,6 +263,8 @@ export async function fetchContentFromSupabase(): Promise<AppDatabase | null> {
     const inquiries = await fetchInquiriesFromSupabase();
     const cloudPillars = await fetchPillarsFromSupabase();
     const pillars = cloudPillars.length > 0 ? cloudPillars : (initialDatabase.pillars || []);
+    const cloudTelemetry = await fetchTelemetryFromSupabase();
+    const telemetry = cloudTelemetry || initialDatabase.telemetry || defaultTelemetrySettings;
 
     return {
       homepage,
@@ -273,11 +276,12 @@ export async function fetchContentFromSupabase(): Promise<AppDatabase | null> {
       wings,
       inquiries,
       pillars,
+      telemetry,
       achievements: {
-        totalAchievements: 48,
+        totalAchievements: telemetry.cards?.find((c) => c.id === 'stat-achievements')?.value || 142,
         totalOutreachInitiatives: 120,
-        eventsOrganized: 85,
-        activeMembers: 1200,
+        eventsOrganized: telemetry.cards?.find((c) => c.id === 'stat-programs')?.value || 310,
+        activeMembers: telemetry.cards?.find((c) => c.id === 'stat-scholars')?.value || 15,
         items: [],
       },
       cau: {
@@ -1130,5 +1134,55 @@ export async function deletePillarInSupabase(id: string): Promise<{ success: boo
   } catch (err: any) {
     console.error('[Supabase DB / documents] Unexpected error deleting pillar:', err);
     return { success: false, message: err?.message || 'Failed to delete pillar' };
+  }
+}
+
+/**
+ * Real-Time Union Telemetry (Homepage Hero Stats) in Supabase
+ */
+export async function fetchTelemetryFromSupabase(): Promise<TelemetrySettings | null> {
+  if (!supabase || !isSupabaseConfigured) return null;
+  try {
+    const { data, error } = await supabase
+      .from('documents')
+      .select('*')
+      .eq('category', 'Telemetry')
+      .eq('id', 'telemetry_settings')
+      .maybeSingle();
+
+    if (error || !data) return null;
+    return JSON.parse(data.file_url) as TelemetrySettings;
+  } catch (err) {
+    console.error('[Supabase DB / documents] Error fetching telemetry:', err);
+    return null;
+  }
+}
+
+export async function saveTelemetryInSupabase(
+  telemetry: TelemetrySettings
+): Promise<{ success: boolean; data?: TelemetrySettings; message?: string }> {
+  if (!supabase || !isSupabaseConfigured) {
+    return { success: false, message: 'Supabase is not configured' };
+  }
+  try {
+    const { error } = await supabase.from('documents').upsert({
+      id: 'telemetry_settings',
+      title: telemetry.title || 'Real-Time Union Telemetry',
+      category: 'Telemetry',
+      file_url: JSON.stringify(telemetry),
+      file_number: telemetry.academicSession || 'Academic Session 2026–27',
+      date: telemetry.hintText || 'Click any card to explore section',
+      status: 'active',
+      created_at: new Date().toISOString(),
+    });
+
+    if (error) {
+      console.error('[Supabase DB / documents] Save telemetry failed:', error.message);
+      return { success: false, message: error.message };
+    }
+    return { success: true, data: telemetry };
+  } catch (err: any) {
+    console.error('[Supabase DB / documents] Unexpected error saving telemetry:', err);
+    return { success: false, message: err?.message || 'Failed to save telemetry' };
   }
 }

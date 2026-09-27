@@ -857,4 +857,53 @@ export const initialDatabase: AppDatabase = {
       wingAffiliation: 'Central Executive Secretariat & Parliament',
     },
   ],
+  telemetry: {
+    title: 'Real-Time Union Telemetry',
+    academicSession: 'Academic Session 2026–27',
+    hintText: 'Click any card to explore section',
+    cards: [
+      {
+        id: 'stat-scholars',
+        value: 15,
+        suffix: '+',
+        label: 'Active Scholars & Members',
+        badge: 'CAMPUS WIDE',
+        trend: '+14% Growth',
+        targetSection: '#leadership',
+        color: 'emerald',
+      },
+      {
+        id: 'stat-achievements',
+        value: 142,
+        suffix: '+',
+        label: 'Recognized Achievements',
+        badge: 'STATE & NATIONAL',
+        trend: '38 Laurels 2026',
+        targetSection: '#rankings',
+        color: 'amber',
+      },
+      {
+        id: 'stat-programs',
+        value: 310,
+        suffix: '+',
+        label: 'Programs Conducted',
+        badge: '7 DYNAMIC WINGS',
+        trend: 'Live Calendars',
+        targetSection: '#programs',
+        color: 'cyan',
+      },
+      {
+        id: 'stat-legacy',
+        value: 32,
+        suffix: ' Years',
+        label: 'Unbroken Student Legacy',
+        badge: 'ESTD. 1994',
+        trend: '32nd Cabinet',
+        targetSection: '#about',
+        color: 'purple',
+      },
+    ],
+  },
 };
+
+export const defaultTelemetrySettings = initialDatabase.telemetry!;

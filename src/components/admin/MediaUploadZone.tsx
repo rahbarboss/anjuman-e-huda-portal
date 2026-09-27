@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { UploadCloud, CheckCircle2, Image as ImageIcon, AlertCircle, RefreshCw } from 'lucide-react';
 import { useData } from '../../context/DataContext';
 import { StorageBucket } from '../../services/supabaseService';
+import { optimizeImageBeforeUpload, OptimizationStats } from '../../utils/imageOptimizer';
 
 interface MediaUploadZoneProps {
   onUploadSuccess: (url: string) => void;
@@ -20,67 +21,9 @@ export const MediaUploadZone: React.FC<MediaUploadZoneProps> = ({
   const [isDragging, setIsDragging] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(currentUrl || null);
+  const [compressionStats, setCompressionStats] = useState<OptimizationStats | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  // Client-side image optimization prior to upload
-  const optimizeImage = (file: File): Promise<File> => {
-    return new Promise((resolve) => {
-      // If svg or gif or small, keep as-is
-      if (file.type === 'image/svg+xml' || file.type === 'image/gif' || file.size < 400 * 1024) {
-        return resolve(file);
-      }
-
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = (event) => {
-        const img = new Image();
-        img.src = event.target?.result as string;
-        img.onload = () => {
-          const canvas = document.createElement('canvas');
-          const maxDim = 1600;
-          let width = img.width;
-          let height = img.height;
-
-          if (width > maxDim || height > maxDim) {
-            if (width > height) {
-              height = Math.round((height * maxDim) / width);
-              width = maxDim;
-            } else {
-              width = Math.round((width * maxDim) / height);
-              height = maxDim;
-            }
-          }
-
-          canvas.width = width;
-          canvas.height = height;
-          const ctx = canvas.getContext('2d');
-          if (ctx) {
-            ctx.drawImage(img, 0, 0, width, height);
-            canvas.toBlob(
-              (blob) => {
-                if (blob) {
-                  const optimizedFile = new File([blob], file.name.replace(/\.[^/.]+$/, '.jpg'), {
-                    type: 'image/jpeg',
-                    lastModified: Date.now(),
-                  });
-                  resolve(optimizedFile);
-                } else {
-                  resolve(file);
-                }
-              },
-              'image/jpeg',
-              0.88
-            );
-          } else {
-            resolve(file);
-          }
-        };
-        img.onerror = () => resolve(file);
-      };
-      reader.onerror = () => resolve(file);
-    });
-  };
 
   const processUpload = async (file: File) => {
     if (!file.type.startsWith('image/')) {
@@ -92,9 +35,11 @@ export const MediaUploadZone: React.FC<MediaUploadZoneProps> = ({
     setUploading(true);
 
     try {
-      // Dynamically optimize image
-      const optimized = await optimizeImage(file);
-      const res = await uploadMedia(optimized, bucket);
+      // Adaptively optimize image before upload (max-w 1200px, 80-100 KB target, 0.82->0.55 quality, WebP conversion)
+      const { file: optimizedFile, stats } = await optimizeImageBeforeUpload(file);
+      setCompressionStats(stats);
+
+      const res = await uploadMedia(optimizedFile, bucket);
 
       if (res.success && res.url) {
         setPreviewUrl(res.url);
@@ -171,6 +116,18 @@ export const MediaUploadZone: React.FC<MediaUploadZoneProps> = ({
               <CheckCircle2 className="w-4 h-4" />
               <span>Image uploaded & optimized</span>
             </div>
+            {compressionStats && (
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-stone-900 border border-stone-700 text-xs font-mono text-stone-200 shadow-inner">
+                <span className="text-stone-400">{compressionStats.formattedOriginal}</span>
+                <span className="text-emerald-400 font-bold">→</span>
+                <span className="text-emerald-300 font-semibold">{compressionStats.formattedOptimized}</span>
+                {compressionStats.savedPercent > 0 && (
+                  <span className="text-[10px] text-emerald-400 bg-emerald-950/80 px-1.5 py-0.5 rounded border border-emerald-500/30">
+                    -{compressionStats.savedPercent}%
+                  </span>
+                )}
+              </div>
+            )}
             <p className="text-[11px] text-stone-400">Click or drag a new file to replace</p>
           </div>
         ) : (

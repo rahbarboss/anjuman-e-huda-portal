@@ -14,9 +14,11 @@ import {
   ContactSettings,
   StudentInquiry,
   PillarItem,
+  TelemetrySettings,
 } from '../types';
-import { initialDatabase } from '../defaultData';
+import { initialDatabase, defaultTelemetrySettings } from '../defaultData';
 import { isSupabaseConfigured } from '../lib/supabase';
+import { optimizeImageBeforeUpload } from '../utils/imageOptimizer';
 import {
   fetchContentFromSupabase,
   uploadToSupabaseStorage,
@@ -42,6 +44,7 @@ import {
   deleteInquiryInSupabase,
   savePillarInSupabase,
   deletePillarInSupabase,
+  saveTelemetryInSupabase,
   seedSupabaseDatabase,
   StorageBucket,
 } from '../services/supabaseService';
@@ -90,6 +93,7 @@ interface DataContextType {
   deleteInquiry: (id: string) => Promise<boolean>;
   updateInquiryStatus: (id: string, status: StudentInquiry['status']) => Promise<boolean>;
   uploadMedia: (file: File, bucket?: StorageBucket) => Promise<{ success: boolean; url?: string; message?: string }>;
+  updateTelemetry: (telemetry: Partial<TelemetrySettings>) => Promise<boolean>;
   resetToDefaultSeed: () => Promise<boolean>;
 }
 
@@ -1205,6 +1209,41 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return true;
   };
 
+  const updateTelemetry = async (telemetryUpdate: Partial<TelemetrySettings>): Promise<boolean> => {
+    const current = database.telemetry || defaultTelemetrySettings;
+    const merged: TelemetrySettings = {
+      ...current,
+      ...telemetryUpdate,
+      cards: telemetryUpdate.cards || current.cards,
+    };
+
+    if (isSupabaseConfigured) {
+      await saveTelemetryInSupabase(merged);
+    }
+
+    try {
+      await fetch('/api/telemetry', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(merged),
+      });
+    } catch (err) {
+      // Local server optional fallback
+    }
+
+    setDatabase((prev) => ({
+      ...prev,
+      telemetry: merged,
+      achievements: {
+        ...prev.achievements,
+        totalAchievements: merged.cards?.find((c) => c.id === 'stat-achievements')?.value ?? prev.achievements.totalAchievements,
+        eventsOrganized: merged.cards?.find((c) => c.id === 'stat-programs')?.value ?? prev.achievements.eventsOrganized,
+        activeMembers: merged.cards?.find((c) => c.id === 'stat-scholars')?.value ?? prev.achievements.activeMembers,
+      },
+    }));
+    return true;
+  };
+
   const addInquiry = async (inq: Omit<StudentInquiry, 'id' | 'createdAt' | 'status'>): Promise<boolean> => {
     if (isSupabaseConfigured) {
       const res = await addInquiryInSupabase(inq);
@@ -1270,8 +1309,18 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     bucket: StorageBucket = 'gallery'
   ): Promise<{ success: boolean; url?: string; message?: string }> => {
     try {
+      let fileToUpload = file;
+      if (file.type.startsWith('image/') && file.size > 100 * 1024) {
+        try {
+          const { file: optFile } = await optimizeImageBeforeUpload(file);
+          fileToUpload = optFile;
+        } catch {
+          fileToUpload = file;
+        }
+      }
+
       if (isSupabaseConfigured) {
-        const cloudRes = await uploadToSupabaseStorage(file, bucket);
+        const cloudRes = await uploadToSupabaseStorage(fileToUpload, bucket);
         if (cloudRes.success && cloudRes.url) {
           return { success: true, url: cloudRes.url };
         }
@@ -1284,7 +1333,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       // Offline / Local Development Fallback
       const formData = new FormData();
-      formData.append('file', file);
+      formData.append('file', fileToUpload);
       const res = await fetch('/api/upload', {
         method: 'POST',
         body: formData,
@@ -1363,6 +1412,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         deleteInquiry,
         updateInquiryStatus,
         uploadMedia,
+        updateTelemetry,
         resetToDefaultSeed,
       }}
     >

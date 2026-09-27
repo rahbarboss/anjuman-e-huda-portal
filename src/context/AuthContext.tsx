@@ -180,6 +180,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         });
 
         if (supaError) {
+          if (username.trim() === 'anjuman' || username.trim() === 'admin') {
+            const res = await fetch('/api/auth/login', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ username, password }),
+            });
+            const data = await res.json();
+            if (res.ok && data.success) {
+              setIsAdminLoggedIn(true);
+              const user = data.user || { username: 'Administrator', role: 'Central Union Administrator' };
+              setAdminUser(user);
+              localStorage.setItem('anjuman_admin_logged', 'true');
+              localStorage.setItem('anjuman_admin_user', JSON.stringify(user));
+              setIsLoginModalOpen(false);
+              setActiveView('admin');
+              return { success: true };
+            }
+          }
           return {
             success: false,
             message: supaError.message || 'Authentication failed. Please verify your credentials.',
