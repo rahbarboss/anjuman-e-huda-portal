@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useData } from '../context/DataContext';
+import { useNavigation } from '../context/NavigationContext';
 import { Program } from '../types';
 import {
   Calendar,
@@ -26,6 +27,7 @@ interface Props {
 export const LatestProgramsAndAnnouncements: React.FC<Props> = ({ onOpenNotifications }) => {
   const { database } = useData();
   const { programs } = database;
+  const { navigateTo } = useNavigation();
 
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [activeModalProgram, setActiveModalProgram] = useState<Program | null>(null);
@@ -50,8 +52,12 @@ export const LatestProgramsAndAnnouncements: React.FC<Props> = ({ onOpenNotifica
   const displayedPrograms = filteredPrograms.slice(0, 6);
 
   const scrollToAllPrograms = () => {
-    const el = document.querySelector('#programs');
-    if (el) el.scrollIntoView({ behavior: 'smooth' });
+    navigateTo('programs');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setTimeout(() => {
+      const el = document.querySelector('#programs');
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
+    }, 100);
   };
 
   const getCategoryColor = (cat: string) => {
@@ -103,15 +109,19 @@ export const LatestProgramsAndAnnouncements: React.FC<Props> = ({ onOpenNotifica
               <ArrowRight className="w-4 h-4" />
             </button>
 
-            {onOpenNotifications && (
-              <button
-                type="button"
-                onClick={onOpenNotifications}
-                className="px-4 py-2.5 bg-stone-200 hover:bg-stone-300 text-stone-800 text-xs sm:text-sm font-medium rounded-xl transition-all flex items-center gap-1.5 cursor-pointer"
-              >
-                <span>Gazettes & Notices</span>
-              </button>
-            )}
+            <button
+              type="button"
+              onClick={() => {
+                if (onOpenNotifications) {
+                  onOpenNotifications();
+                } else {
+                  navigateTo('updates');
+                }
+              }}
+              className="px-4 py-2.5 bg-stone-200 hover:bg-stone-300 text-stone-800 text-xs sm:text-sm font-medium rounded-xl transition-all flex items-center gap-1.5 cursor-pointer"
+            >
+              <span>Gazettes & Notices</span>
+            </button>
           </div>
         </div>
 
