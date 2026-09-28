@@ -31,8 +31,8 @@ export const AboutPage: React.FC = () => {
     },
     {
       year: '2015',
-      title: 'Inception of the Central Academic Union (CAU)',
-      desc: 'Establishment of the parliamentary senate body safeguarding research fellowships, student hardship grants, and democratic representations.',
+      title: 'Inception of the Student Advisory Assembly',
+      desc: 'Establishment of the representative council safeguarding research fellowships, student hardship grants, and democratic representations.',
     },
     {
       year: '2026',

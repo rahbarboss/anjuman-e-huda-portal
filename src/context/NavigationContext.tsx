@@ -9,7 +9,6 @@ export type NavPage =
   | 'participants'
   | 'programs'
   | 'rankings'
-  | 'cau'
   | 'contact';
 
 interface NavigationContextType {
@@ -24,6 +23,7 @@ export const NavigationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     if (typeof window !== 'undefined') {
       const hash = window.location.hash.replace('#', '').toLowerCase();
       if (hash === 'participants') return 'wings';
+      if (hash === 'cau') return 'rankings';
       const validPages: NavPage[] = [
         'home',
         'about',
@@ -33,7 +33,6 @@ export const NavigationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         'participants',
         'programs',
         'rankings',
-        'cau',
         'contact',
       ];
       if (validPages.includes(hash as NavPage)) {
@@ -44,7 +43,7 @@ export const NavigationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   });
 
   const navigateTo = (page: NavPage) => {
-    const targetPage = page === 'participants' ? 'wings' : page;
+    const targetPage = page === 'participants' ? 'wings' : (page as string) === 'cau' ? 'rankings' : page;
     setCurrentPage(targetPage);
     if (typeof window !== 'undefined') {
       window.location.hash = targetPage;
@@ -60,6 +59,11 @@ export const NavigationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         window.scrollTo({ top: 0, behavior: 'smooth' });
         return;
       }
+      if (hash === 'cau') {
+        setCurrentPage('rankings');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        return;
+      }
       const validPages: NavPage[] = [
         'home',
         'about',
@@ -69,7 +73,6 @@ export const NavigationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         'participants',
         'programs',
         'rankings',
-        'cau',
         'contact',
       ];
       if (validPages.includes(hash as NavPage)) {

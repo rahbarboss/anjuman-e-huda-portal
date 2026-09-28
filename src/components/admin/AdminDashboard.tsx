@@ -11,7 +11,6 @@ import {
   WingHistoryEntry,
   TopWingStanding,
   TopParticipant,
-  CAUResolution,
   ContactSettings,
   StudentInquiry,
   PillarItem,
@@ -44,7 +43,6 @@ import {
   AlertCircle,
   RotateCcw,
   BookOpen,
-  Scale,
   Mail,
   FileText,
   CheckCircle,
@@ -81,7 +79,6 @@ export type AdminTab =
   | 'participants'
   | 'programs'
   | 'rankings'
-  | 'cau'
   | 'contact'
   | 'media';
 
@@ -113,10 +110,6 @@ export const AdminDashboard: React.FC = () => {
     updateAnnouncement,
     deleteAnnouncement,
     updateAchievements,
-    updateCAU,
-    addCAUResolution,
-    updateCAUResolution,
-    deleteCAUResolution,
     updateRankings,
     addTopWing,
     updateTopWing,
@@ -815,33 +808,6 @@ export const AdminDashboard: React.FC = () => {
     showToast('Achievements statistics updated.');
   };
 
-  // ================= 8. CAU MODAL & STATE =================
-  const [cauForm, setCauForm] = useState({
-    constitutionSummary: database.cau?.constitutionSummary || '',
-    councilMembersCount: database.cau?.councilMembersCount || 24,
-    sessionTerm: database.cau?.sessionTerm || 'Session 2026–27',
-  });
-
-  const handleSaveCAUCharter = async (e: React.FormEvent) => {
-    e.preventDefault();
-    await updateCAU(cauForm);
-    showToast('CAU Parliamentary Constitution and Session updated.');
-  };
-
-  const [isResolutionModalOpen, setIsResolutionModalOpen] = useState(false);
-  const [resForm, setResForm] = useState({
-    title: '',
-    fileNumber: 'CAU-RES-2026/01',
-    date: new Date().toISOString().split('T')[0],
-    status: 'Adopted' as CAUResolution['status'],
-  });
-
-  const handleSaveResolution = async (e: React.FormEvent) => {
-    e.preventDefault();
-    await addCAUResolution(resForm);
-    showToast(`Resolution "${resForm.fileNumber}" gazetted.`);
-    setIsResolutionModalOpen(false);
-  };
 
   // ================= 9. CONTACT MODAL & STATE =================
   const [contactForm, setContactForm] = useState<ContactSettings>(
@@ -931,7 +897,6 @@ export const AdminDashboard: React.FC = () => {
     { id: 'participants' as AdminTab, label: 'Wings', icon: Layers },
     { id: 'programs' as AdminTab, label: 'Programs', icon: Calendar },
     { id: 'rankings' as AdminTab, label: 'Rankings', icon: Trophy },
-    { id: 'cau' as AdminTab, label: 'CAU', icon: Scale },
     { id: 'contact' as AdminTab, label: 'Contact', icon: Mail },
     { id: 'media' as AdminTab, label: 'Media Library', icon: ImageIcon },
   ];
@@ -2923,113 +2888,6 @@ export const AdminDashboard: React.FC = () => {
             </div>
           )}
 
-          {/* ================= TAB 8: CAU ================= */}
-          {activeTab === 'cau' && (
-            <div className="space-y-6 max-w-5xl">
-              <div>
-                <h2 className="text-xl font-bold font-heading text-white">Central Academic Union (CAU)</h2>
-                <p className="text-xs text-stone-400 mt-0.5">
-                  Maintain Senate Constitution, active session term, and gazette official resolutions.
-                </p>
-              </div>
-
-              {/* Charter Form */}
-              <form onSubmit={handleSaveCAUCharter} className="bg-stone-900 border border-stone-800 rounded-2xl p-6 space-y-4">
-                <h3 className="text-sm font-bold text-white uppercase tracking-wider font-mono">
-                  Senate Charter & Assembly Session
-                </h3>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs text-stone-300 mb-1">Active Assembly Session</label>
-                    <input
-                      type="text"
-                      value={cauForm.sessionTerm}
-                      onChange={(e) => setCauForm({ ...cauForm, sessionTerm: e.target.value })}
-                      className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3.5 py-2.5 text-xs text-white"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs text-stone-300 mb-1">Council Senators Count</label>
-                    <input
-                      type="number"
-                      value={cauForm.councilMembersCount}
-                      onChange={(e) => setCauForm({ ...cauForm, councilMembersCount: parseInt(e.target.value) || 0 })}
-                      className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3.5 py-2.5 text-xs text-white"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-xs text-stone-300 mb-1">Constitution Summary</label>
-                  <textarea
-                    rows={3}
-                    value={cauForm.constitutionSummary}
-                    onChange={(e) => setCauForm({ ...cauForm, constitutionSummary: e.target.value })}
-                    className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3.5 py-2.5 text-xs text-white"
-                  />
-                </div>
-
-                <button
-                  type="submit"
-                  className="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-semibold cursor-pointer"
-                >
-                  Save Senate Charter
-                </button>
-              </form>
-
-              {/* Resolutions List */}
-              <div className="bg-stone-900 border border-stone-800 rounded-2xl p-6 space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-bold text-white uppercase tracking-wider font-mono">
-                    Adopted Resolutions & Bills ({database.cau?.latestResolutions?.length || 0})
-                  </h3>
-                  <button
-                    onClick={() => setIsResolutionModalOpen(true)}
-                    className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
-                  >
-                    <Plus className="w-3.5 h-3.5" /> Gazette New Resolution
-                  </button>
-                </div>
-
-                <div className="space-y-3">
-                  {database.cau?.latestResolutions?.map((res, idx) => (
-                    <div key={`cau-res-${res.id}-${idx}`} className="p-4 bg-stone-950 border border-stone-800 rounded-xl flex items-center justify-between">
-                      <div>
-                        <div className="flex items-center gap-2 text-[10px] font-mono mb-1">
-                          <span className="text-emerald-400 font-bold">{res.fileNumber}</span>
-                          <span className="text-stone-400">{res.date}</span>
-                          <span className="px-2 py-0.5 rounded bg-stone-900 text-amber-400 border border-stone-800">
-                            {res.status}
-                          </span>
-                        </div>
-                        <h4 className="text-xs font-bold text-white">{res.title}</h4>
-                      </div>
-
-                      <button
-                        onClick={() => {
-                          requestDelete({
-                            title: 'Remove CAU Resolution',
-                            message: `Are you sure you want to remove resolution "${res.fileNumber}" (${res.title})?`,
-                            confirmLabel: 'Remove Decree',
-                            onConfirm: async () => {
-                              await deleteCAUResolution(res.id);
-                              showToast(`Resolution "${res.fileNumber}" removed.`);
-                            },
-                          });
-                        }}
-                        className="text-stone-400 hover:text-red-400 p-2 cursor-pointer"
-                        title="Delete Resolution"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
-
           {/* ================= TAB 9: CONTACT ================= */}
           {activeTab === 'contact' && (
             <div className="space-y-6 max-w-5xl">
@@ -4559,76 +4417,6 @@ export const AdminDashboard: React.FC = () => {
                   className="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-semibold cursor-pointer"
                 >
                   Save Laureate
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* ================= MODAL: ADD RESOLUTION (CAU) ================= */}
-      {isResolutionModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm">
-          <div className="bg-stone-900 border border-stone-700 rounded-2xl p-6 w-full max-w-md shadow-2xl text-stone-100">
-            <h3 className="text-lg font-bold text-white mb-4">Gazette Senate Resolution</h3>
-            <form onSubmit={handleSaveResolution} className="space-y-3">
-              <div>
-                <label className="block text-xs text-stone-300 mb-1">File Number</label>
-                <input
-                  type="text"
-                  required
-                  value={resForm.fileNumber}
-                  onChange={(e) => setResForm({ ...resForm, fileNumber: e.target.value })}
-                  className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-xs text-white"
-                />
-              </div>
-              <div>
-                <label className="block text-xs text-stone-300 mb-1">Resolution Title</label>
-                <input
-                  type="text"
-                  required
-                  value={resForm.title}
-                  onChange={(e) => setResForm({ ...resForm, title: e.target.value })}
-                  className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-xs text-white"
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs text-stone-300 mb-1">Status</label>
-                  <select
-                    value={resForm.status}
-                    onChange={(e) => setResForm({ ...resForm, status: e.target.value as any })}
-                    className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-xs text-white"
-                  >
-                    <option value="Adopted">Adopted</option>
-                    <option value="In Review">In Review</option>
-                    <option value="Gazetted">Gazetted</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-xs text-stone-300 mb-1">Date</label>
-                  <input
-                    type="date"
-                    required
-                    value={resForm.date}
-                    onChange={(e) => setResForm({ ...resForm, date: e.target.value })}
-                    className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-xs text-white"
-                  />
-                </div>
-              </div>
-              <div className="flex items-center justify-end gap-3 pt-3">
-                <button
-                  type="button"
-                  onClick={() => setIsResolutionModalOpen(false)}
-                  className="px-4 py-2 bg-stone-800 text-stone-300 rounded-xl text-xs font-medium cursor-pointer"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-semibold cursor-pointer"
-                >
-                  Gazette Decree
                 </button>
               </div>
             </form>

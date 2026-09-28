@@ -55,10 +55,10 @@ export const RankingsPage: React.FC = () => {
             <div className="flex items-center gap-3">
               <button
                 type="button"
-                onClick={() => navigateTo('cau')}
+                onClick={() => navigateTo('contact')}
                 className="px-4 py-2.5 bg-emerald-700 hover:bg-emerald-600 text-white rounded-xl text-xs sm:text-sm font-semibold shadow flex items-center gap-2 cursor-pointer transition-colors"
               >
-                <span>Explore CAU Senate</span>
+                <span>Contact Secretariat</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
             </div>
@@ -269,16 +269,16 @@ export const RankingsPage: React.FC = () => {
             <div>
               <h4 className="text-sm font-bold text-white">Constitutional Scoring Formula</h4>
               <p className="text-xs text-stone-400">
-                Merit tallies are audited bi-monthly by the Central Academic Union (CAU) Audit Committee.
+                Merit tallies are audited and verified bi-monthly by the Central Union Academic Advisory Council.
               </p>
             </div>
           </div>
           <button
             type="button"
-            onClick={() => navigateTo('cau')}
+            onClick={() => navigateTo('contact')}
             className="px-5 py-2.5 bg-stone-800 hover:bg-stone-700 text-stone-200 rounded-xl text-xs font-semibold flex items-center gap-2 cursor-pointer shrink-0 transition-colors"
           >
-            <span>View CAU Audits</span>
+            <span>Contact Secretariat</span>
             <ChevronRight className="w-4 h-4" />
           </button>
         </div>

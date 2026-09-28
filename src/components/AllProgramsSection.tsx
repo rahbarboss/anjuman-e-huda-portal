@@ -205,7 +205,7 @@ export const AllProgramsSection: React.FC = () => {
               <div className="mt-6 pt-4 border-t border-stone-800/80 px-2 text-[11px] text-stone-400">
                 <p className="font-mono text-emerald-400 mb-1">CENTRAL SCHEDULE</p>
                 <p className="leading-relaxed">
-                  All programs are verified under CAU Ordinance 1994. Timely registrations are mandatory.
+                  All programs are verified under Union Charter 1994. Timely registrations are mandatory.
                 </p>
               </div>
             </div>

@@ -185,7 +185,7 @@ export const NotificationCenterModal: React.FC<NotificationCenterModalProps> = (
 
             {/* Footer */}
             <div className="px-6 py-4 bg-stone-950 border-t border-stone-800 flex items-center justify-between text-xs text-stone-400">
-              <span>Official Dispatches from Central Academic Union (CAU)</span>
+              <span>Official Dispatches from Central Union Secretariat</span>
               <button
                 onClick={onClose}
                 className="px-4 py-2 bg-stone-800 hover:bg-stone-700 text-stone-200 rounded-lg font-medium cursor-pointer"
