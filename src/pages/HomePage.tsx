@@ -2,9 +2,10 @@ import React from 'react';
 import { HeroSection } from '../components/HeroSection';
 import { LatestProgramsAndAnnouncements } from '../components/LatestProgramsAndAnnouncements';
 import { LeadershipSection } from '../components/LeadershipSection';
+import { LeadershipCodeOfConductCard } from '../components/LeadershipCodeOfConductCard';
 import { AboutSection } from '../components/AboutSection';
 import { useNavigation } from '../context/NavigationContext';
-import { Users, ArrowRight, ChevronRight } from 'lucide-react';
+import { Users, ArrowRight } from 'lucide-react';
 
 interface Props {
   onOpenNotifications: () => void;
@@ -58,27 +59,8 @@ export const HomePage: React.FC<Props> = ({ onOpenNotifications }) => {
         {/* Main Leadership Section with Tenures, Leaders Grid, & Archive Modal */}
         <LeadershipSection />
 
-        {/* Leadership Code of Conduct & Trust */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10">
-          <div className="p-8 rounded-3xl bg-stone-900 border border-stone-800 flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="space-y-2 max-w-2xl">
-              <h3 className="text-xl font-bold font-heading text-white">Leadership Code of Conduct & Trust</h3>
-              <p className="text-xs sm:text-sm text-stone-400 leading-relaxed">
-                Every office bearer of ANJUMAN-E-HUDA pledges to maintain strict impartiality, transparent financial
-                integrity, humble servant leadership, and 100% student accountability throughout their active tenure.
-              </p>
-            </div>
-
-            <button
-              type="button"
-              onClick={() => navigateTo('contact')}
-              className="px-6 py-3 bg-stone-800 hover:bg-stone-700 text-stone-200 border border-stone-700 rounded-xl text-xs font-semibold flex items-center gap-2 cursor-pointer shrink-0 transition-colors"
-            >
-              <span>Contact Secretariat</span>
-              <ChevronRight className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
+        {/* Dynamic & Professional Leadership Code of Conduct & Trust */}
+        <LeadershipCodeOfConductCard />
       </div>
 
       {/* 4. The Soul of ANJUMAN-E-HUDA, Vision & 4 Pillars */}
