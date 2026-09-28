@@ -15,6 +15,7 @@ import {
   StudentInquiry,
   PillarItem,
   TelemetrySettings,
+  SocialLink,
 } from '../types';
 import { initialDatabase, defaultTelemetrySettings } from '../defaultData';
 import { isSupabaseConfigured } from '../lib/supabase';
@@ -45,6 +46,8 @@ import {
   savePillarInSupabase,
   deletePillarInSupabase,
   saveTelemetryInSupabase,
+  saveSocialLinkInSupabase,
+  deleteSocialLinkInSupabase,
   seedSupabaseDatabase,
   StorageBucket,
 } from '../services/supabaseService';
@@ -94,6 +97,9 @@ interface DataContextType {
   updateInquiryStatus: (id: string, status: StudentInquiry['status']) => Promise<boolean>;
   uploadMedia: (file: File, bucket?: StorageBucket) => Promise<{ success: boolean; url?: string; message?: string }>;
   updateTelemetry: (telemetry: Partial<TelemetrySettings>) => Promise<boolean>;
+  addSocialLink: (link: Omit<SocialLink, 'id'>) => Promise<boolean>;
+  updateSocialLink: (id: string, link: Partial<SocialLink>) => Promise<boolean>;
+  deleteSocialLink: (id: string) => Promise<boolean>;
   resetToDefaultSeed: () => Promise<boolean>;
 }
 
@@ -597,7 +603,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const deleteAnnouncement = async (id: string): Promise<boolean> => {
     if (isSupabaseConfigured) {
       const existing = database.announcements.find((a) => a.id === id);
-      const res = await deleteAnnouncementInSupabase(id, existing?.fileUrl);
+      const res = await deleteAnnouncementInSupabase(id, existing?.fileUrl, existing?.imageUrl);
       if (res.success) {
         setDatabase((prev) => ({
           ...prev,
@@ -1349,6 +1355,73 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  /* =========================================================================
+     SOCIAL MEDIA HANDLES
+  ========================================================================= */
+
+  const addSocialLink = async (link: Omit<SocialLink, 'id'>): Promise<boolean> => {
+    if (isSupabaseConfigured) {
+      const res = await saveSocialLinkInSupabase(link);
+      if (res.success && res.data) {
+        setDatabase((prev) => ({
+          ...prev,
+          socialLinks: [...(prev.socialLinks || []), res.data!],
+        }));
+        return true;
+      }
+    }
+
+    const newLink: SocialLink = {
+      ...link,
+      id: `soc-${Date.now()}`,
+    };
+    setDatabase((prev) => ({
+      ...prev,
+      socialLinks: [...(prev.socialLinks || []), newLink],
+    }));
+    return true;
+  };
+
+  const updateSocialLink = async (id: string, link: Partial<SocialLink>): Promise<boolean> => {
+    if (isSupabaseConfigured) {
+      const existing = (database.socialLinks || []).find((s) => s.id === id);
+      const merged = existing ? { ...existing, ...link } : (link as SocialLink);
+      const res = await saveSocialLinkInSupabase(merged, id);
+      if (res.success && res.data) {
+        setDatabase((prev) => ({
+          ...prev,
+          socialLinks: (prev.socialLinks || []).map((s) => (s.id === id ? res.data! : s)),
+        }));
+        return true;
+      }
+    }
+
+    setDatabase((prev) => ({
+      ...prev,
+      socialLinks: (prev.socialLinks || []).map((s) => (s.id === id ? { ...s, ...link } : s)),
+    }));
+    return true;
+  };
+
+  const deleteSocialLink = async (id: string): Promise<boolean> => {
+    if (isSupabaseConfigured) {
+      const res = await deleteSocialLinkInSupabase(id);
+      if (res.success) {
+        setDatabase((prev) => ({
+          ...prev,
+          socialLinks: (prev.socialLinks || []).filter((s) => s.id !== id),
+        }));
+        return true;
+      }
+    }
+
+    setDatabase((prev) => ({
+      ...prev,
+      socialLinks: (prev.socialLinks || []).filter((s) => s.id !== id),
+    }));
+    return true;
+  };
+
   const resetToDefaultSeed = async (): Promise<boolean> => {
     try {
       if (isSupabaseConfigured) {
@@ -1413,6 +1486,9 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         updateInquiryStatus,
         uploadMedia,
         updateTelemetry,
+        addSocialLink,
+        updateSocialLink,
+        deleteSocialLink,
         resetToDefaultSeed,
       }}
     >

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Bell, X, Search, Calendar, FileText, AlertCircle } from 'lucide-react';
+import { Bell, X, Search, Calendar, FileText, AlertCircle, Eye, Download, ExternalLink } from 'lucide-react';
 import { useData } from '../context/DataContext';
 
 interface NotificationCenterModalProps {
@@ -104,57 +104,82 @@ export const NotificationCenterModal: React.FC<NotificationCenterModalProps> = (
                   No circulars or notifications found matching your filter criteria.
                 </div>
               ) : (
-                filteredAnnouncements.map((item, idx) => (
-                  <div key={`notice-item-${item.id}-${idx}`} className="pt-4 first:pt-0 group">
-                    <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2 mb-2">
-                      <div className="flex items-center gap-2">
-                        <span
-                          className={`text-[10px] font-bold px-2 py-0.5 rounded-md uppercase font-mono tracking-wider ${
-                            item.category === 'Circular'
-                              ? 'bg-blue-900/60 text-blue-300 border border-blue-500/30'
-                              : item.category === 'Event Alert'
-                              ? 'bg-amber-900/60 text-amber-300 border border-amber-500/30'
-                              : item.category === 'Result'
-                              ? 'bg-emerald-900/60 text-emerald-300 border border-emerald-500/30'
-                              : 'bg-stone-800 text-stone-300 border border-stone-700'
-                          }`}
-                        >
-                          {item.category}
-                        </span>
-                        {item.isPinned && (
-                          <span className="text-[10px] bg-red-950/80 text-red-300 border border-red-500/40 px-2 py-0.5 rounded-md font-semibold">
-                            PINNED
+                filteredAnnouncements.map((item, idx) => {
+                  const itemImg = item.imageUrl || item.fileUrl;
+                  const isImg = itemImg && !itemImg.endsWith('.pdf');
+
+                  return (
+                    <div key={`notice-item-${item.id}-${idx}`} className="pt-4 first:pt-0 group">
+                      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2 mb-2">
+                        <div className="flex items-center gap-2">
+                          <span
+                            className={`text-[10px] font-bold px-2 py-0.5 rounded-md uppercase font-mono tracking-wider ${
+                              item.category === 'Circular'
+                                ? 'bg-blue-900/60 text-blue-300 border border-blue-500/30'
+                                : item.category === 'Event Alert'
+                                ? 'bg-amber-900/60 text-amber-300 border border-amber-500/30'
+                                : item.category === 'Result'
+                                ? 'bg-emerald-900/60 text-emerald-300 border border-emerald-500/30'
+                                : 'bg-stone-800 text-stone-300 border border-stone-700'
+                            }`}
+                          >
+                            {item.category}
                           </span>
-                        )}
-                        {item.urgency === 'urgent' && (
-                          <span className="flex items-center gap-1 text-[10px] text-red-400 font-semibold">
-                            <AlertCircle className="w-3 h-3" />
-                            URGENT
-                          </span>
-                        )}
+                          {item.isPinned && (
+                            <span className="text-[10px] bg-red-950/80 text-red-300 border border-red-500/40 px-2 py-0.5 rounded-md font-semibold">
+                              PINNED
+                            </span>
+                          )}
+                          {item.urgency === 'urgent' && (
+                            <span className="flex items-center gap-1 text-[10px] text-red-400 font-semibold">
+                              <AlertCircle className="w-3 h-3" />
+                              URGENT
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-1.5 text-xs text-stone-400 font-mono">
+                          <Calendar className="w-3.5 h-3.5 text-stone-500" />
+                          <span>{item.date}</span>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-1.5 text-xs text-stone-400 font-mono">
-                        <Calendar className="w-3.5 h-3.5 text-stone-500" />
-                        <span>{item.date}</span>
+
+                      <div className="flex flex-col sm:flex-row gap-4 items-start">
+                        {isImg && (
+                          <div
+                            onClick={() => setSelectedNotice(item)}
+                            className="w-full sm:w-36 h-24 rounded-xl overflow-hidden bg-stone-950 border border-stone-800 shrink-0 cursor-pointer relative group/thumb"
+                          >
+                            <img
+                              src={itemImg}
+                              alt={item.title}
+                              className="w-full h-full object-cover group-hover/thumb:scale-105 transition-transform"
+                            />
+                            <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover/thumb:opacity-100 transition-opacity">
+                              <Eye className="w-4 h-4 text-emerald-300" />
+                            </div>
+                          </div>
+                        )}
+
+                        <div className="flex-1 min-w-0">
+                          <h4 className="text-base font-semibold text-white group-hover:text-emerald-300 transition-colors mb-1.5">
+                            {item.title}
+                          </h4>
+                          <p className="text-sm text-stone-300 leading-relaxed mb-3">{item.summary}</p>
+
+                          <div className="flex items-center gap-3 text-xs">
+                            <button
+                              onClick={() => setSelectedNotice(item)}
+                              className="text-emerald-400 hover:text-emerald-300 font-medium underline underline-offset-4 flex items-center gap-1 cursor-pointer"
+                            >
+                              <FileText className="w-3.5 h-3.5" />
+                              Read Official Circular & View Flyer
+                            </button>
+                          </div>
+                        </div>
                       </div>
                     </div>
-
-                    <h4 className="text-base font-semibold text-white group-hover:text-emerald-300 transition-colors mb-1.5">
-                      {item.title}
-                    </h4>
-                    <p className="text-sm text-stone-300 leading-relaxed mb-3">{item.summary}</p>
-
-                    <div className="flex items-center gap-3 text-xs">
-                      <button
-                        onClick={() => setSelectedNotice(item)}
-                        className="text-emerald-400 hover:text-emerald-300 font-medium underline underline-offset-4 flex items-center gap-1 cursor-pointer"
-                      >
-                        <FileText className="w-3.5 h-3.5" />
-                        Read Official Circular
-                      </button>
-                    </div>
-                  </div>
-                ))
+                  );
+                })
               )}
             </div>
 
@@ -171,49 +196,92 @@ export const NotificationCenterModal: React.FC<NotificationCenterModalProps> = (
           </motion.div>
 
           {/* Deep Circular Detail Popover */}
-          {selectedNotice && (
-            <div
-              key="notice-detail-popover"
-              className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-black/90"
-              onClick={() => setSelectedNotice(null)}
-            >
+          {selectedNotice && (() => {
+            const popoverImg = selectedNotice.imageUrl || selectedNotice.fileUrl;
+            const isPopoverImg = popoverImg && !popoverImg.endsWith('.pdf');
+
+            return (
               <div
-                className="w-full max-w-lg bg-stone-900 border border-emerald-500/50 rounded-2xl p-6 shadow-2xl text-stone-100"
-                onClick={(e) => e.stopPropagation()}
+                key="notice-detail-popover"
+                className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-black/90 backdrop-blur-sm"
+                onClick={() => setSelectedNotice(null)}
               >
-                <div className="flex items-center justify-between pb-3 border-b border-stone-800 mb-4">
-                  <span className="text-xs font-mono text-emerald-400 uppercase font-semibold">
-                    ANJUMAN-E-HUDA GAZETTE ARCHIVE
-                  </span>
-                  <button
-                    onClick={() => setSelectedNotice(null)}
-                    className="text-stone-400 hover:text-white p-1"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                </div>
-                <h3 className="text-lg font-bold text-white mb-2">{selectedNotice.title}</h3>
-                <p className="text-xs text-stone-400 font-mono mb-4">
-                  Date of Issue: {selectedNotice.date} • Category: {selectedNotice.category}
-                </p>
-                <div className="bg-stone-950 p-4 rounded-xl border border-stone-800 text-sm text-stone-300 leading-relaxed mb-6 font-serif">
-                  "{selectedNotice.summary}"
-                  <br />
-                  <br />
-                  <em className="text-xs text-stone-400 not-italic block border-t border-stone-800 pt-3">
-                    By order of the General Secretary & Central Academic Council, ANJUMAN-E-HUDA. All department
-                    representatives are instructed to circulate this bulletin.
-                  </em>
-                </div>
-                <button
-                  onClick={() => setSelectedNotice(null)}
-                  className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-medium text-xs cursor-pointer"
+                <div
+                  className="w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-stone-900 border border-emerald-500/50 rounded-2xl p-6 shadow-2xl text-stone-100"
+                  onClick={(e) => e.stopPropagation()}
                 >
-                  Acknowledge & Close
-                </button>
+                  <div className="flex items-center justify-between pb-3 border-b border-stone-800 mb-4">
+                    <span className="text-xs font-mono text-emerald-400 uppercase font-semibold">
+                      ANJUMAN-E-HUDA GAZETTE ARCHIVE
+                    </span>
+                    <button
+                      onClick={() => setSelectedNotice(null)}
+                      className="text-stone-400 hover:text-white p-1 cursor-pointer"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  {isPopoverImg && (
+                    <div className="w-full bg-stone-950 rounded-xl p-3 border border-stone-800 mb-4 flex flex-col items-center">
+                      <img
+                        src={popoverImg}
+                        alt={selectedNotice.title}
+                        className="max-h-[50vh] w-auto max-w-full object-contain rounded-lg shadow-lg"
+                      />
+                      <div className="w-full flex items-center justify-between pt-2 mt-2 border-t border-stone-800/80 text-[11px] font-mono text-stone-400">
+                        <span>Official Gazette Poster</span>
+                        <a
+                          href={popoverImg}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-emerald-400 hover:text-emerald-300 flex items-center gap-1"
+                        >
+                          <ExternalLink className="w-3 h-3" />
+                          <span>Open High-Res</span>
+                        </a>
+                      </div>
+                    </div>
+                  )}
+
+                  <h3 className="text-lg font-bold text-white mb-2">{selectedNotice.title}</h3>
+                  <p className="text-xs text-stone-400 font-mono mb-4">
+                    Date of Issue: {selectedNotice.date} • Category: {selectedNotice.category}
+                  </p>
+                  <div className="bg-stone-950 p-4 rounded-xl border border-stone-800 text-sm text-stone-300 leading-relaxed mb-6 font-serif">
+                    "{selectedNotice.summary}"
+                    <br />
+                    <br />
+                    <em className="text-xs text-stone-400 not-italic block border-t border-stone-800 pt-3 font-sans">
+                      By order of the General Secretary & Central Academic Council, ANJUMAN-E-HUDA. All department
+                      representatives are instructed to circulate this bulletin.
+                    </em>
+                  </div>
+
+                  <div className="flex items-center justify-between gap-3">
+                    {popoverImg ? (
+                      <a
+                        href={popoverImg}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-4 py-2 bg-stone-800 hover:bg-stone-700 text-stone-200 rounded-xl font-medium text-xs flex items-center gap-1.5"
+                      >
+                        <Download className="w-3.5 h-3.5" />
+                        <span>Download Attached Document</span>
+                      </a>
+                    ) : <span />}
+
+                    <button
+                      onClick={() => setSelectedNotice(null)}
+                      className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-medium text-xs cursor-pointer"
+                    >
+                      Acknowledge & Close
+                    </button>
+                  </div>
+                </div>
               </div>
-            </div>
-          )}
+            );
+          })()}
         </motion.div>
       )}
     </AnimatePresence>

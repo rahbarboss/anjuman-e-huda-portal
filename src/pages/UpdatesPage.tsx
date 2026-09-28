@@ -17,6 +17,9 @@ import {
   ChevronRight,
   Home,
   CheckCircle2,
+  Eye,
+  Maximize2,
+  ZoomIn,
 } from 'lucide-react';
 
 export const UpdatesPage: React.FC = () => {
@@ -27,6 +30,23 @@ export const UpdatesPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [activeModalNotice, setActiveModalNotice] = useState<Announcement | null>(null);
+  const [lightboxImage, setLightboxImage] = useState<string | null>(null);
+
+  const isImage = (url?: string) => {
+    if (!url) return false;
+    const clean = url.split('?')[0].toLowerCase();
+    return (
+      clean.endsWith('.jpg') ||
+      clean.endsWith('.jpeg') ||
+      clean.endsWith('.png') ||
+      clean.endsWith('.webp') ||
+      clean.endsWith('.gif') ||
+      clean.endsWith('.svg') ||
+      url.startsWith('data:image/') ||
+      url.startsWith('blob:') ||
+      (!clean.endsWith('.pdf') && !clean.endsWith('.doc') && !clean.endsWith('.docx'))
+    );
+  };
 
   const categories = ['All', 'Circular', 'Event Alert', 'Notice', 'Result'];
 
@@ -156,6 +176,8 @@ export const UpdatesPage: React.FC = () => {
             {filteredAnnouncements.map((ann, idx) => {
               const isUrgent = ann.urgency === 'urgent';
               const isHigh = ann.urgency === 'high';
+              const itemImg = ann.imageUrl || ann.fileUrl;
+              const hasImg = itemImg && isImage(itemImg);
 
               return (
                 <div
@@ -164,6 +186,35 @@ export const UpdatesPage: React.FC = () => {
                   className="p-6 rounded-2xl bg-stone-900/90 border border-stone-800/90 hover:border-emerald-500/50 hover:bg-stone-850 shadow-xl transition-all flex flex-col justify-between cursor-pointer group hover:-translate-y-1"
                 >
                   <div>
+                    {/* Flyer / Poster Preview Image if available */}
+                    {hasImg && (
+                      <div className="relative h-52 sm:h-60 w-full overflow-hidden rounded-xl mb-4 bg-stone-950 border border-stone-800/80 group-hover:border-emerald-500/40 transition-colors">
+                        <img
+                          src={itemImg}
+                          alt={ann.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          loading="lazy"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                        <div className="absolute bottom-2.5 left-2.5 right-2.5 flex items-center justify-between">
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-black/75 backdrop-blur-md text-[10px] font-mono text-emerald-300 border border-emerald-500/30">
+                            <Eye className="w-3 h-3 text-emerald-400" /> Official Circular Poster
+                          </span>
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-black/60 backdrop-blur-md text-[10px] font-mono text-stone-300">
+                            <Maximize2 className="w-2.5 h-2.5" /> Enlarge
+                          </span>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Attached Document file indicator if not an image */}
+                    {!hasImg && itemImg && (
+                      <div className="flex items-center gap-2 p-2.5 rounded-xl bg-stone-950 border border-stone-800 mb-4 text-xs text-sky-400 font-mono">
+                        <FileText className="w-4 h-4 shrink-0 text-sky-400" />
+                        <span className="truncate">Attached Official PDF / Document</span>
+                      </div>
+                    )}
+
                     {/* Header Row: Category Badge, Urgency, Pinned */}
                     <div className="flex items-center justify-between gap-2 mb-3">
                       <div className="flex items-center gap-2">
@@ -234,65 +285,205 @@ export const UpdatesPage: React.FC = () => {
       </div>
 
       {/* Notice Detail Popup Modal */}
-      {activeModalNotice && (
-        <div
-          id="notice-detail-modal"
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm"
-          onClick={() => setActiveModalNotice(null)}
-        >
+      {activeModalNotice && (() => {
+        const modalImg = activeModalNotice.imageUrl || activeModalNotice.fileUrl;
+        const hasModalImg = modalImg && isImage(modalImg);
+
+        return (
           <div
-            className="relative w-full max-w-xl bg-stone-900 border border-stone-700 rounded-2xl shadow-2xl p-7 text-stone-100"
-            onClick={(e) => e.stopPropagation()}
+            id="notice-detail-modal"
+            className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-sm"
+            onClick={() => setActiveModalNotice(null)}
           >
-            <div className="flex items-center justify-between pb-4 border-b border-stone-800 mb-5">
-              <div className="flex items-center gap-2">
-                <span
-                  className={`text-xs font-mono font-semibold px-2.5 py-1 rounded-md border ${getCategoryBadgeColor(
-                    activeModalNotice.category
-                  )}`}
+            <div
+              className="relative w-full max-w-3xl max-h-[92vh] bg-stone-900 border border-stone-700 rounded-2xl shadow-2xl overflow-hidden flex flex-col text-stone-100"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Modal Header */}
+              <div className="p-4 sm:p-6 border-b border-stone-800 flex items-center justify-between gap-3 bg-stone-950/80">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span
+                    className={`text-xs font-mono font-semibold px-2.5 py-1 rounded-md border ${getCategoryBadgeColor(
+                      activeModalNotice.category
+                    )}`}
+                  >
+                    {activeModalNotice.category}
+                  </span>
+                  <span className="text-xs text-stone-400 font-mono">Date of Issue: {activeModalNotice.date}</span>
+                  {activeModalNotice.isPinned && (
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-950 text-amber-300 border border-amber-800">
+                      PINNED
+                    </span>
+                  )}
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setActiveModalNotice(null)}
+                  className="p-1.5 rounded-lg text-stone-400 hover:text-white hover:bg-stone-800 transition-colors cursor-pointer"
                 >
-                  {activeModalNotice.category}
-                </span>
-                <span className="text-xs text-stone-400 font-mono">Date: {activeModalNotice.date}</span>
+                  <X className="w-5 h-5" />
+                </button>
               </div>
 
+              {/* Modal Body - Scrollable */}
+              <div className="p-4 sm:p-6 overflow-y-auto space-y-5">
+                {/* Full Uncropped Flyer / Poster / Image if available */}
+                {hasModalImg && (
+                  <div className="w-full bg-stone-950 rounded-xl p-3 sm:p-4 border border-stone-800 flex flex-col items-center justify-center relative group">
+                    <div className="w-full flex items-center justify-between pb-2 mb-2 border-b border-stone-800/80 text-[11px] font-mono text-stone-400">
+                      <span className="flex items-center gap-1.5 text-emerald-400 font-medium">
+                        <Sparkles className="w-3.5 h-3.5" />
+                        Official Circular & Gazette Poster (Full View)
+                      </span>
+                      <div className="flex items-center gap-3">
+                        <button
+                          type="button"
+                          onClick={() => setLightboxImage(modalImg)}
+                          className="text-stone-400 hover:text-emerald-400 transition-colors flex items-center gap-1 cursor-pointer"
+                        >
+                          <Maximize2 className="w-3 h-3" />
+                          <span>Enlarge</span>
+                        </button>
+                        <a
+                          href={modalImg}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-stone-400 hover:text-emerald-400 transition-colors flex items-center gap-1"
+                        >
+                          <ExternalLink className="w-3 h-3" />
+                          <span>Open Tab</span>
+                        </a>
+                      </div>
+                    </div>
+
+                    <div className="w-full flex items-center justify-center overflow-hidden">
+                      <img
+                        src={modalImg}
+                        alt={activeModalNotice.title}
+                        className="w-auto max-w-full max-h-[60vh] object-contain rounded-lg shadow-xl cursor-zoom-in hover:brightness-105 transition-all"
+                        onClick={() => setLightboxImage(modalImg)}
+                        title="Click to view full image in high resolution"
+                      />
+                    </div>
+
+                    <p className="mt-2 text-[10px] text-stone-400 font-mono text-center">
+                      Full dimensions preserved • Click image to zoom or view fullscreen
+                    </p>
+                  </div>
+                )}
+
+                {/* If PDF attached */}
+                {!hasModalImg && modalImg && (
+                  <div className="p-4 rounded-xl bg-stone-950 border border-stone-800 flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-lg bg-sky-950 border border-sky-800 flex items-center justify-center text-sky-400">
+                        <FileText className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <h4 className="text-xs font-semibold text-white">Attached Official Document</h4>
+                        <p className="text-[10px] text-stone-400 font-mono">PDF Circular / Official Dispatch</p>
+                      </div>
+                    </div>
+                    <a
+                      href={modalImg}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-3.5 py-1.5 bg-sky-600 hover:bg-sky-500 text-white rounded-lg text-xs font-medium flex items-center gap-1.5 transition-colors"
+                    >
+                      <Download className="w-3.5 h-3.5" />
+                      <span>Download PDF</span>
+                    </a>
+                  </div>
+                )}
+
+                <div>
+                  <h3 className="text-xl sm:text-2xl font-bold font-heading text-white leading-snug mb-3">
+                    {activeModalNotice.title}
+                  </h3>
+
+                  <div className="p-4 sm:p-5 rounded-xl bg-stone-950 border border-stone-800 text-stone-300 text-xs sm:text-sm leading-relaxed whitespace-pre-line">
+                    {activeModalNotice.summary}
+                  </div>
+                </div>
+
+                <div className="space-y-2 text-xs text-stone-400">
+                  <div className="flex items-center justify-between p-2.5 rounded-lg bg-stone-950/80 border border-stone-800">
+                    <span>Issuing Authority:</span>
+                    <strong className="text-stone-200">ANJUMAN-E-HUDA Executive Secretariat</strong>
+                  </div>
+                  <div className="flex items-center justify-between p-2.5 rounded-lg bg-stone-950/80 border border-stone-800">
+                    <span>Authenticity Verification:</span>
+                    <span className="text-emerald-400 font-semibold flex items-center gap-1">
+                      <CheckCircle2 className="w-3.5 h-3.5" /> Official Gazette Certified
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Modal Footer */}
+              <div className="p-4 border-t border-stone-800 flex items-center justify-between gap-3 bg-stone-950/80">
+                {hasModalImg ? (
+                  <button
+                    type="button"
+                    onClick={() => setLightboxImage(modalImg)}
+                    className="px-4 py-2 bg-emerald-700 hover:bg-emerald-600 text-white text-xs font-semibold rounded-xl flex items-center gap-1.5 cursor-pointer transition-colors"
+                  >
+                    <ZoomIn className="w-3.5 h-3.5" />
+                    <span>View Poster Fullscreen</span>
+                  </button>
+                ) : <span />}
+
+                <button
+                  type="button"
+                  onClick={() => setActiveModalNotice(null)}
+                  className="px-5 py-2 bg-stone-800 hover:bg-stone-700 text-stone-200 text-xs font-semibold rounded-xl cursor-pointer"
+                >
+                  Close Dispatch
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+
+      {/* Fullscreen Lightbox for Notices */}
+      {lightboxImage && (
+        <div
+          className="fixed inset-0 z-60 flex items-center justify-center p-2 sm:p-4 bg-black/95 backdrop-blur-md"
+          onClick={() => setLightboxImage(null)}
+        >
+          <div className="relative max-w-5xl max-h-[95vh] flex flex-col items-center">
+            <button
+              type="button"
+              onClick={() => setLightboxImage(null)}
+              className="absolute -top-10 right-0 p-1.5 rounded-lg text-white/80 hover:text-white bg-white/10 hover:bg-white/20 transition-all cursor-pointer"
+            >
+              <X className="w-5 h-5" />
+            </button>
+            <img
+              src={lightboxImage}
+              alt="Notice Flyer Poster Fullscreen"
+              className="max-h-[85vh] max-w-full object-contain rounded-lg shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            />
+            <div className="mt-3 flex items-center gap-3">
+              <a
+                href={lightboxImage}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-medium flex items-center gap-1.5 transition-colors shadow-lg"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <Download className="w-3.5 h-3.5" />
+                <span>Save / Open Image</span>
+              </a>
               <button
                 type="button"
-                onClick={() => setActiveModalNotice(null)}
-                className="p-1.5 rounded-lg text-stone-400 hover:text-white hover:bg-stone-800 transition-colors cursor-pointer"
+                onClick={() => setLightboxImage(null)}
+                className="px-4 py-1.5 bg-stone-800 hover:bg-stone-700 text-stone-300 rounded-lg text-xs font-medium cursor-pointer"
               >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <h3 className="text-xl font-bold font-heading text-white leading-snug mb-3">
-              {activeModalNotice.title}
-            </h3>
-
-            <div className="p-4 rounded-xl bg-stone-950 border border-stone-800 mb-5 text-stone-300 text-xs sm:text-sm leading-relaxed whitespace-pre-line">
-              {activeModalNotice.summary}
-            </div>
-
-            <div className="space-y-2 mb-6 text-xs text-stone-400">
-              <div className="flex items-center justify-between p-2.5 rounded-lg bg-stone-950/80 border border-stone-800">
-                <span>Issuing Authority:</span>
-                <strong className="text-stone-200">ANJUMAN-E-HUDA Executive Secretariat</strong>
-              </div>
-              <div className="flex items-center justify-between p-2.5 rounded-lg bg-stone-950/80 border border-stone-800">
-                <span>Authenticity Verification:</span>
-                <span className="text-emerald-400 font-semibold flex items-center gap-1">
-                  <CheckCircle2 className="w-3.5 h-3.5" /> Official Gazette Certified
-                </span>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-end gap-3">
-              <button
-                type="button"
-                onClick={() => setActiveModalNotice(null)}
-                className="px-5 py-2.5 bg-stone-800 hover:bg-stone-700 text-stone-200 text-xs font-semibold rounded-xl"
-              >
-                Close Dispatch
+                Close Fullscreen
               </button>
             </div>
           </div>

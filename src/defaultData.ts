@@ -25,6 +25,8 @@ export const initialDatabase: AppDatabase = {
       date: '2026-09-20',
       summary:
         'Registration is now open for the 32nd Annual Grand Summit. Distinguished speakers and international delegates will deliberate on ethical education.',
+      imageUrl: 'https://images.unsplash.com/photo-1544531585-9847b68c8c86?auto=format&fit=crop&w=1200&q=80',
+      fileUrl: 'https://images.unsplash.com/photo-1544531585-9847b68c8c86?auto=format&fit=crop&w=1200&q=80',
       isPinned: true,
       urgency: 'urgent',
     },
@@ -35,6 +37,8 @@ export const initialDatabase: AppDatabase = {
       date: '2026-09-15',
       summary:
         'Executive committee sanctioned 45 student research fellowships and hardship welfare allocations for the autumn semester.',
+      imageUrl: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&w=1200&q=80',
+      fileUrl: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&w=1200&q=80',
       isPinned: true,
       urgency: 'high',
     },
@@ -45,6 +49,8 @@ export const initialDatabase: AppDatabase = {
       date: '2026-09-10',
       summary:
         'Final parliamentary debates will take place at the Central Auditorium on Saturday, 10:00 AM sharp.',
+      imageUrl: 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=1200&q=80',
+      fileUrl: 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=1200&q=80',
       isPinned: false,
       urgency: 'normal',
     },
@@ -55,6 +61,8 @@ export const initialDatabase: AppDatabase = {
       date: '2026-09-05',
       summary:
         'The Department of Humanities and Arabic Studies secures first position in traditional calligraphy and poetry recitation.',
+      imageUrl: 'https://images.unsplash.com/photo-1516979187457-637abb4f9353?auto=format&fit=crop&w=1200&q=80',
+      fileUrl: 'https://images.unsplash.com/photo-1516979187457-637abb4f9353?auto=format&fit=crop&w=1200&q=80',
       isPinned: false,
       urgency: 'normal',
     },
@@ -904,6 +912,32 @@ export const initialDatabase: AppDatabase = {
       },
     ],
   },
+  socialLinks: [
+    {
+      id: 'soc-1',
+      platform: 'Instagram',
+      url: 'https://instagram.com',
+      icon: 'instagram',
+      isActive: true,
+      displayOrder: 1,
+    },
+    {
+      id: 'soc-2',
+      platform: 'YouTube',
+      url: 'https://youtube.com',
+      icon: 'youtube',
+      isActive: true,
+      displayOrder: 2,
+    },
+    {
+      id: 'soc-3',
+      platform: 'Facebook',
+      url: 'https://facebook.com',
+      icon: 'facebook',
+      isActive: true,
+      displayOrder: 3,
+    },
+  ],
 };
 
 export const defaultTelemetrySettings = initialDatabase.telemetry!;

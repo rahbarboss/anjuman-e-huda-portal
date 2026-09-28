@@ -37,9 +37,10 @@ export interface NIICSInCharge {
 export interface Announcement {
   id: string;
   title: string;
-  category: 'Circular' | 'Event Alert' | 'Notice' | 'Result';
+  category: 'Circular' | 'Event Alert' | 'Notice' | 'Result' | string;
   date: string;
   summary: string;
+  imageUrl?: string;
   fileUrl?: string;
   isPinned: boolean;
   urgency: 'normal' | 'high' | 'urgent';
@@ -183,6 +184,15 @@ export interface PillarItem {
   wingAffiliation?: string;
 }
 
+export interface SocialLink {
+  id: string;
+  platform: string; // e.g. "Instagram", "YouTube", "Facebook", "Twitter / X", "WhatsApp", "Telegram", "LinkedIn", "Website"
+  url: string; // e.g. "https://instagram.com/anjuman_e_huda"
+  icon: string; // "instagram" | "youtube" | "facebook" | "twitter" | "linkedin" | "whatsapp" | "telegram" | "globe" | custom
+  isActive?: boolean;
+  displayOrder?: number;
+}
+
 export interface AppDatabase {
   homepage: HomepageContent;
   announcements: Announcement[];
@@ -198,6 +208,7 @@ export interface AppDatabase {
   inquiries?: StudentInquiry[];
   pillars?: PillarItem[];
   telemetry?: TelemetrySettings;
+  socialLinks?: SocialLink[];
 }
 
 export interface TelemetryCard {

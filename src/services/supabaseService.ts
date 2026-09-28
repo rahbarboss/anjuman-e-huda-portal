@@ -13,6 +13,7 @@ import {
   StudentInquiry,
   PillarItem,
   TelemetrySettings,
+  SocialLink,
 } from '../types';
 import { initialDatabase, defaultTelemetrySettings } from '../defaultData';
 
@@ -211,16 +212,21 @@ export async function fetchContentFromSupabase(): Promise<AppDatabase | null> {
       registrationLink: e.registration_link,
     }));
 
-    const announcements: Announcement[] = (noticesRes.data || []).map((n: any) => ({
-      id: n.id,
-      title: n.title,
-      category: n.category,
-      date: n.date,
-      summary: n.summary,
-      fileUrl: n.file_url,
-      isPinned: Boolean(n.is_pinned),
-      urgency: n.urgency,
-    }));
+    const announcements: Announcement[] = (noticesRes.data || []).map((n: any) => {
+      const img = n.image_url || n.file_url || '';
+      const file = n.file_url || n.image_url || '';
+      return {
+        id: n.id,
+        title: n.title,
+        category: n.category,
+        date: n.date,
+        summary: n.summary,
+        imageUrl: img,
+        fileUrl: file,
+        isPinned: Boolean(n.is_pinned),
+        urgency: n.urgency,
+      };
+    });
 
     const highlights: HighlightItem[] = (activitiesRes.data || []).map((a: any) => ({
       id: a.id,
@@ -265,6 +271,8 @@ export async function fetchContentFromSupabase(): Promise<AppDatabase | null> {
     const pillars = cloudPillars.length > 0 ? cloudPillars : (initialDatabase.pillars || []);
     const cloudTelemetry = await fetchTelemetryFromSupabase();
     const telemetry = cloudTelemetry || initialDatabase.telemetry || defaultTelemetrySettings;
+    const cloudSocialLinks = await fetchSocialLinksFromSupabase();
+    const socialLinks = cloudSocialLinks.length > 0 ? cloudSocialLinks : (initialDatabase.socialLinks || []);
 
     return {
       homepage,
@@ -277,6 +285,7 @@ export async function fetchContentFromSupabase(): Promise<AppDatabase | null> {
       inquiries,
       pillars,
       telemetry,
+      socialLinks,
       achievements: {
         totalAchievements: telemetry.cards?.find((c) => c.id === 'stat-achievements')?.value || 142,
         totalOutreachInitiatives: 120,
@@ -606,19 +615,43 @@ export async function saveAnnouncementInSupabase(
 
   try {
     const annId = id || ('id' in ann && ann.id ? ann.id : `not_${Date.now()}`);
-    const row = {
+    const imgUrl = (ann as any).imageUrl || ann.fileUrl || '';
+    const fUrl = ann.fileUrl || (ann as any).imageUrl || '';
+
+    // First attempt to save with both image_url and file_url
+    const rowWithBoth: any = {
       id: annId,
       title: ann.title,
       category: ann.category,
       date: ann.date,
       summary: ann.summary,
-      file_url: ann.fileUrl || '',
+      file_url: fUrl,
+      image_url: imgUrl,
       is_pinned: Boolean(ann.isPinned),
       urgency: ann.urgency || 'normal',
       updated_at: new Date().toISOString(),
     };
 
-    const { error } = await supabase.from('notices').upsert(row);
+    let { error } = await supabase.from('notices').upsert(rowWithBoth);
+
+    // If error indicates image_url column doesn't exist yet, gracefully fall back to file_url only
+    if (error && error.message && (error.message.includes('image_url') || error.message.includes('column'))) {
+      console.warn('[Supabase DB / notices] image_url column not found in schema, falling back to file_url:', error.message);
+      const rowFallback = {
+        id: annId,
+        title: ann.title,
+        category: ann.category,
+        date: ann.date,
+        summary: ann.summary,
+        file_url: fUrl || imgUrl,
+        is_pinned: Boolean(ann.isPinned),
+        urgency: ann.urgency || 'normal',
+        updated_at: new Date().toISOString(),
+      };
+      const fallbackRes = await supabase.from('notices').upsert(rowFallback);
+      error = fallbackRes.error;
+    }
+
     if (error) {
       console.error('[Supabase DB / notices] Save notice failed:', error.message);
       return { success: false, message: error.message };
@@ -629,6 +662,8 @@ export async function saveAnnouncementInSupabase(
       data: {
         id: annId,
         ...ann,
+        imageUrl: imgUrl,
+        fileUrl: fUrl,
       },
     };
   } catch (err: any) {
@@ -639,7 +674,8 @@ export async function saveAnnouncementInSupabase(
 
 export async function deleteAnnouncementInSupabase(
   id: string,
-  fileUrl?: string
+  fileUrl?: string,
+  imageUrl?: string
 ): Promise<{ success: boolean; message?: string }> {
   if (!supabase || !isSupabaseConfigured) {
     return { success: false, message: 'Supabase is not configured' };
@@ -652,8 +688,9 @@ export async function deleteAnnouncementInSupabase(
       return { success: false, message: error.message };
     }
 
-    if (fileUrl && fileUrl.includes('supabase.co')) {
-      await deleteFromSupabaseStorage(fileUrl, 'notices');
+    const urlToDelete = fileUrl || imageUrl;
+    if (urlToDelete && urlToDelete.includes('supabase.co')) {
+      await deleteFromSupabaseStorage(urlToDelete, 'notices');
     }
 
     return { success: true };
@@ -1184,5 +1221,117 @@ export async function saveTelemetryInSupabase(
   } catch (err: any) {
     console.error('[Supabase DB / documents] Unexpected error saving telemetry:', err);
     return { success: false, message: err?.message || 'Failed to save telemetry' };
+  }
+}
+
+/* =========================================================================
+   SOCIAL MEDIA HANDLES CRUD (Table: socialmedia or social_media)
+========================================================================= */
+
+export async function fetchSocialLinksFromSupabase(): Promise<SocialLink[]> {
+  if (!supabase || !isSupabaseConfigured) return [];
+  try {
+    let { data, error } = await supabase
+      .from('socialmedia')
+      .select('*')
+      .order('display_order', { ascending: true });
+
+    if (error) {
+      // Try alias table 'social_media'
+      const fallback = await supabase
+        .from('social_media')
+        .select('*')
+        .order('display_order', { ascending: true });
+      data = fallback.data;
+      error = fallback.error;
+    }
+
+    if (error || !data || data.length === 0) return [];
+
+    return data.map((item: any) => ({
+      id: item.id,
+      platform: item.platform,
+      url: item.url,
+      icon: (item.icon || 'globe').toLowerCase(),
+      isActive: item.is_active !== false,
+      displayOrder: item.display_order ?? 0,
+    }));
+  } catch (err) {
+    console.warn('[Supabase DB / socialmedia] fetchSocialLinks error:', err);
+    return [];
+  }
+}
+
+export async function saveSocialLinkInSupabase(
+  link: SocialLink | Omit<SocialLink, 'id'>,
+  id?: string
+): Promise<{ success: boolean; data?: SocialLink; message?: string }> {
+  if (!supabase || !isSupabaseConfigured) {
+    return { success: false, message: 'Supabase is not configured' };
+  }
+
+  try {
+    const linkId = id || ('id' in link && link.id ? link.id : `soc_${Date.now()}`);
+    const row = {
+      id: linkId,
+      platform: link.platform,
+      url: link.url,
+      icon: (link.icon || 'globe').toLowerCase(),
+      is_active: link.isActive !== false,
+      display_order: link.displayOrder ?? 0,
+      updated_at: new Date().toISOString(),
+    };
+
+    let { error } = await supabase.from('socialmedia').upsert(row);
+    if (error) {
+      const fallback = await supabase.from('social_media').upsert(row);
+      error = fallback.error;
+    }
+
+    if (error) {
+      console.error('[Supabase DB / socialmedia] Save social link failed:', error.message);
+      return { success: false, message: error.message };
+    }
+
+    return {
+      success: true,
+      data: {
+        id: linkId,
+        platform: link.platform,
+        url: link.url,
+        icon: (link.icon || 'globe').toLowerCase(),
+        isActive: link.isActive !== false,
+        displayOrder: link.displayOrder ?? 0,
+      },
+    };
+  } catch (err: any) {
+    console.error('[Supabase DB / socialmedia] Unexpected save error:', err);
+    return { success: false, message: err?.message || 'Failed to save social link' };
+  }
+}
+
+export async function deleteSocialLinkInSupabase(
+  id: string
+): Promise<{ success: boolean; message?: string }> {
+  if (!supabase || !isSupabaseConfigured) {
+    return { success: false, message: 'Supabase is not configured' };
+  }
+
+  try {
+    let { error } = await supabase.from('socialmedia').delete().eq('id', id);
+    if (error) {
+      const fallback = await supabase.from('social_media').delete().eq('id', id);
+      error = fallback.error;
+    }
+
+    if (error) {
+      console.error('[Supabase DB / socialmedia] Delete social link failed:', error.message);
+      return { success: false, message: error.message };
+    }
+
+    return { success: true };
+  } catch (err: any) {
+    console.error('[Supabase DB / socialmedia] Unexpected delete error:', err);
+    return { success: false, message: err?.message || 'Failed to delete social link' };
   }
 }

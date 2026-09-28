@@ -17,6 +17,7 @@ import {
   PillarItem,
   TelemetrySettings,
   TelemetryCard,
+  SocialLink,
 } from '../../types';
 import { defaultTelemetrySettings } from '../../defaultData';
 import { MediaUploadZone } from './MediaUploadZone';
@@ -57,6 +58,16 @@ import {
   AlertTriangle,
   Activity,
   ArrowUpRight,
+  Share2,
+  X,
+  Instagram,
+  Youtube,
+  Facebook,
+  Twitter,
+  Linkedin,
+  MessageCircle,
+  Send,
+  Globe,
 } from 'lucide-react';
 
 export type AdminTab =
@@ -65,6 +76,7 @@ export type AdminTab =
   | 'telemetry'
   | 'about'
   | 'updates'
+  | 'social'
   | 'leadership'
   | 'participants'
   | 'programs'
@@ -115,6 +127,9 @@ export const AdminDashboard: React.FC = () => {
     updateContactSettings,
     deleteInquiry,
     updateInquiryStatus,
+    addSocialLink,
+    updateSocialLink,
+    deleteSocialLink,
     resetToDefaultSeed,
   } = useData();
 
@@ -253,6 +268,7 @@ export const AdminDashboard: React.FC = () => {
     category: 'Circular' as Announcement['category'],
     date: new Date().toISOString().split('T')[0],
     summary: '',
+    imageUrl: '',
     fileUrl: '',
     isPinned: false,
     urgency: 'normal' as Announcement['urgency'],
@@ -265,6 +281,7 @@ export const AdminDashboard: React.FC = () => {
       category: 'Circular',
       date: new Date().toISOString().split('T')[0],
       summary: '',
+      imageUrl: '',
       fileUrl: '',
       isPinned: false,
       urgency: 'normal',
@@ -274,12 +291,15 @@ export const AdminDashboard: React.FC = () => {
 
   const handleOpenEditAnn = (ann: Announcement) => {
     setEditingAnn(ann);
+    const img = ann.imageUrl || ann.fileUrl || '';
+    const file = ann.fileUrl || ann.imageUrl || '';
     setAnnForm({
       title: ann.title,
       category: ann.category,
       date: ann.date,
       summary: ann.summary,
-      fileUrl: ann.fileUrl || '',
+      imageUrl: img,
+      fileUrl: file,
       isPinned: !!ann.isPinned,
       urgency: ann.urgency || 'normal',
     });
@@ -296,6 +316,95 @@ export const AdminDashboard: React.FC = () => {
       showToast(`New Circular "${annForm.title}" published.`);
     }
     setIsAnnModalOpen(false);
+  };
+
+  // ================= 3.5 SOCIAL MEDIA STATE & MODALS =================
+  const [isSocialModalOpen, setIsSocialModalOpen] = useState(false);
+  const [editingSocial, setEditingSocial] = useState<SocialLink | null>(null);
+  const [socialForm, setSocialForm] = useState({
+    platform: '',
+    url: '',
+    icon: 'instagram',
+    isActive: true,
+    displayOrder: 1,
+  });
+
+  const PRESET_ICONS = [
+    { id: 'instagram', label: 'Instagram', icon: Instagram, color: 'text-rose-400 bg-rose-950/60 border-rose-800' },
+    { id: 'youtube', label: 'YouTube', icon: Youtube, color: 'text-red-500 bg-red-950/60 border-red-800' },
+    { id: 'facebook', label: 'Facebook', icon: Facebook, color: 'text-blue-400 bg-blue-950/60 border-blue-800' },
+    { id: 'whatsapp', label: 'WhatsApp', icon: MessageCircle, color: 'text-emerald-400 bg-emerald-950/60 border-emerald-800' },
+    { id: 'telegram', label: 'Telegram', icon: Send, color: 'text-sky-400 bg-sky-950/60 border-sky-800' },
+    { id: 'twitter', label: 'Twitter / X', icon: Twitter, color: 'text-stone-300 bg-stone-900 border-stone-700' },
+    { id: 'linkedin', label: 'LinkedIn', icon: Linkedin, color: 'text-sky-400 bg-sky-950/60 border-sky-800' },
+    { id: 'globe', label: 'Website / Portal', icon: Globe, color: 'text-amber-400 bg-amber-950/60 border-amber-800' },
+  ];
+
+  const handleOpenAddSocial = () => {
+    setEditingSocial(null);
+    const nextOrder = (database.socialLinks?.length || 0) + 1;
+    setSocialForm({
+      platform: '',
+      url: 'https://',
+      icon: 'instagram',
+      isActive: true,
+      displayOrder: nextOrder,
+    });
+    setIsSocialModalOpen(true);
+  };
+
+  const handleOpenEditSocial = (link: SocialLink) => {
+    setEditingSocial(link);
+    setSocialForm({
+      platform: link.platform,
+      url: link.url,
+      icon: (link.icon || 'globe').toLowerCase(),
+      isActive: link.isActive !== false,
+      displayOrder: link.displayOrder ?? 1,
+    });
+    setIsSocialModalOpen(true);
+  };
+
+  const handleSaveSocial = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!socialForm.platform.trim() || !socialForm.url.trim()) {
+      showToast('Please provide platform name and valid URL.');
+      return;
+    }
+    if (editingSocial) {
+      await updateSocialLink(editingSocial.id, socialForm);
+      showToast(`Social handle "${socialForm.platform}" updated.`);
+    } else {
+      await addSocialLink(socialForm);
+      showToast(`Social handle "${socialForm.platform}" added.`);
+    }
+    setIsSocialModalOpen(false);
+  };
+
+  const renderPlatformIcon = (iconName: string, className = "w-5 h-5") => {
+    const norm = (iconName || '').toLowerCase().trim();
+    switch (norm) {
+      case 'instagram':
+        return <Instagram className={className} />;
+      case 'youtube':
+        return <Youtube className={className} />;
+      case 'facebook':
+        return <Facebook className={className} />;
+      case 'whatsapp':
+        return <MessageCircle className={className} />;
+      case 'telegram':
+        return <Send className={className} />;
+      case 'twitter':
+      case 'x':
+        return <Twitter className={className} />;
+      case 'linkedin':
+        return <Linkedin className={className} />;
+      case 'globe':
+      case 'website':
+        return <Globe className={className} />;
+      default:
+        return <Globe className={className} />;
+    }
   };
 
   // ================= 4. LEADERSHIP MODAL & FORM STATE =================
@@ -817,6 +926,7 @@ export const AdminDashboard: React.FC = () => {
     { id: 'telemetry' as AdminTab, label: 'Telemetry & Stats', icon: Activity },
     { id: 'about' as AdminTab, label: 'About', icon: BookOpen },
     { id: 'updates' as AdminTab, label: 'Updates', icon: Bell },
+    { id: 'social' as AdminTab, label: 'Social Media', icon: Share2 },
     { id: 'leadership' as AdminTab, label: 'Leadership', icon: Users },
     { id: 'participants' as AdminTab, label: 'Wings', icon: Layers },
     { id: 'programs' as AdminTab, label: 'Programs', icon: Calendar },
@@ -1959,27 +2069,40 @@ export const AdminDashboard: React.FC = () => {
               </div>
 
               <div className="space-y-3">
-                {database.announcements.map((ann, idx) => (
-                  <div
-                    key={`admin-ann-${ann.id}-${idx}`}
-                    className="p-4 bg-stone-900 border border-stone-800 rounded-xl flex items-center justify-between gap-4"
-                  >
-                    <div>
-                      <div className="flex items-center gap-2 text-[10px] font-mono mb-1">
-                        <span className="px-2 py-0.5 rounded bg-stone-950 text-amber-400 border border-stone-800 font-semibold">
-                          {ann.category}
-                        </span>
-                        <span className="text-stone-400">{ann.date}</span>
-                        {ann.isPinned && (
-                          <span className="text-red-400 font-bold uppercase tracking-wider">PINNED</span>
+                {database.announcements.map((ann, idx) => {
+                  const itemImg = ann.imageUrl || ann.fileUrl;
+                  return (
+                    <div
+                      key={`admin-ann-${ann.id}-${idx}`}
+                      className="p-4 bg-stone-900 border border-stone-800 rounded-xl flex items-center justify-between gap-4"
+                    >
+                      <div className="flex items-center gap-3">
+                        {itemImg && (
+                          <div className="w-14 h-14 rounded-lg overflow-hidden bg-stone-950 border border-stone-800 shrink-0">
+                            <img
+                              src={itemImg}
+                              alt={ann.title}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
                         )}
-                        <span className="text-stone-500 uppercase">Urgency: {ann.urgency || 'Normal'}</span>
+                        <div>
+                          <div className="flex items-center gap-2 text-[10px] font-mono mb-1">
+                            <span className="px-2 py-0.5 rounded bg-stone-950 text-amber-400 border border-stone-800 font-semibold">
+                              {ann.category}
+                            </span>
+                            <span className="text-stone-400">{ann.date}</span>
+                            {ann.isPinned && (
+                              <span className="text-red-400 font-bold uppercase tracking-wider">PINNED</span>
+                            )}
+                            <span className="text-stone-500 uppercase">Urgency: {ann.urgency || 'Normal'}</span>
+                          </div>
+                          <h4 className="text-sm font-bold text-white">{ann.title}</h4>
+                          <p className="text-xs text-stone-400 line-clamp-1">{ann.summary}</p>
+                        </div>
                       </div>
-                      <h4 className="text-sm font-bold text-white">{ann.title}</h4>
-                      <p className="text-xs text-stone-400 line-clamp-1">{ann.summary}</p>
-                    </div>
 
-                    <div className="flex items-center gap-2 shrink-0">
+                      <div className="flex items-center gap-2 shrink-0">
                       <button
                         onClick={() => handleOpenEditAnn(ann)}
                         className="p-2 text-stone-400 hover:text-emerald-400 rounded-lg hover:bg-stone-800 cursor-pointer"
@@ -2006,7 +2129,144 @@ export const AdminDashboard: React.FC = () => {
                       </button>
                     </div>
                   </div>
-                ))}
+                );
+              })}
+              </div>
+            </div>
+          )}
+
+          {/* ================= TAB 3.5: SOCIAL MEDIA ================= */}
+          {activeTab === 'social' && (
+            <div className="space-y-6 max-w-5xl">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <h2 className="text-xl font-bold font-heading text-white flex items-center gap-2">
+                    <Share2 className="w-5 h-5 text-emerald-400" />
+                    <span>Manage Social Media Channels</span>
+                  </h2>
+                  <p className="text-xs text-stone-400 mt-0.5">
+                    Configure official social media links, platforms, and icons displayed in the website footer.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleOpenAddSocial}
+                  className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-semibold flex items-center gap-2 cursor-pointer shadow transition-colors"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Add Social Channel</span>
+                </button>
+              </div>
+
+              {/* Information Callout */}
+              <div className="p-4 bg-emerald-950/40 border border-emerald-500/30 rounded-2xl flex items-start gap-3 text-xs text-emerald-200">
+                <Sparkles className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
+                <div className="leading-relaxed">
+                  <strong className="text-white block mb-0.5">Live Sync with Site Footer & Supabase Table</strong>
+                  Social handles configured here automatically appear in the website footer with their authentic brand icons. All changes are stored in Supabase under the <code className="px-1.5 py-0.5 bg-emerald-900/60 rounded text-emerald-300 font-mono">socialmedia</code> table.
+                </div>
+              </div>
+
+              {/* List of Social Media Links */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {(database.socialLinks || []).length === 0 ? (
+                  <div className="col-span-full text-center py-12 bg-stone-900 border border-stone-800 rounded-2xl">
+                    <Share2 className="w-10 h-10 mx-auto text-stone-600 mb-2" />
+                    <p className="text-sm font-semibold text-stone-300">No social media channels added yet</p>
+                    <p className="text-xs text-stone-500 mt-1">Click "Add Social Channel" to configure your first link.</p>
+                  </div>
+                ) : (
+                  (database.socialLinks || []).map((link, idx) => {
+                    const preset = PRESET_ICONS.find((p) => p.id === link.icon) || PRESET_ICONS[PRESET_ICONS.length - 1];
+                    const isLive = link.isActive !== false;
+
+                    return (
+                      <div
+                        key={`admin-soc-${link.id}-${idx}`}
+                        className={`p-5 bg-stone-900 border rounded-2xl flex flex-col justify-between gap-4 transition-all ${
+                          isLive ? 'border-stone-800 hover:border-emerald-500/40' : 'border-stone-800/60 opacity-60'
+                        }`}
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="flex items-center gap-3">
+                            <div className={`w-11 h-11 rounded-xl flex items-center justify-center border ${preset.color} shadow-sm`}>
+                              {renderPlatformIcon(link.icon, "w-5 h-5")}
+                            </div>
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <h4 className="text-sm font-bold text-white">{link.platform}</h4>
+                                <span className={`text-[10px] font-mono px-2 py-0.5 rounded-full border ${
+                                  isLive
+                                    ? 'bg-emerald-950 text-emerald-300 border-emerald-800'
+                                    : 'bg-stone-950 text-stone-400 border-stone-800'
+                                }`}>
+                                  {isLive ? 'Active on Footer' : 'Hidden'}
+                                </span>
+                              </div>
+                              <a
+                                href={link.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-xs text-stone-400 hover:text-emerald-400 flex items-center gap-1 mt-1 truncate max-w-xs transition-colors"
+                              >
+                                <span className="truncate">{link.url}</span>
+                                <ExternalLink className="w-3 h-3 shrink-0" />
+                              </a>
+                            </div>
+                          </div>
+
+                          <span className="text-[10px] font-mono text-stone-500 px-2 py-1 rounded bg-stone-950 border border-stone-800">
+                            #{link.displayOrder ?? idx + 1}
+                          </span>
+                        </div>
+
+                        <div className="pt-3 border-t border-stone-800/80 flex items-center justify-between">
+                          <button
+                            type="button"
+                            onClick={async () => {
+                              await updateSocialLink(link.id, { isActive: !isLive });
+                              showToast(`"${link.platform}" is now ${!isLive ? 'visible' : 'hidden'}.`);
+                            }}
+                            className={`text-xs font-medium cursor-pointer transition-colors ${
+                              isLive ? 'text-stone-400 hover:text-stone-200' : 'text-emerald-400 hover:text-emerald-300'
+                            }`}
+                          >
+                            {isLive ? 'Disable (Hide)' : 'Enable (Show)'}
+                          </button>
+
+                          <div className="flex items-center gap-1.5">
+                            <button
+                              type="button"
+                              onClick={() => handleOpenEditSocial(link)}
+                              className="p-2 text-stone-400 hover:text-emerald-400 rounded-lg hover:bg-stone-800 transition-colors cursor-pointer"
+                              title="Edit Social Channel"
+                            >
+                              <Edit2 className="w-4 h-4" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                requestDelete({
+                                  title: 'Delete Social Channel',
+                                  message: `Are you sure you want to remove "${link.platform}" (${link.url}) from social media handles?`,
+                                  confirmLabel: 'Delete Channel',
+                                  onConfirm: async () => {
+                                    await deleteSocialLink(link.id);
+                                    showToast(`Social handle "${link.platform}" deleted.`);
+                                  },
+                                });
+                              }}
+                              className="p-2 text-stone-400 hover:text-red-400 rounded-lg hover:bg-stone-800 transition-colors cursor-pointer"
+                              title="Delete Social Channel"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
               </div>
             </div>
           )}
@@ -3526,9 +3786,9 @@ export const AdminDashboard: React.FC = () => {
 
               <MediaUploadZone
                 bucket="notices"
-                label="Attach Document / Circular PDF (Optional)"
-                currentUrl={annForm.fileUrl}
-                onUploadSuccess={(url) => setAnnForm({ ...annForm, fileUrl: url })}
+                label="Attach Circular Image, Flyer Poster, or Document (Optional)"
+                currentUrl={annForm.imageUrl || annForm.fileUrl}
+                onUploadSuccess={(url) => setAnnForm({ ...annForm, imageUrl: url, fileUrl: url })}
               />
 
               <div className="flex items-center gap-2">
@@ -3557,6 +3817,150 @@ export const AdminDashboard: React.FC = () => {
                   className="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-semibold cursor-pointer"
                 >
                   Publish Announcement
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ================= MODAL: SOCIAL MEDIA ================= */}
+      {isSocialModalOpen && (
+        <div
+          id="social-channel-modal"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm"
+          onClick={() => setIsSocialModalOpen(false)}
+        >
+          <div
+            className="relative w-full max-w-lg bg-stone-900 border border-stone-700 rounded-2xl shadow-2xl p-6 text-stone-100"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between pb-4 border-b border-stone-800 mb-5">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-emerald-950 border border-emerald-800 text-emerald-400 flex items-center justify-center">
+                  <Share2 className="w-4 h-4" />
+                </div>
+                <h3 className="text-base font-bold text-white">
+                  {editingSocial ? 'Edit Social Channel' : 'Add New Social Channel'}
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsSocialModalOpen(false)}
+                className="p-1 rounded-lg text-stone-400 hover:text-white hover:bg-stone-800 transition-colors cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveSocial} className="space-y-4">
+              <div>
+                <label className="block text-xs font-medium text-stone-300 mb-1">
+                  Platform Name <span className="text-red-400">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Instagram, YouTube, WhatsApp Channel, Facebook Page..."
+                  value={socialForm.platform}
+                  onChange={(e) => setSocialForm({ ...socialForm, platform: e.target.value })}
+                  className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-xs text-white placeholder-stone-500 focus:outline-none focus:border-emerald-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-stone-300 mb-1">
+                  Target URL / Profile Link <span className="text-red-400">*</span>
+                </label>
+                <input
+                  type="url"
+                  required
+                  placeholder="https://..."
+                  value={socialForm.url}
+                  onChange={(e) => setSocialForm({ ...socialForm, url: e.target.value })}
+                  className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-xs text-white placeholder-stone-500 focus:outline-none focus:border-emerald-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-stone-300 mb-1.5">
+                  Select Brand Icon
+                </label>
+                <div className="grid grid-cols-4 gap-2">
+                  {PRESET_ICONS.map((preset) => {
+                    const isSelected = socialForm.icon === preset.id;
+                    const IconComp = preset.icon;
+                    return (
+                      <button
+                        key={`preset-${preset.id}`}
+                        type="button"
+                        onClick={() => setSocialForm({ ...socialForm, icon: preset.id })}
+                        className={`p-2.5 rounded-xl border flex flex-col items-center gap-1.5 text-center cursor-pointer transition-all ${
+                          isSelected
+                            ? 'bg-emerald-950/80 border-emerald-500 text-white shadow-md'
+                            : 'bg-stone-950 border-stone-800 text-stone-400 hover:text-stone-200 hover:bg-stone-850'
+                        }`}
+                      >
+                        <IconComp className="w-5 h-5" />
+                        <span className="text-[10px] truncate max-w-full font-medium">{preset.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 pt-1">
+                <div>
+                  <label className="block text-xs font-medium text-stone-300 mb-1">Display Order</label>
+                  <input
+                    type="number"
+                    min="1"
+                    value={socialForm.displayOrder}
+                    onChange={(e) => setSocialForm({ ...socialForm, displayOrder: parseInt(e.target.value) || 1 })}
+                    className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500"
+                  />
+                </div>
+
+                <div className="flex items-center gap-2 pt-6">
+                  <input
+                    type="checkbox"
+                    id="soc-active"
+                    checked={socialForm.isActive}
+                    onChange={(e) => setSocialForm({ ...socialForm, isActive: e.target.checked })}
+                    className="rounded bg-stone-950 border-stone-700 text-emerald-600 focus:ring-emerald-500"
+                  />
+                  <label htmlFor="soc-active" className="text-xs text-stone-300 cursor-pointer">
+                    Show in website footer
+                  </label>
+                </div>
+              </div>
+
+              {/* Live Preview */}
+              <div className="p-3 bg-stone-950 border border-stone-800 rounded-xl flex items-center justify-between">
+                <span className="text-[10px] text-stone-500 font-mono">Footer Preview:</span>
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-lg bg-stone-900 border border-stone-800 flex items-center justify-center text-emerald-400">
+                    {renderPlatformIcon(socialForm.icon, "w-4 h-4")}
+                  </div>
+                  <span className="text-xs text-stone-300 font-medium truncate max-w-[150px]">
+                    {socialForm.platform || 'Platform'}
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-stone-800">
+                <button
+                  type="button"
+                  onClick={() => setIsSocialModalOpen(false)}
+                  className="px-4 py-2 bg-stone-800 hover:bg-stone-700 text-stone-300 rounded-xl text-xs font-medium cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-semibold cursor-pointer shadow"
+                >
+                  {editingSocial ? 'Save Changes' : 'Add Platform'}
                 </button>
               </div>
             </form>

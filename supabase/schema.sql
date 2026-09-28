@@ -61,6 +61,7 @@ CREATE TABLE IF NOT EXISTS public.notices (
   category TEXT NOT NULL,
   date TEXT NOT NULL,
   summary TEXT NOT NULL,
+  image_url TEXT,
   file_url TEXT,
   is_pinned BOOLEAN NOT NULL DEFAULT false,
   urgency TEXT NOT NULL DEFAULT 'normal',
@@ -163,6 +164,20 @@ CREATE TABLE IF NOT EXISTS public.student_inquiries (
   status TEXT NOT NULL DEFAULT 'Pending',
   created_at TIMESTAMPTZ NOT NULL DEFAULT timezone('utc'::text, now())
 );
+
+-- 13. Social Media Handles Table
+CREATE TABLE IF NOT EXISTS public.socialmedia (
+  id TEXT PRIMARY KEY,
+  platform TEXT NOT NULL,
+  url TEXT NOT NULL,
+  icon TEXT NOT NULL DEFAULT 'globe',
+  is_active BOOLEAN NOT NULL DEFAULT true,
+  display_order INT NOT NULL DEFAULT 0,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT timezone('utc'::text, now()),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT timezone('utc'::text, now())
+);
+
+CREATE OR REPLACE VIEW public.social_media AS SELECT * FROM public.socialmedia;
 
 -- ==============================================================================
 -- ROW LEVEL SECURITY (RLS) POLICIES

@@ -12,6 +12,9 @@ import {
   Facebook,
   Twitter,
   Linkedin,
+  MessageCircle,
+  Send,
+  Globe,
   Shield,
   ArrowUp,
   Heart,
@@ -22,6 +25,64 @@ export const Footer: React.FC = () => {
   const { navigateTo } = useNavigation();
   const { database } = useData();
   const contactSettings = database.contactSettings;
+
+  const socialLinks =
+    database.socialLinks && database.socialLinks.length > 0
+      ? database.socialLinks.filter((s) => s.isActive !== false)
+      : [
+          { id: 'soc-1', platform: 'Instagram', url: 'https://instagram.com', icon: 'instagram' },
+          { id: 'soc-2', platform: 'YouTube', url: 'https://youtube.com', icon: 'youtube' },
+          { id: 'soc-3', platform: 'Facebook', url: 'https://facebook.com', icon: 'facebook' },
+        ];
+
+  const renderSocialIcon = (iconName: string) => {
+    const norm = (iconName || '').toLowerCase().trim();
+    switch (norm) {
+      case 'instagram':
+        return <Instagram className="w-4 h-4" />;
+      case 'youtube':
+        return <Youtube className="w-4 h-4" />;
+      case 'facebook':
+        return <Facebook className="w-4 h-4" />;
+      case 'twitter':
+      case 'x':
+        return <Twitter className="w-4 h-4" />;
+      case 'linkedin':
+        return <Linkedin className="w-4 h-4" />;
+      case 'whatsapp':
+        return <MessageCircle className="w-4 h-4" />;
+      case 'telegram':
+        return <Send className="w-4 h-4" />;
+      case 'globe':
+      case 'website':
+        return <Globe className="w-4 h-4" />;
+      default:
+        return <Globe className="w-4 h-4" />;
+    }
+  };
+
+  const getSocialHoverClass = (iconName: string) => {
+    const norm = (iconName || '').toLowerCase().trim();
+    switch (norm) {
+      case 'instagram':
+        return 'hover:text-rose-400 hover:border-rose-500/40';
+      case 'youtube':
+        return 'hover:text-red-500 hover:border-red-500/40';
+      case 'facebook':
+        return 'hover:text-blue-400 hover:border-blue-500/40';
+      case 'twitter':
+      case 'x':
+        return 'hover:text-white hover:border-stone-600';
+      case 'linkedin':
+        return 'hover:text-sky-400 hover:border-sky-500/40';
+      case 'whatsapp':
+        return 'hover:text-emerald-400 hover:border-emerald-500/40';
+      case 'telegram':
+        return 'hover:text-sky-400 hover:border-sky-500/40';
+      default:
+        return 'hover:text-emerald-400 hover:border-emerald-500/40';
+    }
+  };
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -70,53 +131,22 @@ export const Footer: React.FC = () => {
               enlightenment (Ta'lim), and transformative public welfare across university faculties.
             </p>
 
-            {/* Social media icons */}
-            <div className="flex items-center gap-3 pt-2">
-              <a
-                href="https://instagram.com"
-                target="_blank"
-                rel="noreferrer"
-                className="w-8 h-8 rounded-lg bg-stone-900 border border-stone-800 flex items-center justify-center text-stone-400 hover:text-emerald-400 hover:border-emerald-500/40 transition-colors"
-                title="Instagram"
-              >
-                <Instagram className="w-4 h-4" />
-              </a>
-              <a
-                href="https://youtube.com"
-                target="_blank"
-                rel="noreferrer"
-                className="w-8 h-8 rounded-lg bg-stone-900 border border-stone-800 flex items-center justify-center text-stone-400 hover:text-red-400 hover:border-red-500/40 transition-colors"
-                title="YouTube Official"
-              >
-                <Youtube className="w-4 h-4" />
-              </a>
-              <a
-                href="https://facebook.com"
-                target="_blank"
-                rel="noreferrer"
-                className="w-8 h-8 rounded-lg bg-stone-900 border border-stone-800 flex items-center justify-center text-stone-400 hover:text-blue-400 hover:border-blue-500/40 transition-colors"
-                title="Facebook"
-              >
-                <Facebook className="w-4 h-4" />
-              </a>
-              <a
-                href="https://x.com"
-                target="_blank"
-                rel="noreferrer"
-                className="w-8 h-8 rounded-lg bg-stone-900 border border-stone-800 flex items-center justify-center text-stone-400 hover:text-white hover:border-stone-700 transition-colors"
-                title="Twitter / X"
-              >
-                <Twitter className="w-4 h-4" />
-              </a>
-              <a
-                href="https://linkedin.com"
-                target="_blank"
-                rel="noreferrer"
-                className="w-8 h-8 rounded-lg bg-stone-900 border border-stone-800 flex items-center justify-center text-stone-400 hover:text-sky-400 hover:border-sky-500/40 transition-colors"
-                title="LinkedIn"
-              >
-                <Linkedin className="w-4 h-4" />
-              </a>
+            {/* Social media handles (Dynamic & configurable via Admin Panel) */}
+            <div className="flex items-center flex-wrap gap-2.5 pt-2">
+              {socialLinks.map((item) => (
+                <a
+                  key={`footer-soc-${item.id}`}
+                  href={item.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className={`w-8 h-8 rounded-lg bg-stone-900 border border-stone-800 flex items-center justify-center text-stone-400 transition-colors ${getSocialHoverClass(
+                    item.icon || item.platform
+                  )}`}
+                  title={item.platform}
+                >
+                  {renderSocialIcon(item.icon || item.platform)}
+                </a>
+              ))}
             </div>
           </div>
 
