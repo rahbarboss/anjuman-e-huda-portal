@@ -11,6 +11,7 @@ import {
   Crown,
   Award,
   UserCheck,
+  User,
   Sparkles,
   BookOpen,
   HeartHandshake,
@@ -19,6 +20,7 @@ import {
   GraduationCap,
   CheckCircle2,
   Calendar,
+  X,
 } from 'lucide-react';
 
 const iconMap: Record<string, React.ElementType> = {
@@ -38,6 +40,8 @@ export const OurWingsSection: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<string>('All');
   // Store selected historical year for each wing: record<wingId, yearString>
   const [selectedYears, setSelectedYears] = useState<Record<string, string>>({});
+  // Lightbox preview for full-resolution photo inspection
+  const [previewImage, setPreviewImage] = useState<{ url: string; title: string; subtitle: string } | null>(null);
 
   const filteredWings = wings.filter((wing) => {
     const matchesStatus = statusFilter === 'All' || wing.status === statusFilter;
@@ -188,51 +192,133 @@ export const OurWingsSection: React.FC = () => {
                     </div>
                   )}
 
-                  {/* Wing Leadership: Chairman and Convener only */}
+                  {/* Wing Leadership: Chairman and Convener with Significantly Enlarged Portrait Photos */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {/* 1. Chairman */}
-                    <div className="p-4 sm:p-5 rounded-2xl bg-stone-950/90 border border-stone-800/90 hover:border-emerald-500/40 flex flex-col justify-between transition-all group shadow-sm">
-                      <div>
-                        <div className="flex items-center justify-between mb-2.5">
-                          <span className="text-[11px] font-mono text-emerald-400 font-bold uppercase tracking-wider px-2.5 py-1 rounded-md bg-emerald-950/90 border border-emerald-500/30 flex items-center gap-1.5">
-                            <Crown className="w-3.5 h-3.5 text-emerald-400" />
-                            CHAIRMAN
-                          </span>
+                    {(() => {
+                      const chairmanName = isHistorical && historicalEntry
+                        ? (historicalEntry.chairman || historicalEntry.manager || 'Not Assigned')
+                        : (wing.chairman?.name || wing.manager?.name || 'Not Assigned');
+                      const chairmanContact = wing.chairman?.contact || wing.manager?.contact || 'chairman@anjuman.edu';
+                      const chairmanPhoto = isHistorical && historicalEntry?.chairmanPhoto
+                        ? historicalEntry.chairmanPhoto
+                        : (wing.chairman?.photo || wing.chairmanPhoto || wing.manager?.photo || '');
+
+                      return (
+                        <div className="p-3.5 sm:p-4 rounded-2xl bg-stone-950/95 border border-stone-800/90 hover:border-emerald-500/50 flex items-center gap-3.5 sm:gap-4 transition-all duration-300 group shadow-md hover:shadow-emerald-950/20">
+                          {/* Large Portrait Photo Frame - Face clearly visible */}
+                          <div
+                            onClick={() => chairmanPhoto && setPreviewImage({ url: chairmanPhoto, title: chairmanName, subtitle: `${wing.name} • Chairman` })}
+                            className={`relative w-24 h-32 sm:w-28 sm:h-36 rounded-2xl overflow-hidden bg-stone-900 border-2 border-emerald-500/50 group-hover:border-emerald-400 shadow-xl shadow-black/80 shrink-0 ${chairmanPhoto ? 'cursor-pointer hover:ring-2 hover:ring-emerald-400/50' : ''}`}
+                            title={chairmanPhoto ? "Click to view full photo" : undefined}
+                          >
+                            {chairmanPhoto ? (
+                              <>
+                                <img
+                                  src={chairmanPhoto}
+                                  alt={chairmanName}
+                                  className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-300"
+                                  loading="lazy"
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-center pb-1.5 pointer-events-none">
+                                  <span className="text-[9px] font-mono text-emerald-300 font-bold bg-black/80 px-1.5 py-0.5 rounded backdrop-blur-xs">
+                                    Enlarge
+                                  </span>
+                                </div>
+                              </>
+                            ) : (
+                              <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-b from-stone-900 to-emerald-950/50 text-stone-500 p-2 text-center">
+                                <User className="w-8 h-8 text-emerald-400/60 mb-1" />
+                                <span className="text-[9px] font-mono uppercase text-emerald-500/80 font-bold">No Photo</span>
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Info Column */}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between mb-1">
+                              <span className="text-[10px] font-mono text-emerald-400 font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-emerald-950/90 border border-emerald-500/30 inline-flex items-center gap-1 shadow-sm">
+                                <Crown className="w-3.5 h-3.5 text-emerald-400" />
+                                CHAIRMAN
+                              </span>
+                            </div>
+                            <h4 className="text-sm sm:text-base font-bold text-white leading-snug group-hover:text-emerald-200 transition-colors truncate" title={chairmanName}>
+                              {chairmanName}
+                            </h4>
+                            <p className="text-[11px] text-stone-400 mt-0.5 truncate font-medium">
+                              Portfolio Leader
+                            </p>
+                            <div className="mt-2 text-xs text-stone-400 flex items-center gap-1.5 truncate">
+                              <Mail className="w-3.5 h-3.5 text-emerald-500/70 shrink-0" />
+                              <span className="truncate text-[11px] sm:text-xs">{chairmanContact}</span>
+                            </div>
+                          </div>
                         </div>
-                        <h4 className="text-sm sm:text-base font-bold text-white leading-snug group-hover:text-emerald-200 transition-colors">
-                          {isHistorical && historicalEntry
-                            ? (historicalEntry.chairman || historicalEntry.manager)
-                            : (wing.chairman?.name || wing.manager?.name)}
-                        </h4>
-                      </div>
-                      <div className="pt-3 mt-3 border-t border-stone-800/80 text-xs text-stone-400 flex items-center gap-2 truncate">
-                        <Mail className="w-3.5 h-3.5 text-emerald-500/70 shrink-0" />
-                        <span className="truncate">
-                          {wing.chairman?.contact || wing.manager?.contact || 'chairman@anjuman.edu'}
-                        </span>
-                      </div>
-                    </div>
+                      );
+                    })()}
 
                     {/* 2. Convener */}
-                    <div className="p-4 sm:p-5 rounded-2xl bg-stone-950/90 border border-stone-800/90 hover:border-amber-500/40 flex flex-col justify-between transition-all group shadow-sm">
-                      <div>
-                        <div className="flex items-center justify-between mb-2.5">
-                          <span className="text-[11px] font-mono text-amber-400 font-bold uppercase tracking-wider px-2.5 py-1 rounded-md bg-amber-950/90 border border-amber-500/30 flex items-center gap-1.5">
-                            <UserCheck className="w-3.5 h-3.5 text-amber-400" />
-                            CONVENER
-                          </span>
+                    {(() => {
+                      const convenerName = isHistorical && historicalEntry
+                        ? (historicalEntry.convener || 'Not Assigned')
+                        : (wing.convener?.name || 'Not Assigned');
+                      const convenerContact = wing.convener?.contact || 'convener@anjuman.edu';
+                      const convenerPhoto = isHistorical && historicalEntry?.convenerPhoto
+                        ? historicalEntry.convenerPhoto
+                        : (wing.convener?.photo || wing.convenerPhoto || '');
+
+                      return (
+                        <div className="p-3.5 sm:p-4 rounded-2xl bg-stone-950/95 border border-stone-800/90 hover:border-amber-500/50 flex items-center gap-3.5 sm:gap-4 transition-all duration-300 group shadow-md hover:shadow-amber-950/20">
+                          {/* Large Portrait Photo Frame - Face clearly visible */}
+                          <div
+                            onClick={() => convenerPhoto && setPreviewImage({ url: convenerPhoto, title: convenerName, subtitle: `${wing.name} • Convener` })}
+                            className={`relative w-24 h-32 sm:w-28 sm:h-36 rounded-2xl overflow-hidden bg-stone-900 border-2 border-amber-500/50 group-hover:border-amber-400 shadow-xl shadow-black/80 shrink-0 ${convenerPhoto ? 'cursor-pointer hover:ring-2 hover:ring-amber-400/50' : ''}`}
+                            title={convenerPhoto ? "Click to view full photo" : undefined}
+                          >
+                            {convenerPhoto ? (
+                              <>
+                                <img
+                                  src={convenerPhoto}
+                                  alt={convenerName}
+                                  className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-300"
+                                  loading="lazy"
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-center pb-1.5 pointer-events-none">
+                                  <span className="text-[9px] font-mono text-amber-300 font-bold bg-black/80 px-1.5 py-0.5 rounded backdrop-blur-xs">
+                                    Enlarge
+                                  </span>
+                                </div>
+                              </>
+                            ) : (
+                              <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-b from-stone-900 to-amber-950/50 text-stone-500 p-2 text-center">
+                                <UserCheck className="w-8 h-8 text-amber-400/60 mb-1" />
+                                <span className="text-[9px] font-mono uppercase text-amber-500/80 font-bold">No Photo</span>
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Info Column */}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between mb-1">
+                              <span className="text-[10px] font-mono text-amber-400 font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-amber-950/90 border border-amber-500/30 inline-flex items-center gap-1 shadow-sm">
+                                <UserCheck className="w-3.5 h-3.5 text-amber-400" />
+                                CONVENER
+                              </span>
+                            </div>
+                            <h4 className="text-sm sm:text-base font-bold text-white leading-snug group-hover:text-amber-200 transition-colors truncate" title={convenerName}>
+                              {convenerName}
+                            </h4>
+                            <p className="text-[11px] text-stone-400 mt-0.5 truncate font-medium">
+                              Operational Head
+                            </p>
+                            <div className="mt-2 text-xs text-stone-400 flex items-center gap-1.5 truncate">
+                              <Mail className="w-3.5 h-3.5 text-amber-500/70 shrink-0" />
+                              <span className="truncate text-[11px] sm:text-xs">{convenerContact}</span>
+                            </div>
+                          </div>
                         </div>
-                        <h4 className="text-sm sm:text-base font-bold text-white leading-snug group-hover:text-amber-200 transition-colors">
-                          {isHistorical && historicalEntry ? historicalEntry.convener : wing.convener.name}
-                        </h4>
-                      </div>
-                      <div className="pt-3 mt-3 border-t border-stone-800/80 text-xs text-stone-400 flex items-center gap-2 truncate">
-                        <Mail className="w-3.5 h-3.5 text-amber-500/70 shrink-0" />
-                        <span className="truncate">
-                          {wing.convener.contact || 'convener@anjuman.edu'}
-                        </span>
-                      </div>
-                    </div>
+                      );
+                    })()}
                   </div>
                 </div>
 
@@ -258,6 +344,42 @@ export const OurWingsSection: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Photo Enlarge Lightbox Modal */}
+      {previewImage && (
+        <div
+          className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200"
+          onClick={() => setPreviewImage(null)}
+        >
+          <div
+            className="bg-stone-900 border border-stone-800 rounded-3xl p-5 sm:p-6 max-w-sm sm:max-w-md w-full shadow-2xl relative"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setPreviewImage(null)}
+              className="absolute top-4 right-4 p-2 rounded-full bg-stone-800/90 hover:bg-stone-700 text-stone-300 hover:text-white transition-colors"
+              aria-label="Close photo preview"
+            >
+              <X className="w-5 h-5" />
+            </button>
+            <div className="rounded-2xl overflow-hidden bg-stone-950 border border-stone-800 mb-4 max-h-[60vh] flex items-center justify-center shadow-inner">
+              <img
+                src={previewImage.url}
+                alt={previewImage.title}
+                className="w-full h-auto max-h-[58vh] object-contain"
+              />
+            </div>
+            <div className="text-center">
+              <span className="text-xs font-mono text-emerald-400 font-bold uppercase tracking-wider block mb-1">
+                {previewImage.subtitle}
+              </span>
+              <h3 className="text-xl font-bold text-white font-heading">
+                {previewImage.title}
+              </h3>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 };

@@ -813,8 +813,13 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const deleteWing = async (id: string): Promise<boolean> => {
+    const existing = database.wings.find((w) => w.id === id);
     if (isSupabaseConfigured) {
-      const res = await deleteWingInSupabase(id);
+      const res = await deleteWingInSupabase(
+        id,
+        existing?.chairman?.photo || existing?.chairmanPhoto,
+        existing?.convener?.photo || existing?.convenerPhoto
+      );
       if (res.success) {
         setDatabase((prev) => ({
           ...prev,

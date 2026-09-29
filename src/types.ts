@@ -73,8 +73,10 @@ export interface HighlightItem {
 export interface WingHistoryEntry {
   tenure: string;
   chairman?: string;
+  chairmanPhoto?: string;
   manager?: string; // backwards compatibility
   convener: string;
+  convenerPhoto?: string;
   assistant?: string;
   keyMilestone?: string;
 }
@@ -88,8 +90,10 @@ export interface Wing {
   status: 'Active' | 'Under Review' | 'Project Phase';
   currentTenure: string;
   chairman?: { name: string; contact?: string; photo?: string };
+  chairmanPhoto?: string;
   manager?: { name: string; contact?: string; photo?: string };
   convener: { name: string; contact?: string; photo?: string };
+  convenerPhoto?: string;
   assistant?: { name: string; contact?: string; photo?: string };
   history: WingHistoryEntry[];
 }

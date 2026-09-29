@@ -238,18 +238,35 @@ export async function fetchContentFromSupabase(): Promise<AppDatabase | null> {
       tags: a.tags || [],
     }));
 
-    const wings: Wing[] = (wingsRes.data || []).map((w: any) => ({
-      id: w.id,
-      name: w.name,
-      shortName: w.short_name,
-      description: w.description || '',
-      iconName: w.icon_name || 'BookOpen',
-      status: w.status,
-      currentTenure: w.current_tenure,
-      chairman: w.chairman || { name: '', contact: '' },
-      convener: w.convener || { name: '', contact: '' },
-      history: w.history || [],
-    }));
+    const wings: Wing[] = (wingsRes.data || []).map((w: any) => {
+      const parsedChairman = typeof w.chairman === 'string' ? JSON.parse(w.chairman) : (w.chairman || {});
+      const parsedConvener = typeof w.convener === 'string' ? JSON.parse(w.convener) : (w.convener || {});
+      const chairmanPhoto = w.chairman_photo || parsedChairman.photo || '';
+      const convenerPhoto = w.convener_photo || parsedConvener.photo || '';
+
+      return {
+        id: w.id,
+        name: w.name,
+        shortName: w.short_name,
+        description: w.description || '',
+        iconName: w.icon_name || 'BookOpen',
+        status: w.status,
+        currentTenure: w.current_tenure,
+        chairman: {
+          name: parsedChairman.name || '',
+          contact: parsedChairman.contact || '',
+          photo: chairmanPhoto,
+        },
+        chairmanPhoto,
+        convener: {
+          name: parsedConvener.name || '',
+          contact: parsedConvener.contact || '',
+          photo: convenerPhoto,
+        },
+        convenerPhoto,
+        history: Array.isArray(w.history) ? w.history : [],
+      };
+    });
 
     const latestResolutions: CAUResolution[] = (docsRes.data || [])
       .filter((d: any) => d.category === 'CAU Resolution' || d.category === 'Resolution')
@@ -784,7 +801,22 @@ export async function saveWingInSupabase(
 
   try {
     const wingId = id || ('id' in wing && wing.id ? wing.id : `wing_${Date.now()}`);
-    const row = {
+    const chairmanPhoto = wing.chairman?.photo || wing.chairmanPhoto || (wing as any).manager?.photo || '';
+    const convenerPhoto = wing.convener?.photo || wing.convenerPhoto || '';
+
+    const chairmanObj = {
+      name: wing.chairman?.name || (wing as any).manager?.name || '',
+      contact: wing.chairman?.contact || (wing as any).manager?.contact || '',
+      photo: chairmanPhoto,
+    };
+
+    const convenerObj = {
+      name: wing.convener?.name || '',
+      contact: wing.convener?.contact || '',
+      photo: convenerPhoto,
+    };
+
+    const baseRow: any = {
       id: wingId,
       name: wing.name,
       short_name: wing.shortName,
@@ -792,13 +824,25 @@ export async function saveWingInSupabase(
       icon_name: wing.iconName || 'BookOpen',
       status: wing.status || 'Active',
       current_tenure: wing.currentTenure || '2026-27',
-      chairman: wing.chairman || { name: '', contact: '' },
-      convener: wing.convener || { name: '', contact: '' },
+      chairman: chairmanObj,
+      convener: convenerObj,
       history: wing.history || [],
       updated_at: new Date().toISOString(),
     };
 
-    const { error } = await supabase.from('wings').upsert(row);
+    // First attempt to upsert with dedicated photo columns
+    let { error } = await supabase.from('wings').upsert({
+      ...baseRow,
+      chairman_photo: chairmanPhoto || null,
+      convener_photo: convenerPhoto || null,
+    });
+
+    if (error && (error.message.includes('chairman_photo') || error.message.includes('column'))) {
+      // Fallback: save without specific columns (stores inside JSONB chairman/convener)
+      const fallback = await supabase.from('wings').upsert(baseRow);
+      error = fallback.error;
+    }
+
     if (error) {
       console.error('[Supabase DB / wings] Save wing failed:', error.message);
       return { success: false, message: error.message };
@@ -809,6 +853,10 @@ export async function saveWingInSupabase(
       data: {
         id: wingId,
         ...wing,
+        chairman: chairmanObj,
+        chairmanPhoto,
+        convener: convenerObj,
+        convenerPhoto,
       },
     };
   } catch (err: any) {
@@ -817,7 +865,11 @@ export async function saveWingInSupabase(
   }
 }
 
-export async function deleteWingInSupabase(id: string): Promise<{ success: boolean; message?: string }> {
+export async function deleteWingInSupabase(
+  id: string,
+  chairmanPhoto?: string,
+  convenerPhoto?: string
+): Promise<{ success: boolean; message?: string }> {
   if (!supabase || !isSupabaseConfigured) {
     return { success: false, message: 'Supabase is not configured' };
   }
@@ -828,6 +880,15 @@ export async function deleteWingInSupabase(id: string): Promise<{ success: boole
       console.error('[Supabase DB / wings] Delete wing failed:', error.message);
       return { success: false, message: error.message };
     }
+
+    // Clean up uploaded photos if stored in Supabase storage
+    if (chairmanPhoto && chairmanPhoto.includes('supabase.co')) {
+      await deleteFromSupabaseStorage(chairmanPhoto, 'members');
+    }
+    if (convenerPhoto && convenerPhoto.includes('supabase.co')) {
+      await deleteFromSupabaseStorage(convenerPhoto, 'members');
+    }
+
     return { success: true };
   } catch (err: any) {
     console.error('[Supabase DB / wings] Unexpected delete error:', err);

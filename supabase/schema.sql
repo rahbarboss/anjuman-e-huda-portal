@@ -124,8 +124,10 @@ CREATE TABLE IF NOT EXISTS public.wings (
   icon_name TEXT NOT NULL DEFAULT 'BookOpen',
   status TEXT NOT NULL DEFAULT 'Active',
   current_tenure TEXT NOT NULL DEFAULT '2026-27',
-  chairman JSONB NOT NULL DEFAULT '{"name":"","contact":""}'::jsonb,
-  convener JSONB NOT NULL DEFAULT '{"name":"","contact":""}'::jsonb,
+  chairman JSONB NOT NULL DEFAULT '{"name":"","contact":"","photo":""}'::jsonb,
+  convener JSONB NOT NULL DEFAULT '{"name":"","contact":"","photo":""}'::jsonb,
+  chairman_photo TEXT,
+  convener_photo TEXT,
   history JSONB DEFAULT '[]'::jsonb,
   created_at TIMESTAMPTZ NOT NULL DEFAULT timezone('utc'::text, now()),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT timezone('utc'::text, now())

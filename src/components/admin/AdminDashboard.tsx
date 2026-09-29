@@ -24,6 +24,8 @@ import {
   LayoutDashboard,
   Home,
   Users,
+  User,
+  UserCheck,
   Layers,
   Sparkles,
   Trophy,
@@ -578,16 +580,33 @@ export const AdminDashboard: React.FC = () => {
     iconName: 'BookOpen',
     status: 'Active' as Wing['status'],
     currentTenure: '2026-27',
-    chairman: { name: '', phone: '', contact: '' },
-    convener: { name: '', phone: '', contact: '' },
+    chairman: { name: '', phone: '', contact: '', photo: '' },
+    convener: { name: '', phone: '', contact: '', photo: '' },
   });
 
   const handleOpenEditWing = (w: Wing) => {
-    // Ensure chairman is set if only manager was present
+    // Ensure chairman & convener are initialized with photos
+    const chairmanPhoto = w.chairman?.photo || w.chairmanPhoto || w.manager?.photo || '';
+    const convenerPhoto = w.convener?.photo || w.convenerPhoto || '';
     const initializedWing: Wing = {
       ...w,
-      chairman: w.chairman || w.manager || { name: '', contact: '' },
-      manager: w.manager || w.chairman || { name: '', contact: '' },
+      chairman: {
+        name: w.chairman?.name || w.manager?.name || '',
+        contact: w.chairman?.contact || w.manager?.contact || '',
+        photo: chairmanPhoto,
+      },
+      chairmanPhoto,
+      manager: {
+        name: w.chairman?.name || w.manager?.name || '',
+        contact: w.chairman?.contact || w.manager?.contact || '',
+        photo: chairmanPhoto,
+      },
+      convener: {
+        name: w.convener?.name || '',
+        contact: w.convener?.contact || '',
+        photo: convenerPhoto,
+      },
+      convenerPhoto,
     };
     setEditingWing(initializedWing);
     setIsWingModalOpen(true);
@@ -597,6 +616,8 @@ export const AdminDashboard: React.FC = () => {
     e.preventDefault();
     await addWing({
       ...newWingForm,
+      chairmanPhoto: newWingForm.chairman.photo,
+      convenerPhoto: newWingForm.convener.photo,
       manager: newWingForm.chairman,
       history: [],
     });
@@ -609,8 +630,8 @@ export const AdminDashboard: React.FC = () => {
       iconName: 'BookOpen',
       status: 'Active',
       currentTenure: '2026-27',
-      chairman: { name: '', phone: '', contact: '' },
-      convener: { name: '', phone: '', contact: '' },
+      chairman: { name: '', phone: '', contact: '', photo: '' },
+      convener: { name: '', phone: '', contact: '', photo: '' },
     });
   };
 
@@ -2554,16 +2575,49 @@ export const AdminDashboard: React.FC = () => {
                         {wing.description}
                       </p>
 
-                      <div className="grid grid-cols-2 gap-3 pt-1 text-xs">
-                        <div className="p-2.5 bg-stone-950 rounded-xl border border-stone-800">
-                          <span className="text-[10px] font-mono text-emerald-400 font-bold block mb-0.5">CHAIRMAN</span>
-                          <span className="font-semibold text-white truncate block">
-                            {wing.chairman?.name || wing.manager?.name || 'Not assigned'}
-                          </span>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1 text-xs">
+                        <div className="p-3 bg-stone-950 rounded-xl border border-stone-800 flex items-center gap-3">
+                          <div className="w-14 h-18 sm:w-16 sm:h-20 rounded-xl bg-stone-900 border-2 border-emerald-500/40 overflow-hidden shrink-0 flex items-center justify-center shadow-md">
+                            {wing.chairman?.photo || wing.chairmanPhoto || wing.manager?.photo ? (
+                              <img
+                                src={wing.chairman?.photo || wing.chairmanPhoto || wing.manager?.photo}
+                                alt="Chairman"
+                                className="w-full h-full object-cover object-top"
+                              />
+                            ) : (
+                              <User className="w-6 h-6 text-emerald-500/50" />
+                            )}
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <span className="text-[10px] font-mono text-emerald-400 font-bold block mb-1">CHAIRMAN</span>
+                            <span className="font-semibold text-white truncate block text-sm">
+                              {wing.chairman?.name || wing.manager?.name || 'Not assigned'}
+                            </span>
+                            <span className="text-[11px] text-stone-400 truncate block mt-0.5">
+                              {wing.chairman?.contact || wing.manager?.contact || 'chairman@anjuman.edu'}
+                            </span>
+                          </div>
                         </div>
-                        <div className="p-2.5 bg-stone-950 rounded-xl border border-stone-800">
-                          <span className="text-[10px] font-mono text-amber-400 font-bold block mb-0.5">CONVENER</span>
-                          <span className="font-semibold text-white truncate block">{wing.convener.name}</span>
+
+                        <div className="p-3 bg-stone-950 rounded-xl border border-stone-800 flex items-center gap-3">
+                          <div className="w-14 h-18 sm:w-16 sm:h-20 rounded-xl bg-stone-900 border-2 border-amber-500/40 overflow-hidden shrink-0 flex items-center justify-center shadow-md">
+                            {wing.convener?.photo || wing.convenerPhoto ? (
+                              <img
+                                src={wing.convener?.photo || wing.convenerPhoto}
+                                alt="Convener"
+                                className="w-full h-full object-cover object-top"
+                              />
+                            ) : (
+                              <UserCheck className="w-6 h-6 text-amber-500/50" />
+                            )}
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <span className="text-[10px] font-mono text-amber-400 font-bold block mb-1">CONVENER</span>
+                            <span className="font-semibold text-white truncate block text-sm">{wing.convener.name}</span>
+                            <span className="text-[11px] text-stone-400 truncate block mt-0.5">
+                              {wing.convener?.contact || 'convener@anjuman.edu'}
+                            </span>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -3880,39 +3934,143 @@ export const AdminDashboard: React.FC = () => {
             </p>
 
             <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-semibold text-emerald-400 mb-1">Chairman</label>
-                  <input
-                    type="text"
-                    value={editingWing.chairman?.name || editingWing.manager?.name || ''}
-                    onChange={(e) => {
-                      const updated = {
-                        name: e.target.value,
-                        contact: editingWing.chairman?.contact || editingWing.manager?.contact || '',
-                      };
-                      setEditingWing({
-                        ...editingWing,
-                        chairman: updated,
-                        manager: updated,
-                      });
-                    }}
-                    className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-xs text-white"
-                  />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Chairman Column */}
+                <div className="p-3.5 bg-stone-950 rounded-xl border border-stone-800 space-y-2.5">
+                  <div className="flex items-center justify-between">
+                    <label className="block text-xs font-semibold text-emerald-400">Chairman</label>
+                    <span className="text-[10px] font-mono text-emerald-400/80 uppercase">Passport Photo</span>
+                  </div>
+                  <div>
+                    <label className="block text-[11px] text-stone-400 mb-1">Full Name</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. MD Ahrar Alam"
+                      value={editingWing.chairman?.name || editingWing.manager?.name || ''}
+                      onChange={(e) => {
+                        const updated = {
+                          name: e.target.value,
+                          contact: editingWing.chairman?.contact || editingWing.manager?.contact || '',
+                          photo: editingWing.chairman?.photo || editingWing.chairmanPhoto || editingWing.manager?.photo || '',
+                        };
+                        setEditingWing({
+                          ...editingWing,
+                          chairman: updated,
+                          chairmanPhoto: updated.photo,
+                          manager: updated,
+                        });
+                      }}
+                      className="w-full bg-stone-900 border border-stone-700 rounded-xl px-3 py-1.5 text-xs text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] text-stone-400 mb-1">Email / Contact</label>
+                    <input
+                      type="text"
+                      placeholder="chairman@anjuman.edu"
+                      value={editingWing.chairman?.contact || editingWing.manager?.contact || ''}
+                      onChange={(e) => {
+                        const updated = {
+                          name: editingWing.chairman?.name || editingWing.manager?.name || '',
+                          contact: e.target.value,
+                          photo: editingWing.chairman?.photo || editingWing.chairmanPhoto || editingWing.manager?.photo || '',
+                        };
+                        setEditingWing({
+                          ...editingWing,
+                          chairman: updated,
+                          chairmanPhoto: updated.photo,
+                          manager: updated,
+                        });
+                      }}
+                      className="w-full bg-stone-900 border border-stone-700 rounded-xl px-3 py-1.5 text-xs text-white"
+                    />
+                  </div>
+                  <div>
+                    <MediaUploadZone
+                      bucket="members"
+                      label="Upload Chairman Passport Photo"
+                      currentUrl={editingWing.chairman?.photo || editingWing.chairmanPhoto || editingWing.manager?.photo}
+                      onUploadSuccess={(url) => {
+                        const updated = {
+                          name: editingWing.chairman?.name || editingWing.manager?.name || '',
+                          contact: editingWing.chairman?.contact || editingWing.manager?.contact || '',
+                          photo: url,
+                        };
+                        setEditingWing({
+                          ...editingWing,
+                          chairman: updated,
+                          chairmanPhoto: url,
+                          manager: updated,
+                        });
+                        showToast('Chairman passport photo uploaded.');
+                      }}
+                    />
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-xs font-semibold text-amber-400 mb-1">Convener</label>
-                  <input
-                    type="text"
-                    value={editingWing.convener.name}
-                    onChange={(e) =>
-                      setEditingWing({
-                        ...editingWing,
-                        convener: { ...editingWing.convener, name: e.target.value },
-                      })
-                    }
-                    className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-xs text-white"
-                  />
+
+                {/* Convener Column */}
+                <div className="p-3.5 bg-stone-950 rounded-xl border border-stone-800 space-y-2.5">
+                  <div className="flex items-center justify-between">
+                    <label className="block text-xs font-semibold text-amber-400">Convener</label>
+                    <span className="text-[10px] font-mono text-amber-400/80 uppercase">Passport Photo</span>
+                  </div>
+                  <div>
+                    <label className="block text-[11px] text-stone-400 mb-1">Full Name</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Sabir Alam"
+                      value={editingWing.convener.name}
+                      onChange={(e) =>
+                        setEditingWing({
+                          ...editingWing,
+                          convener: {
+                            name: e.target.value,
+                            contact: editingWing.convener?.contact || '',
+                            photo: editingWing.convener?.photo || editingWing.convenerPhoto || '',
+                          },
+                        })
+                      }
+                      className="w-full bg-stone-900 border border-stone-700 rounded-xl px-3 py-1.5 text-xs text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] text-stone-400 mb-1">Email / Contact</label>
+                    <input
+                      type="text"
+                      placeholder="convener@anjuman.edu"
+                      value={editingWing.convener?.contact || ''}
+                      onChange={(e) =>
+                        setEditingWing({
+                          ...editingWing,
+                          convener: {
+                            name: editingWing.convener.name,
+                            contact: e.target.value,
+                            photo: editingWing.convener?.photo || editingWing.convenerPhoto || '',
+                          },
+                        })
+                      }
+                      className="w-full bg-stone-900 border border-stone-700 rounded-xl px-3 py-1.5 text-xs text-white"
+                    />
+                  </div>
+                  <div>
+                    <MediaUploadZone
+                      bucket="members"
+                      label="Upload Convener Passport Photo"
+                      currentUrl={editingWing.convener?.photo || editingWing.convenerPhoto}
+                      onUploadSuccess={(url) => {
+                        setEditingWing({
+                          ...editingWing,
+                          convener: {
+                            name: editingWing.convener.name,
+                            contact: editingWing.convener?.contact || '',
+                            photo: url,
+                          },
+                          convenerPhoto: url,
+                        });
+                        showToast('Convener passport photo uploaded.');
+                      }}
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -4091,38 +4249,111 @@ export const AdminDashboard: React.FC = () => {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-semibold text-emerald-400 mb-1">Chairman</label>
-                  <input
-                    type="text"
-                    required
-                    value={newWingForm.chairman.name}
-                    onChange={(e) =>
-                      setNewWingForm({
-                        ...newWingForm,
-                        chairman: { ...newWingForm.chairman, name: e.target.value },
-                      })
-                    }
-                    placeholder="Full Name"
-                    className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-xs text-white"
-                  />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Chairman Column */}
+                <div className="p-3.5 bg-stone-950 rounded-xl border border-stone-800 space-y-2.5">
+                  <div className="flex items-center justify-between">
+                    <label className="block text-xs font-semibold text-emerald-400">Chairman</label>
+                    <span className="text-[10px] font-mono text-emerald-400/80 uppercase">Passport Photo</span>
+                  </div>
+                  <div>
+                    <label className="block text-[11px] text-stone-400 mb-1">Full Name</label>
+                    <input
+                      type="text"
+                      required
+                      value={newWingForm.chairman.name}
+                      onChange={(e) =>
+                        setNewWingForm({
+                          ...newWingForm,
+                          chairman: { ...newWingForm.chairman, name: e.target.value },
+                        })
+                      }
+                      placeholder="e.g. MD Ahrar Alam"
+                      className="w-full bg-stone-900 border border-stone-700 rounded-xl px-3 py-1.5 text-xs text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] text-stone-400 mb-1">Email / Contact</label>
+                    <input
+                      type="text"
+                      value={newWingForm.chairman.contact}
+                      onChange={(e) =>
+                        setNewWingForm({
+                          ...newWingForm,
+                          chairman: { ...newWingForm.chairman, contact: e.target.value },
+                        })
+                      }
+                      placeholder="chairman@anjuman.edu"
+                      className="w-full bg-stone-900 border border-stone-700 rounded-xl px-3 py-1.5 text-xs text-white"
+                    />
+                  </div>
+                  <div>
+                    <MediaUploadZone
+                      bucket="members"
+                      label="Upload Chairman Passport Photo"
+                      currentUrl={newWingForm.chairman.photo}
+                      onUploadSuccess={(url) => {
+                        setNewWingForm({
+                          ...newWingForm,
+                          chairman: { ...newWingForm.chairman, photo: url },
+                        });
+                        showToast('Chairman passport photo uploaded.');
+                      }}
+                    />
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-xs font-semibold text-amber-400 mb-1">Convener</label>
-                  <input
-                    type="text"
-                    required
-                    value={newWingForm.convener.name}
-                    onChange={(e) =>
-                      setNewWingForm({
-                        ...newWingForm,
-                        convener: { ...newWingForm.convener, name: e.target.value },
-                      })
-                    }
-                    placeholder="Full Name"
-                    className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-xs text-white"
-                  />
+
+                {/* Convener Column */}
+                <div className="p-3.5 bg-stone-950 rounded-xl border border-stone-800 space-y-2.5">
+                  <div className="flex items-center justify-between">
+                    <label className="block text-xs font-semibold text-amber-400">Convener</label>
+                    <span className="text-[10px] font-mono text-amber-400/80 uppercase">Passport Photo</span>
+                  </div>
+                  <div>
+                    <label className="block text-[11px] text-stone-400 mb-1">Full Name</label>
+                    <input
+                      type="text"
+                      required
+                      value={newWingForm.convener.name}
+                      onChange={(e) =>
+                        setNewWingForm({
+                          ...newWingForm,
+                          convener: { ...newWingForm.convener, name: e.target.value },
+                        })
+                      }
+                      placeholder="e.g. Sabir Alam"
+                      className="w-full bg-stone-900 border border-stone-700 rounded-xl px-3 py-1.5 text-xs text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] text-stone-400 mb-1">Email / Contact</label>
+                    <input
+                      type="text"
+                      value={newWingForm.convener.contact}
+                      onChange={(e) =>
+                        setNewWingForm({
+                          ...newWingForm,
+                          convener: { ...newWingForm.convener, contact: e.target.value },
+                        })
+                      }
+                      placeholder="convener@anjuman.edu"
+                      className="w-full bg-stone-900 border border-stone-700 rounded-xl px-3 py-1.5 text-xs text-white"
+                    />
+                  </div>
+                  <div>
+                    <MediaUploadZone
+                      bucket="members"
+                      label="Upload Convener Passport Photo"
+                      currentUrl={newWingForm.convener.photo}
+                      onUploadSuccess={(url) => {
+                        setNewWingForm({
+                          ...newWingForm,
+                          convener: { ...newWingForm.convener, photo: url },
+                        });
+                        showToast('Convener passport photo uploaded.');
+                      }}
+                    />
+                  </div>
                 </div>
               </div>
 
