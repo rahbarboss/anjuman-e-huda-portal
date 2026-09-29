@@ -3,6 +3,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useData } from '../../context/DataContext';
 import {
   Leader,
+  CoreCommitteePoster,
   NIICSInCharge,
   Program,
   HighlightItem,
@@ -18,7 +19,8 @@ import {
   TelemetryCard,
   SocialLink,
 } from '../../types';
-import { defaultTelemetrySettings } from '../../defaultData';
+import { defaultTelemetrySettings, initialDatabase } from '../../defaultData';
+import { CORE_COMMITTEE_POSTERS_SQL_SCHEMA } from '../../services/supabaseService';
 import { MediaUploadZone } from './MediaUploadZone';
 import {
   LayoutDashboard,
@@ -68,6 +70,8 @@ import {
   MessageCircle,
   Send,
   Globe,
+  Copy,
+  Maximize2,
 } from 'lucide-react';
 
 export type AdminTab =
@@ -125,12 +129,32 @@ export const AdminDashboard: React.FC = () => {
     addSocialLink,
     updateSocialLink,
     deleteSocialLink,
+    saveCoreCommitteePoster,
+    deleteCoreCommitteePoster,
     resetToDefaultSeed,
   } = useData();
 
   const [activeTab, setActiveTab] = useState<AdminTab>('overview');
-  const [leadershipSubTab, setLeadershipSubTab] = useState<'cabinet' | 'niics'>('cabinet');
+  const [leadershipSubTab, setLeadershipSubTab] = useState<'cabinet' | 'niics' | 'posters'>('cabinet');
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  // Core Committee Posters State
+  const [isPosterModalOpen, setIsPosterModalOpen] = useState(false);
+  const [editingPoster, setEditingPoster] = useState<CoreCommitteePoster | null>(null);
+  const [posterForm, setPosterForm] = useState<{
+    id?: string;
+    tenure: string;
+    posterUrl: string;
+    title: string;
+    description: string;
+  }>({
+    tenure: '2026-27',
+    posterUrl: '',
+    title: '',
+    description: '',
+  });
+  const [showSqlModal, setShowSqlModal] = useState(false);
+  const [sqlCopied, setSqlCopied] = useState(false);
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -566,6 +590,57 @@ export const AdminDashboard: React.FC = () => {
       showToast(`New NIICS In-Charge "${payload.name}" added successfully.`);
     }
     setIsNIICSModalOpen(false);
+  };
+
+  // ================= 4B. CORE COMMITTEE POSTERS HANDLERS =================
+  const handleOpenAddPoster = () => {
+    setEditingPoster(null);
+    setPosterForm({
+      tenure: '2026-27',
+      posterUrl: '',
+      title: 'ANJUMAN-E-HUDA Official Core Committee 2026-27',
+      description: 'Official ceremonial A4 proclamation and committee directory for the executive academic session.',
+    });
+    setIsPosterModalOpen(true);
+  };
+
+  const handleOpenEditPoster = (poster: CoreCommitteePoster) => {
+    setEditingPoster(poster);
+    setPosterForm({
+      id: poster.id,
+      tenure: poster.tenure,
+      posterUrl: poster.posterUrl,
+      title: poster.title || '',
+      description: poster.description || '',
+    });
+    setIsPosterModalOpen(true);
+  };
+
+  const handleSavePoster = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!posterForm.posterUrl.trim()) {
+      showToast('Please upload or provide an A4 poster image URL.');
+      return;
+    }
+    if (!posterForm.tenure.trim()) {
+      showToast('Please specify the academic year / tenure (e.g. 2026-27).');
+      return;
+    }
+
+    const payload = {
+      tenure: posterForm.tenure.trim(),
+      posterUrl: posterForm.posterUrl.trim(),
+      title: posterForm.title.trim() || `Core Committee ${posterForm.tenure.trim()}`,
+      description: posterForm.description.trim(),
+    };
+
+    const success = await saveCoreCommitteePoster(payload, editingPoster?.id);
+    if (success) {
+      showToast(editingPoster ? 'Core Committee poster updated.' : 'New Core Committee poster published.');
+      setIsPosterModalOpen(false);
+    } else {
+      showToast('Failed to save Core Committee poster.');
+    }
   };
 
   // ================= 5. PARTICIPANTS (WINGS) MODAL & STATE =================
@@ -2302,6 +2377,18 @@ export const AdminDashboard: React.FC = () => {
                     <Crown className="w-3.5 h-3.5 text-stone-950" />
                     <span>NIICS In-Charge ({(database.niicsInCharge || []).length})</span>
                   </button>
+                  <button
+                    type="button"
+                    onClick={() => setLeadershipSubTab('posters')}
+                    className={`px-3.5 py-2 rounded-lg text-xs font-semibold flex items-center gap-2 cursor-pointer transition-all ${
+                      leadershipSubTab === 'posters'
+                        ? 'bg-emerald-600 text-white shadow'
+                        : 'text-stone-400 hover:text-stone-200'
+                    }`}
+                  >
+                    <FileText className="w-3.5 h-3.5" />
+                    <span>Core Committee Posters ({(database.coreCommitteePosters || initialDatabase.coreCommitteePosters || []).length})</span>
+                  </button>
                 </div>
               </div>
 
@@ -2531,6 +2618,130 @@ export const AdminDashboard: React.FC = () => {
                       ))}
                     </div>
                   )}
+                </div>
+              )}
+
+              {/* ================= COLUMN 3: CORE COMMITTEE A4 POSTERS ================= */}
+              {(leadershipSubTab === 'posters') && (
+                <div className="space-y-6">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 rounded-2xl bg-stone-900 border border-stone-800">
+                    <div>
+                      <h3 className="text-base font-bold text-white flex items-center gap-2">
+                        <FileText className="w-4 h-4 text-emerald-400" />
+                        <span>Core Committee Posters (A4 Format)</span>
+                      </h3>
+                      <p className="text-xs text-stone-400 mt-1">
+                        Year-wise official A4 Core Committee posters published for student view and archive inspection.
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setShowSqlModal(true)}
+                        className="px-3.5 py-2 bg-stone-800 hover:bg-stone-700 text-stone-300 hover:text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 cursor-pointer border border-stone-700 transition-colors"
+                      >
+                        <Copy className="w-3.5 h-3.5 text-amber-400" />
+                        <span>Supabase SQL Script</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleOpenAddPoster}
+                        className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-semibold flex items-center gap-2 cursor-pointer shadow transition-colors"
+                      >
+                        <Plus className="w-4 h-4" />
+                        <span>Upload Core Committee Poster</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Grid of Year-wise Posters */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {(database.coreCommitteePosters && database.coreCommitteePosters.length > 0
+                      ? database.coreCommitteePosters
+                      : initialDatabase.coreCommitteePosters || []
+                    ).map((poster: CoreCommitteePoster, idx: number) => (
+                      <div
+                        key={`admin-ccp-${poster.id}-${idx}`}
+                        className="p-5 bg-stone-900 border border-stone-800 rounded-2xl flex flex-col justify-between group hover:border-emerald-500/40 transition-all shadow-lg"
+                      >
+                        <div>
+                          {/* A4 Preview Thumbnail */}
+                          <div className="relative w-full aspect-[1/1.414] rounded-xl overflow-hidden bg-stone-950 border border-stone-800 mb-4 shadow-inner">
+                            <img
+                              src={poster.posterUrl}
+                              alt={poster.title || `Core Committee ${poster.tenure}`}
+                              className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-300"
+                            />
+                            <div className="absolute top-2.5 left-2.5">
+                              <span className="bg-stone-950/90 text-emerald-300 border border-emerald-500/40 text-[10px] font-mono font-bold px-2.5 py-1 rounded-md shadow">
+                                {poster.tenure}
+                              </span>
+                            </div>
+                            <div className="absolute top-2.5 right-2.5">
+                              <span className="bg-amber-950/90 text-amber-300 border border-amber-500/40 text-[9px] font-mono font-bold px-2 py-0.5 rounded shadow">
+                                A4 RATIO
+                              </span>
+                            </div>
+                          </div>
+
+                          <h4 className="text-base font-bold text-white leading-snug">
+                            {poster.title || `Core Committee Poster (${poster.tenure})`}
+                          </h4>
+                          {poster.description && (
+                            <p className="text-xs text-stone-400 mt-1.5 line-clamp-2 leading-relaxed">
+                              {poster.description}
+                            </p>
+                          )}
+                          {poster.uploadedAt && (
+                            <span className="text-[10px] font-mono text-stone-500 block mt-2">
+                              Published: {new Date(poster.uploadedAt).toLocaleDateString()}
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="pt-4 mt-4 border-t border-stone-800 flex items-center justify-between gap-2">
+                          <a
+                            href={poster.posterUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="px-2.5 py-1.5 bg-stone-950 hover:bg-stone-800 text-stone-300 hover:text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors border border-stone-800"
+                          >
+                            <ExternalLink className="w-3.5 h-3.5" />
+                            <span>View HD</span>
+                          </a>
+
+                          <div className="flex items-center gap-1.5">
+                            <button
+                              type="button"
+                              onClick={() => handleOpenEditPoster(poster)}
+                              className="px-2.5 py-1.5 bg-stone-800 hover:bg-stone-700 text-stone-200 hover:text-white rounded-lg text-xs font-semibold flex items-center gap-1 cursor-pointer transition-colors"
+                            >
+                              <Edit2 className="w-3 h-3" />
+                              <span>Edit</span>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                requestDelete({
+                                  title: `Delete Core Committee Poster (${poster.tenure})`,
+                                  message: `Are you sure you want to delete the Core Committee poster for academic tenure "${poster.tenure}"?`,
+                                  confirmLabel: 'Delete Poster',
+                                  onConfirm: async () => {
+                                    await deleteCoreCommitteePoster(poster.id, poster.posterUrl);
+                                    showToast(`Core Committee poster for ${poster.tenure} deleted.`);
+                                  },
+                                });
+                              }}
+                              className="px-2.5 py-1.5 bg-red-950/60 hover:bg-red-900 text-red-300 rounded-lg text-xs font-semibold flex items-center gap-1 cursor-pointer border border-red-800/60 transition-colors"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                              <span>Delete</span>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
@@ -4651,6 +4862,216 @@ export const AdminDashboard: React.FC = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* ================= MODAL: ADD / EDIT CORE COMMITTEE POSTER ================= */}
+      {isPosterModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm">
+          <div className="bg-stone-900 border border-stone-700 rounded-2xl p-6 w-full max-w-lg shadow-2xl text-stone-100 max-h-[92vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-4 pb-3 border-b border-stone-800">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-emerald-950 border border-emerald-500/40 flex items-center justify-center text-emerald-400">
+                  <FileText className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-white">
+                    {editingPoster ? 'Edit Core Committee Poster' : 'Upload Core Committee Poster'}
+                  </h3>
+                  <p className="text-xs text-stone-400">Standard A4 Format (210×297mm) Year-wise Archive</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsPosterModalOpen(false)}
+                className="p-1.5 rounded-lg text-stone-400 hover:text-white hover:bg-stone-800"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSavePoster} className="space-y-4">
+              {/* Academic Year / Tenure */}
+              <div>
+                <label className="block text-xs font-semibold text-stone-300 mb-1">
+                  Academic Year / Tenure <span className="text-emerald-400">*</span>
+                </label>
+                <div className="flex items-center gap-2 mb-2">
+                  {['2026-27', '2025-26', '2024-25'].map((quickYr) => (
+                    <button
+                      key={`quick-yr-${quickYr}`}
+                      type="button"
+                      onClick={() => setPosterForm({ ...posterForm, tenure: quickYr })}
+                      className={`px-2.5 py-1 rounded text-[11px] font-mono font-semibold border transition-all ${
+                        posterForm.tenure === quickYr
+                          ? 'bg-emerald-600 text-white border-emerald-500'
+                          : 'bg-stone-950 text-stone-400 border-stone-800 hover:border-stone-700'
+                      }`}
+                    >
+                      {quickYr}
+                    </button>
+                  ))}
+                </div>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. 2026-27"
+                  value={posterForm.tenure}
+                  onChange={(e) => setPosterForm({ ...posterForm, tenure: e.target.value })}
+                  className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500 font-mono"
+                />
+              </div>
+
+              {/* Poster Title */}
+              <div>
+                <label className="block text-xs font-semibold text-stone-300 mb-1">
+                  Poster Title
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. ANJUMAN-E-HUDA Official Core Committee 2026-27"
+                  value={posterForm.title}
+                  onChange={(e) => setPosterForm({ ...posterForm, title: e.target.value })}
+                  className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500"
+                />
+              </div>
+
+              {/* Description */}
+              <div>
+                <label className="block text-xs font-semibold text-stone-300 mb-1">
+                  Description / Archival Notes (Optional)
+                </label>
+                <textarea
+                  rows={2}
+                  placeholder="e.g. Official ceremonial roster and constitutional cabinet gazette."
+                  value={posterForm.description}
+                  onChange={(e) => setPosterForm({ ...posterForm, description: e.target.value })}
+                  className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500"
+                />
+              </div>
+
+              {/* Poster Image Upload */}
+              <div>
+                <MediaUploadZone
+                  bucket="posters"
+                  label="Upload A4 Poster File (High-Resolution JPG / PNG / WebP)"
+                  currentUrl={posterForm.posterUrl}
+                  onUploadSuccess={(url) => {
+                    setPosterForm((prev) => ({ ...prev, posterUrl: url }));
+                    showToast('A4 Poster image uploaded successfully.');
+                  }}
+                />
+              </div>
+
+              {/* Direct URL input fallback */}
+              <div>
+                <label className="block text-[11px] text-stone-400 mb-1">
+                  Or Direct Image URL
+                </label>
+                <input
+                  type="url"
+                  placeholder="https://..."
+                  value={posterForm.posterUrl}
+                  onChange={(e) => setPosterForm({ ...posterForm, posterUrl: e.target.value })}
+                  className="w-full bg-stone-950 border border-stone-800 rounded-xl px-3 py-1.5 text-xs text-stone-300 focus:outline-none focus:border-emerald-500 font-mono text-[11px]"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-stone-800">
+                <button
+                  type="button"
+                  onClick={() => setIsPosterModalOpen(false)}
+                  className="px-4 py-2 bg-stone-800 hover:bg-stone-700 text-stone-300 rounded-xl text-xs font-medium cursor-pointer transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-semibold cursor-pointer shadow transition-colors"
+                >
+                  {editingPoster ? 'Update Poster' : 'Save & Publish Poster'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ================= MODAL: SUPABASE SQL SCRIPT GUIDE ================= */}
+      {showSqlModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm">
+          <div className="bg-stone-900 border border-stone-700 rounded-2xl p-6 w-full max-w-xl shadow-2xl text-stone-100 max-h-[92vh] overflow-y-auto space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-stone-800">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-amber-950 border border-amber-500/40 flex items-center justify-center text-amber-400">
+                  <Copy className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-white">Supabase SQL Migration Script</h3>
+                  <p className="text-xs text-stone-400">Core Committee Posters Table & RLS Security Policies</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowSqlModal(false)}
+                className="p-1.5 rounded-lg text-stone-400 hover:text-white hover:bg-stone-800"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <p className="text-xs text-stone-300 leading-relaxed">
+              Run this SQL script in your <strong>Supabase Dashboard ➔ SQL Editor</strong> to create the dedicated <code className="text-emerald-400 bg-stone-950 px-1 py-0.5 rounded font-mono">core_committee_posters</code> table and allow public read and admin write permissions.
+            </p>
+
+            <div className="relative">
+              <pre className="p-4 bg-stone-950 rounded-xl border border-stone-800 text-emerald-300 font-mono text-[11px] overflow-x-auto leading-relaxed max-h-64">
+                {CORE_COMMITTEE_POSTERS_SQL_SCHEMA}
+              </pre>
+              <button
+                type="button"
+                onClick={() => {
+                  navigator.clipboard.writeText(CORE_COMMITTEE_POSTERS_SQL_SCHEMA);
+                  setSqlCopied(true);
+                  showToast('SQL script copied to clipboard!');
+                  setTimeout(() => setSqlCopied(false), 3000);
+                }}
+                className="absolute top-2.5 right-2.5 px-3 py-1.5 bg-stone-800 hover:bg-stone-700 text-stone-200 hover:text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow border border-stone-700 transition-colors"
+              >
+                {sqlCopied ? (
+                  <>
+                    <CheckCircle className="w-3.5 h-3.5 text-emerald-400" />
+                    <span className="text-emerald-300">Copied!</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-3.5 h-3.5 text-amber-400" />
+                    <span>Copy SQL</span>
+                  </>
+                )}
+              </button>
+            </div>
+
+            <div className="p-3 bg-stone-950/80 rounded-xl border border-stone-800 text-xs text-stone-400 space-y-1">
+              <div className="flex items-center gap-1.5 text-amber-300 font-semibold">
+                <AlertCircle className="w-3.5 h-3.5 text-amber-400" />
+                <span>Supabase Storage Bucket:</span>
+              </div>
+              <p className="text-[11px] text-stone-400">
+                Posters are stored in the <code className="text-emerald-400 bg-stone-900 px-1 py-0.5 rounded">posters</code> or <code className="text-emerald-400 bg-stone-900 px-1 py-0.5 rounded">gallery</code> bucket. Ensure public read access is enabled for the bucket in Supabase Storage.
+              </p>
+            </div>
+
+            <div className="flex justify-end pt-2">
+              <button
+                type="button"
+                onClick={() => setShowSqlModal(false)}
+                className="px-5 py-2 bg-stone-800 hover:bg-stone-700 text-white rounded-xl text-xs font-semibold cursor-pointer"
+              >
+                Close
+              </button>
+            </div>
           </div>
         </div>
       )}

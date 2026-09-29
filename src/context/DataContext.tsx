@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import {
   AppDatabase,
   Leader,
+  CoreCommitteePoster,
   NIICSInCharge,
   Program,
   HighlightItem,
@@ -28,6 +29,8 @@ import {
   updateContactSettingsInSupabase,
   saveLeaderInSupabase,
   deleteLeaderInSupabase,
+  saveCoreCommitteePosterInSupabase,
+  deleteCoreCommitteePosterInSupabase,
   saveProgramInSupabase,
   deleteProgramInSupabase,
   saveAnnouncementInSupabase,
@@ -64,6 +67,8 @@ interface DataContextType {
   addLeader: (leader: Omit<Leader, 'id'>) => Promise<boolean>;
   updateLeader: (id: string, leader: Partial<Leader>) => Promise<boolean>;
   deleteLeader: (id: string) => Promise<boolean>;
+  saveCoreCommitteePoster: (poster: CoreCommitteePoster | Omit<CoreCommitteePoster, 'id'>, id?: string) => Promise<boolean>;
+  deleteCoreCommitteePoster: (id: string, posterUrl?: string) => Promise<boolean>;
   addNIICSInCharge: (item: Omit<NIICSInCharge, 'id'>) => Promise<boolean>;
   updateNIICSInCharge: (id: string, item: Partial<NIICSInCharge>) => Promise<boolean>;
   deleteNIICSInCharge: (id: string) => Promise<boolean>;
@@ -417,6 +422,57 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setDatabase((prev) => ({
       ...prev,
       leaders: prev.leaders.filter((l) => l.id !== id),
+    }));
+    return true;
+  };
+
+  /* =========================================================================
+     CORE COMMITTEE POSTERS (Year-wise A4 Rosters)
+  ========================================================================= */
+
+  const saveCoreCommitteePoster = async (
+    poster: CoreCommitteePoster | Omit<CoreCommitteePoster, 'id'>,
+    id?: string
+  ): Promise<boolean> => {
+    if (isSupabaseConfigured) {
+      const res = await saveCoreCommitteePosterInSupabase(poster, id);
+      if (res.success && res.data) {
+        setDatabase((prev) => {
+          const currentPosters = prev.coreCommitteePosters || [];
+          const exists = currentPosters.some((p) => p.id === res.data!.id || p.tenure === res.data!.tenure);
+          const updatedPosters = exists
+            ? currentPosters.map((p) => (p.id === res.data!.id || p.tenure === res.data!.tenure ? res.data! : p))
+            : [res.data!, ...currentPosters];
+          return { ...prev, coreCommitteePosters: updatedPosters };
+        });
+        return true;
+      }
+    }
+
+    const posterId = id || ('id' in poster && poster.id ? poster.id : `ccp-${Date.now()}`);
+    const newPoster: CoreCommitteePoster = {
+      ...poster,
+      id: posterId,
+      uploadedAt: new Date().toISOString(),
+    };
+    setDatabase((prev) => {
+      const currentPosters = prev.coreCommitteePosters || [];
+      const exists = currentPosters.some((p) => p.id === posterId || p.tenure === newPoster.tenure);
+      const updatedPosters = exists
+        ? currentPosters.map((p) => (p.id === posterId || p.tenure === newPoster.tenure ? newPoster : p))
+        : [newPoster, ...currentPosters];
+      return { ...prev, coreCommitteePosters: updatedPosters };
+    });
+    return true;
+  };
+
+  const deleteCoreCommitteePoster = async (id: string, posterUrl?: string): Promise<boolean> => {
+    if (isSupabaseConfigured) {
+      await deleteCoreCommitteePosterInSupabase(id, posterUrl);
+    }
+    setDatabase((prev) => ({
+      ...prev,
+      coreCommitteePosters: (prev.coreCommitteePosters || []).filter((p) => p.id !== id),
     }));
     return true;
   };
@@ -1458,6 +1514,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         addLeader,
         updateLeader,
         deleteLeader,
+        saveCoreCommitteePoster,
+        deleteCoreCommitteePoster,
         addNIICSInCharge,
         updateNIICSInCharge,
         deleteNIICSInCharge,

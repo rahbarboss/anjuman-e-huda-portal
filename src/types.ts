@@ -19,6 +19,15 @@ export interface Leader {
   phone?: string;
 }
 
+export interface CoreCommitteePoster {
+  id: string;
+  tenure: string; // e.g. "2026-27", "2025-26", "2024-25"
+  posterUrl: string;
+  title?: string;
+  description?: string;
+  uploadedAt?: string;
+}
+
 export interface NIICSInCharge {
   id: string;
   name: string;
@@ -201,6 +210,7 @@ export interface AppDatabase {
   homepage: HomepageContent;
   announcements: Announcement[];
   leaders: Leader[];
+  coreCommitteePosters?: CoreCommitteePoster[];
   niicsInCharge?: NIICSInCharge[];
   programs: Program[];
   highlights: HighlightItem[];

@@ -189,6 +189,32 @@ export const initialDatabase: AppDatabase = {
       officeLocation: 'Directorate Wing, Central Secretariat Quadrangle, Gate 4',
     },
   ],
+  coreCommitteePosters: [
+    {
+      id: 'ccp-2026-27',
+      tenure: '2026-27',
+      posterUrl: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=1400&q=85',
+      title: 'ANJUMAN-E-HUDA Apex Core Committee (2026-27)',
+      description: 'Official ceremonial A4 proclamation and committee directory for the 2026-27 executive academic session.',
+      uploadedAt: '2026-09-01',
+    },
+    {
+      id: 'ccp-2025-26',
+      tenure: '2025-26',
+      posterUrl: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1400&q=85',
+      title: 'ANJUMAN-E-HUDA Core Committee Official Poster (2025-26 Archive)',
+      description: 'Official commemorative A4 roster of the 2025-26 elected executive council and sub-secretaries.',
+      uploadedAt: '2025-08-15',
+    },
+    {
+      id: 'ccp-2024-25',
+      tenure: '2024-25',
+      posterUrl: 'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=1400&q=85',
+      title: 'Historical Core Committee Roster (2024-25 Archive)',
+      description: 'Archival A4 gazette publication of the 2024-25 union leadership convention.',
+      uploadedAt: '2024-08-10',
+    },
+  ],
   programs: [
     {
       id: 'prog-1',

@@ -2,6 +2,7 @@ import { supabase, isSupabaseConfigured } from '../lib/supabase';
 import {
   AppDatabase,
   Leader,
+  CoreCommitteePoster,
   NIICSInCharge,
   Program,
   HighlightItem,
@@ -291,10 +292,32 @@ export async function fetchContentFromSupabase(): Promise<AppDatabase | null> {
     const cloudSocialLinks = await fetchSocialLinksFromSupabase();
     const socialLinks = cloudSocialLinks.length > 0 ? cloudSocialLinks : (initialDatabase.socialLinks || []);
 
+    let coreCommitteePosters: CoreCommitteePoster[] = initialDatabase.coreCommitteePosters || [];
+    try {
+      const { data: postersData, error: postersError } = await supabase
+        .from('core_committee_posters')
+        .select('*')
+        .order('tenure', { ascending: false });
+
+      if (!postersError && postersData && postersData.length > 0) {
+        coreCommitteePosters = postersData.map((p: any) => ({
+          id: p.id,
+          tenure: p.tenure,
+          posterUrl: p.poster_url || p.posterUrl,
+          title: p.title || `Core Committee ${p.tenure}`,
+          description: p.description || '',
+          uploadedAt: p.created_at || p.uploadedAt || '',
+        }));
+      }
+    } catch (e) {
+      console.warn('[Supabase DB] core_committee_posters table not queried:', e);
+    }
+
     return {
       homepage,
       announcements,
       leaders,
+      coreCommitteePosters,
       niicsInCharge,
       programs,
       highlights,
@@ -541,6 +564,116 @@ export async function deleteLeaderInSupabase(
   } catch (err: any) {
     console.error('[Supabase DB / members] Unexpected delete error:', err);
     return { success: false, message: err?.message || 'Failed to delete leader' };
+  }
+}
+
+/* =========================================================================
+   CORE COMMITTEE POSTERS CRUD (Table: core_committee_posters)
+========================================================================= */
+
+export const CORE_COMMITTEE_POSTERS_SQL_SCHEMA = `-- 1. Create Core Committee Posters table in Supabase
+CREATE TABLE IF NOT EXISTS public.core_committee_posters (
+    id TEXT PRIMARY KEY,
+    tenure TEXT NOT NULL,
+    poster_url TEXT NOT NULL,
+    title TEXT,
+    description TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- 2. Enable Row Level Security (RLS)
+ALTER TABLE public.core_committee_posters ENABLE ROW LEVEL SECURITY;
+
+-- 3. Create Public Read Policy
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_policies 
+        WHERE tablename = 'core_committee_posters' 
+        AND policyname = 'Public Read Access for Core Committee Posters'
+    ) THEN
+        CREATE POLICY "Public Read Access for Core Committee Posters" 
+        ON public.core_committee_posters FOR SELECT USING (true);
+    END IF;
+END $$;
+
+-- 4. Create Full Access Policy for Admin Operations
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_policies 
+        WHERE tablename = 'core_committee_posters' 
+        AND policyname = 'Allow All Operations on Core Committee Posters'
+    ) THEN
+        CREATE POLICY "Allow All Operations on Core Committee Posters" 
+        ON public.core_committee_posters FOR ALL USING (true) WITH CHECK (true);
+    END IF;
+END $$;`;
+
+export async function saveCoreCommitteePosterInSupabase(
+  poster: CoreCommitteePoster | Omit<CoreCommitteePoster, 'id'>,
+  id?: string
+): Promise<{ success: boolean; data?: CoreCommitteePoster; message?: string }> {
+  if (!supabase || !isSupabaseConfigured) {
+    return { success: false, message: 'Supabase is not configured' };
+  }
+
+  try {
+    const posterId = id || ('id' in poster && poster.id ? poster.id : `ccp_${Date.now()}`);
+    const row = {
+      id: posterId,
+      tenure: poster.tenure,
+      poster_url: poster.posterUrl,
+      title: poster.title || `Core Committee ${poster.tenure}`,
+      description: poster.description || '',
+    };
+
+    const { error } = await supabase.from('core_committee_posters').upsert(row);
+    if (error) {
+      console.warn('[Supabase DB / core_committee_posters] Upsert warning:', error.message);
+      return { success: false, message: error.message };
+    }
+
+    return {
+      success: true,
+      data: {
+        id: posterId,
+        tenure: poster.tenure,
+        posterUrl: poster.posterUrl,
+        title: poster.title || `Core Committee ${poster.tenure}`,
+        description: poster.description || '',
+        uploadedAt: new Date().toISOString(),
+      },
+    };
+  } catch (err: any) {
+    console.error('[Supabase DB / core_committee_posters] Error:', err);
+    return { success: false, message: err?.message || 'Failed to save poster' };
+  }
+}
+
+export async function deleteCoreCommitteePosterInSupabase(
+  id: string,
+  posterUrl?: string
+): Promise<{ success: boolean; message?: string }> {
+  if (!supabase || !isSupabaseConfigured) {
+    return { success: false, message: 'Supabase is not configured' };
+  }
+
+  try {
+    const { error } = await supabase.from('core_committee_posters').delete().eq('id', id);
+    if (error) {
+      console.warn('[Supabase DB / core_committee_posters] Delete error:', error.message);
+      return { success: false, message: error.message };
+    }
+
+    if (posterUrl && posterUrl.includes('supabase.co')) {
+      await deleteFromSupabaseStorage(posterUrl, 'posters');
+    }
+
+    return { success: true };
+  } catch (err: any) {
+    console.error('[Supabase DB / core_committee_posters] Error:', err);
+    return { success: false, message: err?.message || 'Failed to delete poster' };
   }
 }
 
