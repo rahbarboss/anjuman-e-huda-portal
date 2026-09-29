@@ -6,7 +6,6 @@ import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
 import { SecretAdminLoginModal } from './components/SecretAdminLoginModal';
 import { NotificationCenterModal } from './components/NotificationCenterModal';
-import { WhatsAppFloatingWidget } from './components/WhatsAppFloatingWidget';
 import { AdminDashboard } from './components/admin/AdminDashboard';
 
 // Page Components
@@ -75,9 +74,6 @@ const MainPortalContent: React.FC = () => {
         isOpen={isNotificationOpen}
         onClose={() => setIsNotificationOpen(false)}
       />
-
-      {/* Floating WhatsApp Chat Widget */}
-      <WhatsAppFloatingWidget />
     </div>
   );
 };
