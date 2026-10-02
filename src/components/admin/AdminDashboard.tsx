@@ -20,7 +20,10 @@ import {
   SocialLink,
 } from '../../types';
 import { defaultTelemetrySettings, initialDatabase } from '../../defaultData';
-import { CORE_COMMITTEE_POSTERS_SQL_SCHEMA } from '../../services/supabaseService';
+import {
+  CORE_COMMITTEE_POSTERS_SQL_SCHEMA,
+  LEADERSHIP_ORDER_SQL_SCHEMA,
+} from '../../services/supabaseService';
 import { MediaUploadZone } from './MediaUploadZone';
 import {
   LayoutDashboard,
@@ -72,6 +75,9 @@ import {
   Globe,
   Copy,
   Maximize2,
+  ArrowUp,
+  ArrowDown,
+  Hash,
 } from 'lucide-react';
 
 export type AdminTab =
@@ -439,7 +445,17 @@ export const AdminDashboard: React.FC = () => {
   const [isLeaderModalOpen, setIsLeaderModalOpen] = useState(false);
   const [isCustomLeaderRole, setIsCustomLeaderRole] = useState(false);
   const [customRoleInput, setCustomRoleInput] = useState('');
-  const [leaderForm, setLeaderForm] = useState({
+  const [leaderForm, setLeaderForm] = useState<{
+    name: string;
+    role: Leader['role'];
+    tenure: string;
+    photo: string;
+    department: string;
+    quote: string;
+    email: string;
+    phone: string;
+    order: number | '';
+  }>({
     name: '',
     role: 'President' as Leader['role'],
     tenure: '2026-27',
@@ -448,21 +464,29 @@ export const AdminDashboard: React.FC = () => {
     quote: '',
     email: '',
     phone: '',
+    order: 1,
   });
 
   const handleOpenAddLeader = () => {
     setEditingLeader(null);
     setIsCustomLeaderRole(false);
     setCustomRoleInput('');
+    const curTenure = '2026-27';
+    const leadersInTenure = database.leaders.filter((l) => l.tenure === curTenure);
+    const maxOrder = leadersInTenure.reduce(
+      (max, l) => Math.max(max, typeof l.order === 'number' ? l.order : 0),
+      0
+    );
     setLeaderForm({
       name: '',
       role: 'President',
-      tenure: '2026-27',
+      tenure: curTenure,
       photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=800&q=80',
       department: 'Department of Islamic Studies',
       quote: '',
       email: '',
       phone: '',
+      order: maxOrder + 1,
     });
     setIsLeaderModalOpen(true);
   };
@@ -481,6 +505,7 @@ export const AdminDashboard: React.FC = () => {
       quote: ldr.quote || '',
       email: ldr.email || '',
       phone: ldr.phone || '',
+      order: typeof ldr.order === 'number' ? ldr.order : '',
     });
     setIsLeaderModalOpen(true);
   };
@@ -492,18 +517,26 @@ export const AdminDashboard: React.FC = () => {
       showToast('Please specify a role or designation.');
       return;
     }
+    const orderNum = leaderForm.order === '' ? undefined : Number(leaderForm.order);
     const payload = {
       ...leaderForm,
       role: finalRole,
+      order: orderNum,
     };
     if (editingLeader) {
       await updateLeader(editingLeader.id, payload);
-      showToast(`Leader "${leaderForm.name}" updated successfully.`);
+      showToast(`Leader "${leaderForm.name}" updated (Position #${orderNum ?? '-'}).`);
     } else {
       await addLeader(payload);
-      showToast(`New Leader "${leaderForm.name}" appointed.`);
+      showToast(`New Leader "${leaderForm.name}" appointed at Position #${orderNum ?? '-'}.`);
     }
     setIsLeaderModalOpen(false);
+  };
+
+  const handleQuickUpdateLeaderOrder = async (leader: Leader, newOrder: number) => {
+    if (newOrder < 1) return;
+    await updateLeader(leader.id, { ...leader, order: newOrder });
+    showToast(`"${leader.name}" set to Position #${newOrder}.`);
   };
 
   // ================= 4.2 NIICS IN-CHARGE MODAL & STATE =================
@@ -2414,55 +2447,119 @@ export const AdminDashboard: React.FC = () => {
                     </button>
                   </div>
 
+                  {/* Ordering explanation header */}
+                  <div className="flex flex-wrap items-center justify-between gap-3 p-3.5 bg-stone-950/80 rounded-xl border border-stone-800 text-xs">
+                    <div className="flex items-center gap-2">
+                      <span className="text-stone-400 font-mono text-[11px] uppercase">Hierarchy Ordering:</span>
+                      <span className="px-2 py-0.5 rounded bg-amber-400/20 text-amber-300 font-mono font-bold text-[11px] border border-amber-500/30 flex items-center gap-1">
+                        <Hash className="w-3 h-3 text-amber-400" />
+                        <span>Position-Wise Sequence (#1, #2, #3...)</span>
+                      </span>
+                    </div>
+                    <span className="text-[11px] text-stone-400">
+                      Use the position buttons (▲/▼) or Edit to change duty & post rank on website.
+                    </span>
+                  </div>
+
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {database.leaders.map((leader, idx) => (
+                    {[...database.leaders]
+                      .sort((a, b) => {
+                        if (a.tenure !== b.tenure) return b.tenure.localeCompare(a.tenure);
+                        const orderA = typeof a.order === 'number' && !isNaN(a.order) ? a.order : 999;
+                        const orderB = typeof b.order === 'number' && !isNaN(b.order) ? b.order : 999;
+                        return orderA - orderB;
+                      })
+                      .map((leader, idx) => (
                       <div
                         key={`admin-ldr-${leader.id}-${idx}`}
-                        className="p-4 bg-stone-900 border border-stone-800 rounded-xl flex flex-col justify-between"
+                        className="p-4 bg-stone-900 border border-stone-800 hover:border-emerald-500/40 rounded-xl flex flex-col justify-between transition-all"
                       >
                         <div>
-                          <div className="flex items-center gap-3 mb-3">
-                            <img
-                              src={leader.photo}
-                              alt={leader.name}
-                              className="w-14 h-14 rounded-lg object-cover border border-stone-700 shrink-0"
-                            />
-                            <div>
-                              <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800">
-                                {leader.role}
+                          <div className="flex items-start gap-3 mb-3">
+                            <div className="relative shrink-0">
+                              <img
+                                src={leader.photo}
+                                alt={leader.name}
+                                className="w-16 h-16 rounded-xl object-cover border border-stone-700 shrink-0"
+                              />
+                              <span
+                                className="absolute -top-1.5 -left-1.5 bg-amber-400 text-stone-950 text-[10px] font-mono font-extrabold px-1.5 py-0.5 rounded shadow"
+                                title={`Duty Position #${leader.order ?? (idx + 1)}`}
+                              >
+                                #{leader.order ?? (idx + 1)}
                               </span>
-                              <h4 className="text-sm font-bold text-white mt-1">{leader.name}</h4>
-                              <span className="text-xs text-amber-400 font-mono">Tenure: {leader.tenure}</span>
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-1.5 flex-wrap">
+                                <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800">
+                                  {leader.role}
+                                </span>
+                                <span className="text-[10px] text-amber-400 font-mono px-1.5 py-0.5 rounded bg-stone-950 border border-stone-800">
+                                  {leader.tenure}
+                                </span>
+                              </div>
+                              <h4 className="text-sm font-bold text-white mt-1 truncate" title={leader.name}>{leader.name}</h4>
+                              <div className="flex items-center gap-1 mt-1 text-[11px] font-mono text-stone-400">
+                                <span>Duty Rank:</span>
+                                <strong className="text-amber-300 font-bold">#{leader.order ?? '-'}</strong>
+                              </div>
                             </div>
                           </div>
                           <p className="text-xs text-stone-400 line-clamp-2">{leader.department}</p>
                         </div>
 
-                        <div className="pt-3 mt-3 border-t border-stone-800 flex items-center justify-end gap-2">
-                          <button
-                            onClick={() => handleOpenEditLeader(leader)}
-                            className="p-1.5 text-stone-300 hover:text-emerald-400 rounded hover:bg-stone-800 cursor-pointer"
-                            title="Edit Leader"
-                          >
-                            <Edit2 className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => {
-                              requestDelete({
-                                title: 'Remove Central Cabinet Leader',
-                                message: `Are you sure you want to remove "${leader.name}" (${leader.role}) from the Central Cabinet?`,
-                                confirmLabel: 'Delete Leader',
-                                onConfirm: async () => {
-                                  await deleteLeader(leader.id);
-                                  showToast(`Leader "${leader.name}" deleted.`);
-                                },
-                              });
-                            }}
-                            className="p-1.5 text-stone-300 hover:text-red-400 rounded hover:bg-stone-800 cursor-pointer"
-                            title="Delete Leader"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
+                        <div className="pt-3 mt-3 border-t border-stone-800 flex items-center justify-between gap-2">
+                          {/* Quick Position Step Buttons */}
+                          <div className="flex items-center gap-1">
+                            <span className="text-[10px] font-mono text-stone-500 mr-1">Position:</span>
+                            <button
+                              type="button"
+                              disabled={(leader.order ?? 1) <= 1}
+                              onClick={() => handleQuickUpdateLeaderOrder(leader, Math.max(1, (leader.order ?? (idx + 1)) - 1))}
+                              className="p-1 rounded bg-stone-800 hover:bg-stone-700 disabled:opacity-30 disabled:hover:bg-stone-800 text-stone-300 hover:text-white transition-colors"
+                              title="Move Up in sequence (e.g. #2 -> #1)"
+                            >
+                              <ArrowUp className="w-3.5 h-3.5" />
+                            </button>
+                            <span className="text-xs font-mono font-bold text-amber-300 px-1.5 py-0.5 rounded bg-stone-950 border border-stone-800 min-w-[28px] text-center">
+                              {leader.order ?? (idx + 1)}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => handleQuickUpdateLeaderOrder(leader, (leader.order ?? (idx + 1)) + 1)}
+                              className="p-1 rounded bg-stone-800 hover:bg-stone-700 text-stone-300 hover:text-white transition-colors"
+                              title="Move Down in sequence (e.g. #1 -> #2)"
+                            >
+                              <ArrowDown className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+
+                          <div className="flex items-center gap-1.5">
+                            <button
+                              onClick={() => handleOpenEditLeader(leader)}
+                              className="p-1.5 text-stone-300 hover:text-emerald-400 rounded-lg hover:bg-stone-800 cursor-pointer transition-colors"
+                              title="Edit Leader & Position"
+                            >
+                              <Edit2 className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => {
+                                requestDelete({
+                                  title: 'Remove Central Cabinet Leader',
+                                  message: `Are you sure you want to remove "${leader.name}" (${leader.role}) from the Central Cabinet?`,
+                                  confirmLabel: 'Delete Leader',
+                                  onConfirm: async () => {
+                                    await deleteLeader(leader.id);
+                                    showToast(`Leader "${leader.name}" deleted.`);
+                                  },
+                                });
+                              }}
+                              className="p-1.5 text-stone-300 hover:text-red-400 rounded-lg hover:bg-stone-800 cursor-pointer transition-colors"
+                              title="Delete Leader"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
                         </div>
                       </div>
                     ))}
@@ -3429,6 +3526,38 @@ export const AdminDashboard: React.FC = () => {
                     className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-xs text-white"
                   />
                 </div>
+              </div>
+
+              {/* Hierarchy / Duty Sequence Number */}
+              <div className="p-3.5 rounded-xl bg-stone-950/80 border border-stone-800 space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <label className="block text-xs font-semibold text-stone-200 flex items-center gap-1.5">
+                    <Hash className="w-3.5 h-3.5 text-amber-400" />
+                    <span>Hierarchy Position / Sequence Order</span>
+                    <span className="text-amber-400 text-xs">*</span>
+                  </label>
+                  <span className="text-[11px] font-mono text-amber-400 bg-amber-950/50 px-2 py-0.5 rounded border border-amber-500/30 font-bold">
+                    #1 = Topmost Post
+                  </span>
+                </div>
+                <input
+                  type="number"
+                  min={1}
+                  max={999}
+                  required
+                  placeholder="e.g. 1 for President, 2 for General Secretary..."
+                  value={leaderForm.order}
+                  onChange={(e) =>
+                    setLeaderForm({
+                      ...leaderForm,
+                      order: e.target.value === '' ? '' : parseInt(e.target.value) || 1,
+                    })
+                  }
+                  className="w-full bg-stone-900 border border-stone-700 rounded-xl px-3 py-2 text-xs text-white font-mono focus:border-emerald-500 focus:outline-none"
+                />
+                <p className="text-[11px] text-stone-400 leading-relaxed">
+                  Website par leaders isi number rank ke anusar pehle ya baad me display honge (1 = sabse upar/pehle, 2 = dusre number par, etc.).
+                </p>
               </div>
 
               {isCustomLeaderRole && (
@@ -5022,17 +5151,17 @@ export const AdminDashboard: React.FC = () => {
             </div>
 
             <p className="text-xs text-stone-300 leading-relaxed">
-              Run this SQL script in your <strong>Supabase Dashboard ➔ SQL Editor</strong> to create the dedicated <code className="text-emerald-400 bg-stone-950 px-1 py-0.5 rounded font-mono">core_committee_posters</code> table and allow public read and admin write permissions.
+              Run this SQL script in your <strong>Supabase Dashboard ➔ SQL Editor</strong> to create the <code className="text-emerald-400 bg-stone-950 px-1 py-0.5 rounded font-mono">core_committee_posters</code> table and add <code className="text-amber-400 bg-stone-950 px-1 py-0.5 rounded font-mono">order_index</code> column for duty hierarchy ranking.
             </p>
 
             <div className="relative">
-              <pre className="p-4 bg-stone-950 rounded-xl border border-stone-800 text-emerald-300 font-mono text-[11px] overflow-x-auto leading-relaxed max-h-64">
-                {CORE_COMMITTEE_POSTERS_SQL_SCHEMA}
+              <pre className="p-4 bg-stone-950 rounded-xl border border-stone-800 text-emerald-300 font-mono text-[11px] overflow-x-auto leading-relaxed max-h-72">
+                {`${CORE_COMMITTEE_POSTERS_SQL_SCHEMA}\n\n${LEADERSHIP_ORDER_SQL_SCHEMA}`}
               </pre>
               <button
                 type="button"
                 onClick={() => {
-                  navigator.clipboard.writeText(CORE_COMMITTEE_POSTERS_SQL_SCHEMA);
+                  navigator.clipboard.writeText(`${CORE_COMMITTEE_POSTERS_SQL_SCHEMA}\n\n${LEADERSHIP_ORDER_SQL_SCHEMA}`);
                   setSqlCopied(true);
                   showToast('SQL script copied to clipboard!');
                   setTimeout(() => setSqlCopied(false), 3000);
@@ -5047,7 +5176,7 @@ export const AdminDashboard: React.FC = () => {
                 ) : (
                   <>
                     <Copy className="w-3.5 h-3.5 text-amber-400" />
-                    <span>Copy SQL</span>
+                    <span>Copy All SQL</span>
                   </>
                 )}
               </button>

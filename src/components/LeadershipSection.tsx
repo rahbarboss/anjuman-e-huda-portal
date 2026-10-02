@@ -41,8 +41,15 @@ export const LeadershipSection: React.FC = () => {
   const tenures = Array.from(new Set(allTenures)).sort().reverse();
   if (!tenures.includes('2026-27')) tenures.unshift('2026-27');
 
-  // Leaders for current selected tenure
-  const currentLeaders = database.leaders.filter((l) => l.tenure === selectedTenure);
+  // Leaders for current selected tenure, strictly sorted by duty / hierarchy order number
+  const currentLeaders = [...database.leaders]
+    .filter((l) => l.tenure === selectedTenure)
+    .sort((a, b) => {
+      const orderA = typeof a.order === 'number' && !isNaN(a.order) ? a.order : 999;
+      const orderB = typeof b.order === 'number' && !isNaN(b.order) ? b.order : 999;
+      if (orderA !== orderB) return orderA - orderB;
+      return 0;
+    });
 
   // Core Committee Posters
   const corePosters =
@@ -400,6 +407,11 @@ export const LeadershipSection: React.FC = () => {
                             alt={leader.name}
                             className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
                           />
+                          <div className="absolute top-2.5 left-2.5">
+                            <span className="bg-amber-400 text-stone-950 text-[10px] font-mono font-extrabold px-2 py-0.5 rounded shadow flex items-center gap-1" title={`Hierarchy Position #${leader.order ?? (idx + 1)}`}>
+                              <span>#{leader.order ?? (idx + 1)}</span>
+                            </span>
+                          </div>
                           <div className="absolute top-2.5 right-2.5">
                             <span className="bg-stone-950/85 backdrop-blur-sm text-amber-400 border border-amber-500/30 text-[10px] font-mono font-bold px-2 py-0.5 rounded-full shadow">
                               {leader.tenure}

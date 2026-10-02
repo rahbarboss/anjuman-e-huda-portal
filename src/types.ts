@@ -17,6 +17,7 @@ export interface Leader {
   quote?: string;
   email?: string;
   phone?: string;
+  order?: number; // Duty & post sequence number (1 = Top/First, 2 = Second, etc.)
 }
 
 export interface CoreCommitteePoster {

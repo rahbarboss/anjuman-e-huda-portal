@@ -172,17 +172,20 @@ export async function fetchContentFromSupabase(): Promise<AppDatabase | null> {
         'Upholding student welfare through collaborative leadership, ethical representation, and progressive educational engagement.',
     };
 
-    const leaders: Leader[] = (membersRes.data || []).map((m: any) => ({
-      id: m.id,
-      name: m.name,
-      role: m.role,
-      tenure: m.tenure,
-      photo: m.photo,
-      department: m.department,
-      quote: m.quote,
-      email: m.email,
-      phone: m.phone,
-    }));
+    const leaders: Leader[] = (membersRes.data || [])
+      .map((m: any) => ({
+        id: m.id,
+        name: m.name,
+        role: m.role,
+        tenure: m.tenure,
+        photo: m.photo,
+        department: m.department,
+        quote: m.quote,
+        email: m.email,
+        phone: m.phone,
+        order: typeof m.order_index === 'number' ? m.order_index : (typeof m.order === 'number' ? m.order : undefined),
+      }))
+      .sort((a: Leader, b: Leader) => (a.order ?? 999) - (b.order ?? 999));
 
     const niicsInCharge: NIICSInCharge[] = (niicsRes.data || []).map((n: any) => ({
       id: n.id,
@@ -508,7 +511,7 @@ export async function saveLeaderInSupabase(
 
   try {
     const leaderId = id || ('id' in leader && leader.id ? leader.id : `mbr_${Date.now()}`);
-    const row = {
+    const row: any = {
       id: leaderId,
       name: leader.name,
       role: leader.role,
@@ -518,10 +521,17 @@ export async function saveLeaderInSupabase(
       quote: leader.quote || '',
       email: leader.email || '',
       phone: leader.phone || '',
+      order_index: typeof leader.order === 'number' ? leader.order : (leader.order ? Number(leader.order) : null),
       updated_at: new Date().toISOString(),
     };
 
-    const { error } = await supabase.from('members').upsert(row);
+    let { error } = await supabase.from('members').upsert(row);
+    if (error && error.message && error.message.includes('order_index')) {
+      delete row.order_index;
+      const retry = await supabase.from('members').upsert(row);
+      error = retry.error;
+    }
+
     if (error) {
       console.error('[Supabase DB / members] Save leader failed:', error.message);
       return { success: false, message: error.message };
@@ -608,7 +618,17 @@ BEGIN
         CREATE POLICY "Allow All Operations on Core Committee Posters" 
         ON public.core_committee_posters FOR ALL USING (true) WITH CHECK (true);
     END IF;
-END $$;`;
+END $$;
+
+-- 5. Add order_index column to members table for duty & post ranking
+ALTER TABLE public.members ADD COLUMN IF NOT EXISTS order_index INTEGER DEFAULT 999;
+CREATE INDEX IF NOT EXISTS idx_members_order_index ON public.members (order_index ASC);
+`;
+
+export const LEADERSHIP_ORDER_SQL_SCHEMA = `-- Add order_index column to members table for duty & post ranking
+ALTER TABLE public.members ADD COLUMN IF NOT EXISTS order_index INTEGER DEFAULT 999;
+CREATE INDEX IF NOT EXISTS idx_members_order_index ON public.members (order_index ASC);
+`;
 
 export async function saveCoreCommitteePosterInSupabase(
   poster: CoreCommitteePoster | Omit<CoreCommitteePoster, 'id'>,

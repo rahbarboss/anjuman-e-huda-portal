@@ -80,6 +80,7 @@ export const initialDatabase: AppDatabase = {
         "Leadership is a trust, an Amanah. Our compass is sincere service to every student on this campus.",
       email: 'president@anjumanehuda.org',
       phone: '+91 98765 43210',
+      order: 1,
     },
     {
       id: 'ldr-2',
@@ -93,6 +94,20 @@ export const initialDatabase: AppDatabase = {
         'Bridging age-old wisdom with cutting-edge student innovation across every wing.',
       email: 'gensec@anjumanehuda.org',
       phone: '+91 98765 43211',
+      order: 2,
+    },
+    {
+      id: 'ldr-4',
+      name: 'Shafeequr Rahman',
+      role: 'Vice President',
+      tenure: '2026-27',
+      photo:
+        'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=800&q=80',
+      department: 'Department of Political Science',
+      quote:
+        'Empowering minority voices and fostering an environment of active campus participation.',
+      email: 'vp@anjumanehuda.org',
+      order: 3,
     },
     {
       id: 'ldr-3',
@@ -106,18 +121,7 @@ export const initialDatabase: AppDatabase = {
         'Uncompromising fiscal transparency and equitable fund allocation for maximum student benefit.',
       email: 'treasurer@anjumanehuda.org',
       phone: '+91 98765 43212',
-    },
-    {
-      id: 'ldr-4',
-      name: 'Shafeequr Rahman',
-      role: 'Vice President',
-      tenure: '2026-27',
-      photo:
-        'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=800&q=80',
-      department: 'Department of Political Science',
-      quote:
-        'Empowering minority voices and fostering an environment of active campus participation.',
-      email: 'vp@anjumanehuda.org',
+      order: 4,
     },
     {
       id: 'ldr-5',
@@ -130,6 +134,7 @@ export const initialDatabase: AppDatabase = {
       quote:
         'Nurtured 12 groundbreaking student research platforms during our proud tenure.',
       email: 'archive.2025@anjumanehuda.org',
+      order: 1,
     },
     {
       id: 'ldr-6',
@@ -141,6 +146,7 @@ export const initialDatabase: AppDatabase = {
       department: 'Department of Physics & Technology',
       quote: 'Streamlined campus digital grievance and welfare protocols.',
       email: 'archive.gensec25@anjumanehuda.org',
+      order: 2,
     },
     {
       id: 'ldr-7',
@@ -152,6 +158,7 @@ export const initialDatabase: AppDatabase = {
       department: 'Faculty of Law',
       quote: 'Maintained 100% audited institutional reserves.',
       email: 'archive.tr25@anjumanehuda.org',
+      order: 3,
     },
     {
       id: 'ldr-8',
@@ -162,6 +169,7 @@ export const initialDatabase: AppDatabase = {
         'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=800&q=80',
       department: 'Department of History & Civilizations',
       quote: 'Spearheaded the 30th Anniversary Golden Jubilee Convention.',
+      order: 1,
     },
   ],
   niicsInCharge: [
