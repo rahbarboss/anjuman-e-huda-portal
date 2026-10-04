@@ -6,6 +6,7 @@ export type NavPage =
   | 'updates'
   | 'leadership'
   | 'wings'
+  | 'highlights'
   | 'participants'
   | 'programs'
   | 'rankings'
@@ -30,6 +31,7 @@ export const NavigationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         'updates',
         'leadership',
         'wings',
+        'highlights',
         'participants',
         'programs',
         'rankings',
@@ -70,6 +72,7 @@ export const NavigationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         'updates',
         'leadership',
         'wings',
+        'highlights',
         'participants',
         'programs',
         'rankings',

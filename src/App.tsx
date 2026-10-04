@@ -14,6 +14,7 @@ import { AboutPage } from './pages/AboutPage';
 import { UpdatesPage } from './pages/UpdatesPage';
 import { LeadershipPage } from './pages/LeadershipPage';
 import { ParticipantsPage } from './pages/ParticipantsPage';
+import { HighlightsPage } from './pages/HighlightsPage';
 import { ProgramsPage } from './pages/ProgramsPage';
 import { RankingsPage } from './pages/RankingsPage';
 import { ContactPage } from './pages/ContactPage';
@@ -33,6 +34,8 @@ const PageRenderer: React.FC<{ onOpenNotifications: () => void }> = ({ onOpenNot
     case 'wings':
     case 'participants':
       return <ParticipantsPage />;
+    case 'highlights':
+      return <HighlightsPage />;
     case 'programs':
       return <ProgramsPage />;
     case 'rankings':

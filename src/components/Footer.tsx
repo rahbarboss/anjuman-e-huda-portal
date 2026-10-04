@@ -195,10 +195,19 @@ export const Footer: React.FC = () => {
               <li>
                 <button
                   type="button"
+                  onClick={() => navigateTo('highlights')}
+                  className="hover:text-emerald-400 transition-colors cursor-pointer text-left"
+                >
+                  Visual Highlights & Gallery
+                </button>
+              </li>
+              <li>
+                <button
+                  type="button"
                   onClick={() => navigateTo('programs')}
                   className="hover:text-emerald-400 transition-colors cursor-pointer text-left"
                 >
-                  All Programs & Gallery
+                  All Programs & Schedule
                 </button>
               </li>
             </ul>

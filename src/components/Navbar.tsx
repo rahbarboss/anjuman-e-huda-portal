@@ -20,6 +20,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenNotifications }) => {
     { label: 'Updates', page: 'updates' },
     { label: 'Leadership', page: 'leadership' },
     { label: 'Wings', page: 'wings' },
+    { label: 'Highlights', page: 'highlights' },
     { label: 'Programs', page: 'programs' },
     { label: 'Rankings', page: 'rankings' },
     { label: 'Contact', page: 'contact' },
