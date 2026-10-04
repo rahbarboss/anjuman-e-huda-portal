@@ -18,6 +18,7 @@ import {
   ChevronRight,
   ZoomIn,
   Maximize2,
+  Newspaper,
 } from 'lucide-react';
 
 interface Props {
@@ -98,30 +99,79 @@ export const LatestProgramsAndAnnouncements: React.FC<Props> = ({ onOpenNotifica
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3">
-            <button
-              id="view-all-programs-btn"
-              type="button"
-              onClick={scrollToAllPrograms}
-              className="px-5 py-2.5 bg-emerald-700 hover:bg-emerald-600 active:bg-emerald-800 text-white text-xs sm:text-sm font-semibold rounded-xl shadow-sm transition-all flex items-center gap-2 cursor-pointer"
+          <div className="flex flex-col items-center sm:items-center gap-3 shrink-0 w-full sm:w-auto">
+            {/* Dynamic & Highlighted Fikr-o-Khayal Weekly Feature Banner - Centered above action buttons */}
+            <a
+              href="https://fikr-o-khayalweekly.vercel.app"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="relative group block w-full rounded-2xl p-[2px] bg-gradient-to-r from-emerald-500 via-amber-400 to-emerald-500 hover:from-amber-400 hover:via-emerald-400 hover:to-amber-300 shadow-[0_0_20px_rgba(16,185,129,0.35)] hover:shadow-[0_0_30px_rgba(245,158,11,0.55)] transition-all duration-500 hover:-translate-y-0.5 cursor-pointer overflow-hidden"
+              title="Read Fikr-o-Khayal Weekly Official Organ Portal"
             >
-              <span>Explore Full Catalog</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
+              {/* Internal card container */}
+              <div className="relative rounded-[14px] bg-stone-950/95 hover:bg-stone-900/90 px-4 py-2.5 sm:py-3 flex items-center justify-between gap-3 text-white transition-colors overflow-hidden">
+                {/* Continuous Shimmer Light Beam Effect */}
+                <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-1000 ease-out" />
 
-            <button
-              type="button"
-              onClick={() => {
-                if (onOpenNotifications) {
-                  onOpenNotifications();
-                } else {
-                  navigateTo('updates');
-                }
-              }}
-              className="px-4 py-2.5 bg-stone-200 hover:bg-stone-300 text-stone-800 text-xs sm:text-sm font-medium rounded-xl transition-all flex items-center gap-1.5 cursor-pointer"
-            >
-              <span>Gazettes & Notices</span>
-            </button>
+                {/* Left: Animated Icon + Text details */}
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="relative w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-600 to-emerald-950 border border-emerald-400/60 flex items-center justify-center text-amber-300 shadow-md shrink-0 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300">
+                    <Newspaper className="w-5 h-5 text-amber-300" />
+                    <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-80" />
+                      <span className="relative inline-flex rounded-full h-3 w-3 bg-amber-500 border border-stone-900" />
+                    </span>
+                  </div>
+
+                  <div className="text-left min-w-0">
+                    <div className="flex items-center gap-2 mb-0.5">
+                      <span className="bg-amber-400 text-stone-950 text-[9px] font-mono font-extrabold px-1.5 py-0.5 rounded uppercase tracking-wider shadow-sm">
+                        Official Organ
+                      </span>
+                      <span className="text-[10px] text-emerald-400 font-mono font-semibold flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                        Live Edition
+                      </span>
+                    </div>
+                    <h4 className="text-xs sm:text-sm font-bold text-white tracking-tight leading-snug group-hover:text-amber-200 transition-colors truncate">
+                      Fikr-o-Khayal Weekly – Read Now
+                    </h4>
+                  </div>
+                </div>
+
+                {/* Right: Shiny action pill button with arrow */}
+                <div className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gradient-to-r from-emerald-600 to-emerald-700 group-hover:from-amber-400 group-hover:to-amber-500 text-white group-hover:text-stone-950 text-xs font-bold transition-all shadow duration-300">
+                  <span className="hidden sm:inline">Visit</span>
+                  <ExternalLink className="w-3.5 h-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                </div>
+              </div>
+            </a>
+
+            <div className="flex flex-wrap items-center justify-center sm:justify-end gap-3 w-full">
+              <button
+                id="view-all-programs-btn"
+                type="button"
+                onClick={scrollToAllPrograms}
+                className="flex-1 sm:flex-initial px-5 py-2.5 bg-emerald-700 hover:bg-emerald-600 active:bg-emerald-800 text-white text-xs sm:text-sm font-semibold rounded-xl shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <span>Explore Full Catalog</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  if (onOpenNotifications) {
+                    onOpenNotifications();
+                  } else {
+                    navigateTo('updates');
+                  }
+                }}
+                className="flex-1 sm:flex-initial px-4 py-2.5 bg-stone-200 hover:bg-stone-300 text-stone-800 text-xs sm:text-sm font-medium rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+              >
+                <span>Gazettes & Notices</span>
+              </button>
+            </div>
           </div>
         </div>
 
