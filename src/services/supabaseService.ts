@@ -7,6 +7,7 @@ import {
   Program,
   HighlightItem,
   Wing,
+  WingProgram,
   Announcement,
   HomepageContent,
   ContactSettings,
@@ -316,6 +317,33 @@ export async function fetchContentFromSupabase(): Promise<AppDatabase | null> {
       console.warn('[Supabase DB] core_committee_posters table not queried:', e);
     }
 
+    let wingPrograms: WingProgram[] = initialDatabase.wingPrograms || [];
+    try {
+      const { data: wpData, error: wpError } = await supabase
+        .from('wing_programs')
+        .select('*')
+        .order('date', { ascending: false });
+
+      if (!wpError && wpData && wpData.length > 0) {
+        wingPrograms = wpData.map((wp: any) => ({
+          id: wp.id,
+          wingId: wp.wing_id || wp.wingId,
+          wingName: wp.wing_name || wp.wingName || '',
+          title: wp.title || wp.program_name || '',
+          targetClass: wp.target_class || wp.targetClass || wp.category || '',
+          date: wp.date || '',
+          academicYear: wp.academic_year || wp.academicYear || wp.year || '2026-27',
+          month: wp.month || '',
+          description: wp.description || '',
+          venue: wp.venue || '',
+          status: wp.status || 'Completed',
+          createdAt: wp.created_at || wp.createdAt || '',
+        }));
+      }
+    } catch (e) {
+      console.warn('[Supabase DB] wing_programs table not queried:', e);
+    }
+
     return {
       homepage,
       announcements,
@@ -325,6 +353,7 @@ export async function fetchContentFromSupabase(): Promise<AppDatabase | null> {
       programs,
       highlights,
       wings,
+      wingPrograms,
       inquiries,
       pillars,
       telemetry,
@@ -1046,6 +1075,143 @@ export async function deleteWingInSupabase(
   } catch (err: any) {
     console.error('[Supabase DB / wings] Unexpected delete error:', err);
     return { success: false, message: err?.message || 'Failed to delete wing' };
+  }
+}
+
+/* =========================================================================
+   WING PROGRAMS CRUD (Table: wing_programs)
+========================================================================= */
+
+export const WING_PROGRAMS_SQL_SCHEMA = `-- =========================================================
+-- WING PROGRAMS DATABASE SCHEMA (Tailored for Anjuman-e-Huda)
+-- Columns: Program Name, Date, Category, Year, Wing
+-- =========================================================
+
+CREATE TABLE IF NOT EXISTS public.wing_programs (
+    id TEXT PRIMARY KEY DEFAULT gen_random_uuid()::text,
+    wing_id TEXT NOT NULL,
+    wing_name TEXT NOT NULL,
+    program_name TEXT NOT NULL,      -- 1. Program Name
+    date DATE NOT NULL,              -- 2. Date
+    category TEXT NOT NULL,          -- 3. Category / Class (Kis ke liye chalaya tha)
+    academic_year TEXT NOT NULL,     -- Academic Year (e.g. 2026-27, 2025-26, 2024-25)
+    title TEXT,                      -- Backwards compatibility alias
+    target_class TEXT,               -- Backwards compatibility alias
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- Indexes for lightning-fast wing and year filtering
+CREATE INDEX IF NOT EXISTS idx_wing_programs_wing_id ON public.wing_programs (wing_id);
+CREATE INDEX IF NOT EXISTS idx_wing_programs_academic_year ON public.wing_programs (academic_year);
+CREATE INDEX IF NOT EXISTS idx_wing_programs_date ON public.wing_programs (date DESC);
+
+-- Enable Row Level Security (RLS)
+ALTER TABLE public.wing_programs ENABLE ROW LEVEL SECURITY;
+
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_policies 
+        WHERE tablename = 'wing_programs' 
+        AND policyname = 'Public Read Access for Wing Programs'
+    ) THEN
+        CREATE POLICY "Public Read Access for Wing Programs" 
+        ON public.wing_programs FOR SELECT USING (true);
+    END IF;
+END $$;
+
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_policies 
+        WHERE tablename = 'wing_programs' 
+        AND policyname = 'Allow All Operations on Wing Programs'
+    ) THEN
+        CREATE POLICY "Allow All Operations on Wing Programs" 
+        ON public.wing_programs FOR ALL USING (true) WITH CHECK (true);
+    END IF;
+END $$;
+`;
+
+export async function saveWingProgramInSupabase(
+  prog: WingProgram | Omit<WingProgram, 'id'>,
+  id?: string
+): Promise<{ success: boolean; data?: WingProgram; message?: string }> {
+  if (!supabase || !isSupabaseConfigured) {
+    return { success: false, message: 'Supabase is not configured' };
+  }
+
+  try {
+    const progId = id || ('id' in prog && prog.id ? prog.id : `wprog_${Date.now()}`);
+    const row: any = {
+      id: progId,
+      wing_id: prog.wingId,
+      wing_name: prog.wingName || '',
+      program_name: prog.title,
+      title: prog.title,
+      category: prog.targetClass,
+      target_class: prog.targetClass,
+      date: prog.date,
+      academic_year: prog.academicYear,
+    };
+    if (prog.description) row.description = prog.description;
+    if (prog.venue) row.venue = prog.venue;
+    if (prog.status) row.status = prog.status;
+    if (prog.month) row.month = prog.month;
+
+    let { error } = await supabase.from('wing_programs').upsert(row);
+    if (error && error.message?.includes('column')) {
+      // Fallback with strictly the 3 core fields + id + wing + year
+      const minimalRow = {
+        id: progId,
+        wing_id: prog.wingId,
+        wing_name: prog.wingName || '',
+        program_name: prog.title,
+        title: prog.title,
+        category: prog.targetClass,
+        target_class: prog.targetClass,
+        date: prog.date,
+        academic_year: prog.academicYear,
+      };
+      const retry = await supabase.from('wing_programs').upsert(minimalRow);
+      error = retry.error;
+    }
+
+    if (error) {
+      console.error('[Supabase DB / wing_programs] Save wing program failed:', error.message);
+      return { success: false, message: error.message };
+    }
+
+    return {
+      success: true,
+      data: {
+        id: progId,
+        ...prog,
+      } as WingProgram,
+    };
+  } catch (err: any) {
+    console.error('[Supabase DB / wing_programs] Unexpected save error:', err);
+    return { success: false, message: err?.message || 'Failed to save wing program' };
+  }
+}
+
+export async function deleteWingProgramInSupabase(
+  id: string
+): Promise<{ success: boolean; message?: string }> {
+  if (!supabase || !isSupabaseConfigured) {
+    return { success: false, message: 'Supabase is not configured' };
+  }
+
+  try {
+    const { error } = await supabase.from('wing_programs').delete().eq('id', id);
+    if (error) {
+      console.error('[Supabase DB / wing_programs] Delete wing program failed:', error.message);
+      return { success: false, message: error.message };
+    }
+    return { success: true };
+  } catch (err: any) {
+    console.error('[Supabase DB / wing_programs] Unexpected delete error:', err);
+    return { success: false, message: err?.message || 'Failed to delete wing program' };
   }
 }
 

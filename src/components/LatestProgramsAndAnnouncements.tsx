@@ -11,7 +11,6 @@ import {
   Tag,
   Filter,
   CheckCircle2,
-  Share2,
   ExternalLink,
   X,
   Layers,
@@ -19,6 +18,7 @@ import {
   ZoomIn,
   Maximize2,
   Newspaper,
+  Search,
 } from 'lucide-react';
 
 interface Props {
@@ -31,6 +31,7 @@ export const LatestProgramsAndAnnouncements: React.FC<Props> = ({ onOpenNotifica
   const { navigateTo } = useNavigation();
 
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
+  const [searchTerm, setSearchTerm] = useState<string>('');
   const [activeModalProgram, setActiveModalProgram] = useState<Program | null>(null);
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
 
@@ -43,10 +44,15 @@ export const LatestProgramsAndAnnouncements: React.FC<Props> = ({ onOpenNotifica
     return ['All', ...Array.from(set)];
   }, [programs]);
 
-  // Filter programs based on selected category
+  // Filter programs based on selected category and search term
   const filteredPrograms = programs.filter((p) => {
-    if (selectedCategory === 'All') return true;
-    return p.category === selectedCategory;
+    const matchesCategory = selectedCategory === 'All' || p.category === selectedCategory;
+    const matchesSearch =
+      !searchTerm ||
+      p.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      p.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      p.venue.toLowerCase().includes(searchTerm.toLowerCase());
+    return matchesCategory && matchesSearch;
   });
 
   // Display top programs (up to 6)
@@ -108,12 +114,8 @@ export const LatestProgramsAndAnnouncements: React.FC<Props> = ({ onOpenNotifica
               className="relative group block w-full rounded-2xl p-[2px] bg-gradient-to-r from-emerald-500 via-amber-400 to-emerald-500 hover:from-amber-400 hover:via-emerald-400 hover:to-amber-300 shadow-[0_0_20px_rgba(16,185,129,0.35)] hover:shadow-[0_0_30px_rgba(245,158,11,0.55)] transition-all duration-500 hover:-translate-y-0.5 cursor-pointer overflow-hidden"
               title="Read Fikr-o-Khayal Weekly Official Organ Portal"
             >
-              {/* Internal card container */}
               <div className="relative rounded-[14px] bg-stone-950/95 hover:bg-stone-900/90 px-4 py-2.5 sm:py-3 flex items-center justify-between gap-3 text-white transition-colors overflow-hidden">
-                {/* Continuous Shimmer Light Beam Effect */}
                 <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-1000 ease-out" />
-
-                {/* Left: Animated Icon + Text details */}
                 <div className="flex items-center gap-3 min-w-0">
                   <div className="relative w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-600 to-emerald-950 border border-emerald-400/60 flex items-center justify-center text-amber-300 shadow-md shrink-0 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300">
                     <Newspaper className="w-5 h-5 text-amber-300" />
@@ -139,7 +141,6 @@ export const LatestProgramsAndAnnouncements: React.FC<Props> = ({ onOpenNotifica
                   </div>
                 </div>
 
-                {/* Right: Shiny action pill button with arrow */}
                 <div className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gradient-to-r from-emerald-600 to-emerald-700 group-hover:from-amber-400 group-hover:to-amber-500 text-white group-hover:text-stone-950 text-xs font-bold transition-all shadow duration-300">
                   <span className="hidden sm:inline">Visit</span>
                   <ExternalLink className="w-3.5 h-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
@@ -175,31 +176,44 @@ export const LatestProgramsAndAnnouncements: React.FC<Props> = ({ onOpenNotifica
           </div>
         </div>
 
-        {/* Filter Categories Bar */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-4 mb-8 scrollbar-thin">
-          <span className="text-xs font-mono font-semibold text-stone-500 uppercase tracking-wider flex items-center gap-1 shrink-0 mr-1">
-            <Filter className="w-3.5 h-3.5 text-emerald-600" /> Filter:
-          </span>
-          {categories.map((cat) => {
-            const isActive = selectedCategory === cat;
-            return (
-              <button
-                key={`prog-cat-${cat}`}
-                type="button"
-                onClick={() => setSelectedCategory(cat)}
-                className={`px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
-                  isActive
-                    ? 'bg-emerald-700 text-white shadow-md shadow-emerald-900/20'
-                    : 'bg-white text-stone-600 hover:bg-stone-50 border border-stone-300/80 hover:border-emerald-400'
-                }`}
-              >
-                {cat === 'All' ? 'All Active Programs' : cat}
-              </button>
-            );
-          })}
+        {/* Filter Categories Bar with Search Input */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 pb-4 mb-8 border-b border-stone-200">
+          <div className="flex items-center gap-2 overflow-x-auto pb-2 sm:pb-0 scrollbar-thin">
+            <span className="text-xs font-mono font-semibold text-stone-500 uppercase tracking-wider flex items-center gap-1 shrink-0 mr-1">
+              <Filter className="w-3.5 h-3.5 text-emerald-600" /> Filter:
+            </span>
+            {categories.map((cat) => {
+              const isActive = selectedCategory === cat;
+              return (
+                <button
+                  key={`prog-cat-${cat}`}
+                  type="button"
+                  onClick={() => setSelectedCategory(cat)}
+                  className={`px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
+                    isActive
+                      ? 'bg-emerald-700 text-white shadow-md shadow-emerald-900/20'
+                      : 'bg-white text-stone-600 hover:bg-stone-50 border border-stone-300/80 hover:border-emerald-400'
+                  }`}
+                >
+                  {cat === 'All' ? 'All Active Programs' : cat}
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="relative w-full sm:w-64 shrink-0">
+            <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400" />
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search programs, topics..."
+              className="w-full bg-white border border-stone-300 rounded-xl pl-9 pr-3 py-1.5 text-xs text-stone-800 placeholder-stone-400 focus:outline-none focus:border-emerald-600"
+            />
+          </div>
         </div>
 
-        {/* Programs Grid - Full Width Beautiful Cards */}
+        {/* Programs Grid - Full Width 3-Column Dynamic Cards */}
         {displayedPrograms.length === 0 ? (
           <div className="text-center py-16 bg-white rounded-2xl border border-stone-200">
             <Layers className="w-12 h-12 mx-auto text-stone-400 mb-3" />
@@ -209,8 +223,11 @@ export const LatestProgramsAndAnnouncements: React.FC<Props> = ({ onOpenNotifica
             </p>
             <button
               type="button"
-              onClick={() => setSelectedCategory('All')}
-              className="px-4 py-2 bg-emerald-700 text-white rounded-lg text-xs font-medium"
+              onClick={() => {
+                setSelectedCategory('All');
+                setSearchTerm('');
+              }}
+              className="px-4 py-2 bg-emerald-700 text-white rounded-lg text-xs font-medium cursor-pointer"
             >
               Reset Category Filter
             </button>

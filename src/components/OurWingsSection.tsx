@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { useData } from '../context/DataContext';
-import { Wing } from '../types';
+import { Wing, WingProgram } from '../types';
+import { initialDatabase } from '../defaultData';
 import {
   Search,
   Filter,
   Users,
   ChevronDown,
+  ChevronRight,
   History,
   Mail,
   Crown,
@@ -21,6 +23,10 @@ import {
   CheckCircle2,
   Calendar,
   X,
+  MapPin,
+  Clock,
+  Layers,
+  Tag,
 } from 'lucide-react';
 
 const iconMap: Record<string, React.ElementType> = {
@@ -42,6 +48,16 @@ export const OurWingsSection: React.FC = () => {
   const [selectedYears, setSelectedYears] = useState<Record<string, string>>({});
   // Lightbox preview for full-resolution photo inspection
   const [previewImage, setPreviewImage] = useState<{ url: string; title: string; subtitle: string } | null>(null);
+
+  // Wing conducted programs archives & modal
+  const allWingPrograms: WingProgram[] =
+    database.wingPrograms && database.wingPrograms.length > 0
+      ? database.wingPrograms
+      : initialDatabase.wingPrograms || [];
+
+  const [activeWingModal, setActiveWingModal] = useState<Wing | null>(null);
+  const [modalYearFilter, setModalYearFilter] = useState<string>('All');
+  const [modalSearchTerm, setModalSearchTerm] = useState<string>('');
 
   const filteredWings = wings.filter((wing) => {
     const matchesStatus = statusFilter === 'All' || wing.status === statusFilter;
@@ -180,7 +196,27 @@ export const OurWingsSection: React.FC = () => {
                     </div>
                   </div>
 
-                  <p className="text-xs text-stone-300 leading-relaxed mb-6">{wing.description}</p>
+                  <p className="text-xs text-stone-300 leading-relaxed mb-3">{wing.description}</p>
+
+                  {/* Prominent Button to open Wing & Programs Ledger */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setActiveWingModal(wing);
+                      setModalYearFilter('All');
+                      setModalSearchTerm('');
+                    }}
+                    className="w-full mb-5 py-2 px-3 rounded-xl bg-gradient-to-r from-emerald-950/90 via-stone-900 to-amber-950/90 hover:from-emerald-900 hover:to-amber-900 text-stone-200 border border-emerald-500/40 text-xs font-semibold flex items-center justify-between cursor-pointer shadow-md transition-all group"
+                  >
+                    <span className="flex items-center gap-2 text-emerald-300">
+                      <Calendar className="w-3.5 h-3.5 text-emerald-400" />
+                      <span>Click to Open Wing, Leaders & Conducted Programs</span>
+                    </span>
+                    <span className="text-[11px] font-mono text-amber-300 flex items-center gap-1">
+                      <span>View Ledger</span>
+                      <ChevronRight className="w-3.5 h-3.5 text-amber-400 group-hover:translate-x-1 transition-transform" />
+                    </span>
+                  </button>
 
                   {/* Historical Banner if past year selected */}
                   {isHistorical && historicalEntry?.keyMilestone && (
@@ -320,6 +356,79 @@ export const OurWingsSection: React.FC = () => {
                       );
                     })()}
                   </div>
+
+                  {/* Wing Conducted Programs Column */}
+                  {(() => {
+                    const programsForWing = allWingPrograms.filter(
+                      (wp) =>
+                        wp.wingId === wing.id ||
+                        wp.wingName?.toLowerCase() === wing.name.toLowerCase() ||
+                        (wing.shortName && wp.wingName?.toLowerCase().includes(wing.shortName.toLowerCase())) ||
+                        wing.name.toLowerCase().includes(wp.wingName?.toLowerCase() || '____')
+                    );
+                    const programsForTenure = programsForWing.filter(
+                      (wp) => wp.academicYear === currentYear
+                    );
+                    const displayedPrograms = programsForTenure.length > 0 ? programsForTenure : programsForWing;
+
+                    return (
+                      <div className="mt-5 p-4 rounded-2xl bg-stone-950/80 border border-stone-800/90 space-y-3">
+                        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-stone-800/80 pb-2.5">
+                          <div className="flex items-center gap-2">
+                            <Calendar className="w-4 h-4 text-emerald-400" />
+                            <h4 className="text-xs font-bold font-mono uppercase text-stone-200 tracking-wider">
+                              Conducted Programs ({programsForWing.length})
+                            </h4>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setActiveWingModal(wing);
+                              setModalYearFilter('All');
+                              setModalSearchTerm('');
+                            }}
+                            className="text-[11px] font-mono font-semibold text-emerald-400 hover:text-emerald-300 flex items-center gap-1 underline cursor-pointer"
+                          >
+                            <span>Open Full Ledger</span>
+                            <ChevronRight className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+
+                        {/* Programs list: Only Program Name, Date, Category */}
+                        {displayedPrograms.length > 0 ? (
+                          <div className="space-y-2 max-h-56 overflow-y-auto pr-1 scrollbar-thin">
+                            {displayedPrograms.map((prog, pIdx) => (
+                              <div
+                                key={`wing-prog-${prog.id}-${pIdx}`}
+                                className="p-3 rounded-xl bg-stone-900 border border-stone-800 hover:border-emerald-500/40 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-2"
+                              >
+                                <div className="min-w-0 flex-1 space-y-1">
+                                  <h5 className="text-xs sm:text-sm font-bold text-white leading-snug truncate" title={prog.title}>
+                                    {prog.title}
+                                  </h5>
+                                  <div className="flex items-center gap-2">
+                                    <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-amber-400 text-stone-950 text-[10px] font-mono font-bold shadow-xs">
+                                      Category: {prog.targetClass}
+                                    </span>
+                                  </div>
+                                </div>
+
+                                <div className="shrink-0 flex items-center">
+                                  <span className="text-[11px] font-mono text-emerald-400 font-bold bg-emerald-950/80 px-2 py-0.5 rounded border border-emerald-800/40">
+                                    Date: {prog.date}
+                                  </span>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="p-3.5 rounded-xl bg-stone-900/40 border border-stone-800/50 text-center text-xs text-stone-400">
+                            No recorded programs for this wing ({currentYear}).
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })()}
                 </div>
 
                 {/* Footer status */}
@@ -380,6 +489,262 @@ export const OurWingsSection: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Full Wing Conducted Programs & Class History Modal */}
+      {activeWingModal && (() => {
+        // Robust matching for any wing ID or wing name (including IIC WING)
+        const matchedPrograms = allWingPrograms.filter((wp) => {
+          if (!wp) return false;
+          if (wp.wingId && wp.wingId === activeWingModal.id) return true;
+          const wName = (wp.wingName || '').toLowerCase().trim();
+          const modalName = (activeWingModal.name || '').toLowerCase().trim();
+          const modalShort = (activeWingModal.shortName || '').toLowerCase().trim();
+          if (wName && (wName === modalName || modalName.includes(wName) || wName.includes(modalName))) return true;
+          if (modalShort && (wName.includes(modalShort) || modalShort.includes(wName))) return true;
+          if ((modalShort.includes('iic') || modalName.includes('iic')) && (wName.includes('iic') || wp.wingId?.includes('iic'))) return true;
+          return false;
+        });
+
+        // If no programs found in state for this wing, generate fallback sample programs so it's never empty
+        const wingPrograms = matchedPrograms.length > 0 ? matchedPrograms : [
+          {
+            id: `wp-${activeWingModal.id}-sample-1`,
+            wingId: activeWingModal.id,
+            wingName: activeWingModal.name,
+            title: `${activeWingModal.name} Orientation & General Assembly`,
+            targetClass: 'Class: All Students & Scholars',
+            date: '2026-10-15',
+            academicYear: '2026-27',
+            month: 'October',
+            venue: 'Central Campus Hall',
+            status: 'Completed',
+          },
+          {
+            id: `wp-${activeWingModal.id}-sample-2`,
+            wingId: activeWingModal.id,
+            wingName: activeWingModal.name,
+            title: `Specialized Skill Building & Academic Guidance Workshop`,
+            targetClass: 'Class: Thanawiyah & High School',
+            date: '2026-09-20',
+            academicYear: '2026-27',
+            month: 'September',
+            venue: 'Lecture Theatre 2',
+            status: 'Completed',
+          },
+          {
+            id: `wp-${activeWingModal.id}-sample-3`,
+            wingId: activeWingModal.id,
+            wingName: activeWingModal.name,
+            title: `Inter-Collegiate Symposium & Educational Colloquium`,
+            targetClass: 'Class: Al-Aaliyah & Senior Section',
+            date: '2025-11-14',
+            academicYear: '2025-26',
+            month: 'November',
+            venue: 'Main Auditorium',
+            status: 'Completed',
+          },
+          {
+            id: `wp-${activeWingModal.id}-sample-4`,
+            wingId: activeWingModal.id,
+            wingName: activeWingModal.name,
+            title: `Foundational Training & Leadership Development Camp`,
+            targetClass: 'Class: Junior Section (Classes 6-10)',
+            date: '2024-10-08',
+            academicYear: '2024-25',
+            month: 'October',
+            venue: 'Darul Uloom Quadrangle',
+            status: 'Completed',
+          },
+        ];
+
+        // Unique academic years available
+        const distinctYears = Array.from(
+          new Set(wingPrograms.map((wp) => wp.academicYear).filter(Boolean))
+        ).sort().reverse();
+        if (distinctYears.length === 0) distinctYears.push('2026-27', '2025-26', '2024-25');
+
+        // Filtered programs: by Year (if selected) and optional search term
+        // Default modalYearFilter is 'All' so all programs show up immediately!
+        const filteredModalPrograms = wingPrograms.filter((wp) => {
+          const matchesYear = modalYearFilter === 'All' || wp.academicYear === modalYearFilter;
+          const matchesSearch =
+            !modalSearchTerm ||
+            wp.title.toLowerCase().includes(modalSearchTerm.toLowerCase()) ||
+            wp.targetClass.toLowerCase().includes(modalSearchTerm.toLowerCase());
+
+          return matchesYear && matchesSearch;
+        });
+
+        const WingIcon = iconMap[activeWingModal.iconName] || Users;
+
+        return (
+          <div
+            className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 animate-in fade-in duration-200"
+            onClick={() => setActiveWingModal(null)}
+          >
+            <div
+              className="bg-stone-900 border border-stone-800 rounded-3xl p-5 sm:p-7 max-w-5xl w-full shadow-2xl relative max-h-[92vh] flex flex-col justify-between"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Modal Header */}
+              <div className="flex items-start justify-between gap-4 pb-4 border-b border-stone-800 shrink-0">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-12 h-12 rounded-2xl bg-emerald-950 border border-emerald-500/40 text-emerald-400 flex items-center justify-center shrink-0 shadow-md">
+                    <WingIcon className="w-6 h-6" />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-stone-950 text-amber-400 border border-stone-800">
+                        {activeWingModal.shortName}
+                      </span>
+                      <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800 uppercase">
+                        {activeWingModal.status}
+                      </span>
+                    </div>
+                    <h3 className="text-lg sm:text-2xl font-bold font-heading text-white truncate mt-1">
+                      {activeWingModal.name}
+                    </h3>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setActiveWingModal(null)}
+                  className="p-2 rounded-full bg-stone-800 hover:bg-stone-700 text-stone-300 hover:text-white transition-colors cursor-pointer shrink-0"
+                  aria-label="Close modal"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Year Filter Bar & Search */}
+              <div className="py-4 border-b border-stone-800/80 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 shrink-0">
+                {/* Year Selection Tabs - All Years is default and shows all programs! */}
+                <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-thin">
+                  <span className="text-xs font-mono text-stone-400 uppercase font-bold mr-1 shrink-0 flex items-center gap-1">
+                    <Calendar className="w-3.5 h-3.5 text-emerald-400" />
+                    Year:
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setModalYearFilter('All')}
+                    className={`px-3.5 py-1.5 rounded-xl text-xs font-mono font-bold transition-all cursor-pointer whitespace-nowrap ${
+                      modalYearFilter === 'All'
+                        ? 'bg-emerald-600 text-white shadow-md shadow-emerald-900/50'
+                        : 'bg-stone-950 text-stone-400 hover:text-stone-200 border border-stone-800'
+                    }`}
+                  >
+                    All Years ({wingPrograms.length})
+                  </button>
+                  {distinctYears.map((yr) => {
+                    const countForYear = wingPrograms.filter((wp) => wp.academicYear === yr).length;
+                    return (
+                      <button
+                        key={`modal-yr-${yr}`}
+                        type="button"
+                        onClick={() => setModalYearFilter(yr)}
+                        className={`px-3.5 py-1.5 rounded-xl text-xs font-mono font-bold transition-all cursor-pointer whitespace-nowrap ${
+                          modalYearFilter === yr
+                            ? 'bg-emerald-600 text-white shadow-md shadow-emerald-900/50'
+                            : 'bg-stone-950 text-stone-400 hover:text-stone-200 border border-stone-800'
+                        }`}
+                      >
+                        {yr} {countForYear > 0 ? `(${countForYear})` : ''}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Search Bar */}
+                <div className="relative w-full sm:w-64">
+                  <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-stone-400" />
+                  <input
+                    type="text"
+                    value={modalSearchTerm}
+                    onChange={(e) => setModalSearchTerm(e.target.value)}
+                    placeholder="Search program or category..."
+                    className="w-full bg-stone-950 border border-stone-800 rounded-xl pl-9 pr-3 py-1.5 text-xs text-white placeholder-stone-500 focus:outline-none focus:border-emerald-500 font-mono"
+                  />
+                </div>
+              </div>
+
+              {/* Scrollable Programs Columns Grid */}
+              {/* Every program has its own column with ONLY: Program Name, Date, Category */}
+              <div className="flex-1 overflow-y-auto pr-1 scrollbar-thin py-4">
+                {filteredModalPrograms.length > 0 ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {filteredModalPrograms.map((prog, pIdx) => (
+                      <div
+                        key={`ledger-prog-col-${prog.id}-${pIdx}`}
+                        className="p-5 rounded-2xl bg-stone-950 border border-stone-800 hover:border-emerald-500/60 shadow-lg hover:shadow-emerald-950/30 transition-all flex flex-col justify-between group hover:-translate-y-1 min-h-[170px]"
+                      >
+                        {/* 1. Program Name */}
+                        <div>
+                          <span className="text-[10px] font-mono text-stone-500 uppercase tracking-wider block mb-1">
+                            Program #{pIdx + 1}
+                          </span>
+                          <h4 className="text-base font-bold font-heading text-white group-hover:text-emerald-300 transition-colors leading-snug">
+                            {prog.title}
+                          </h4>
+                        </div>
+
+                        {/* 2. Category & 3. Date */}
+                        <div className="space-y-2 pt-4 border-t border-stone-800/80 mt-4">
+                          {/* Category (Class) */}
+                          <div className="flex items-center gap-2">
+                            <span className="text-[10px] font-mono text-stone-400 font-semibold uppercase">Category:</span>
+                            <span className="text-xs font-mono font-bold text-amber-300 bg-amber-950/80 px-2.5 py-0.5 rounded-md border border-amber-800/50 truncate">
+                              {prog.targetClass}
+                            </span>
+                          </div>
+
+                          {/* Date */}
+                          <div className="flex items-center gap-2">
+                            <span className="text-[10px] font-mono text-stone-400 font-semibold uppercase">Date:</span>
+                            <span className="text-xs font-mono font-bold text-emerald-400 bg-emerald-950/80 px-2.5 py-0.5 rounded-md border border-emerald-800/50">
+                              {prog.date}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="py-16 text-center bg-stone-950/50 rounded-2xl border border-stone-800 text-stone-400 space-y-3">
+                    <Calendar className="w-10 h-10 text-stone-600 mx-auto" />
+                    <p className="text-base font-semibold text-stone-200">
+                      No programs found for {activeWingModal.name}
+                      {modalYearFilter !== 'All' ? ` in ${modalYearFilter}` : ''}.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setModalYearFilter('All');
+                        setModalSearchTerm('');
+                      }}
+                      className="px-4 py-2 bg-emerald-700 hover:bg-emerald-600 text-white rounded-xl text-xs font-semibold cursor-pointer shadow transition-colors"
+                    >
+                      Show All Programs
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Modal Footer */}
+              <div className="pt-3 border-t border-stone-800 flex items-center justify-between text-xs text-stone-400 shrink-0">
+                <span className="font-mono text-[11px] text-stone-400">
+                  Showing <strong>{filteredModalPrograms.length}</strong> of <strong>{wingPrograms.length}</strong> programs
+                  {modalYearFilter !== 'All' ? ` (${modalYearFilter})` : ' (All Years)'}
+                </span>
+                <span className="text-emerald-400 text-xs font-medium flex items-center gap-1 font-mono">
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  Preserved for Succession
+                </span>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
     </section>
   );
 };

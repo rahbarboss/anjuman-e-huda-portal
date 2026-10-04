@@ -7,6 +7,7 @@ import {
   Program,
   HighlightItem,
   Wing,
+  WingProgram,
   Announcement,
   AchievementsData,
   HomepageContent,
@@ -39,6 +40,8 @@ import {
   deleteHighlightInSupabase,
   saveWingInSupabase,
   deleteWingInSupabase,
+  saveWingProgramInSupabase,
+  deleteWingProgramInSupabase,
   saveNIICSInChargeInSupabase,
   deleteNIICSInChargeInSupabase,
   saveCAUResolutionInSupabase,
@@ -81,6 +84,9 @@ interface DataContextType {
   addWing: (wing: Omit<Wing, 'id'>) => Promise<boolean>;
   updateWing: (id: string, wing: Partial<Wing>) => Promise<boolean>;
   deleteWing: (id: string) => Promise<boolean>;
+  addWingProgram: (program: Omit<WingProgram, 'id'>) => Promise<boolean>;
+  updateWingProgram: (id: string, program: Partial<WingProgram>) => Promise<boolean>;
+  deleteWingProgram: (id: string) => Promise<boolean>;
   addAnnouncement: (announcement: Omit<Announcement, 'id'>) => Promise<boolean>;
   updateAnnouncement: (id: string, announcement: Partial<Announcement>) => Promise<boolean>;
   deleteAnnouncement: (id: string) => Promise<boolean>;
@@ -906,6 +912,79 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   /* =========================================================================
+     WING PROGRAMS (Conducted Program Archives & Target Classes)
+  ========================================================================= */
+
+  const addWingProgram = async (program: Omit<WingProgram, 'id'>): Promise<boolean> => {
+    if (isSupabaseConfigured) {
+      const res = await saveWingProgramInSupabase(program);
+      if (res.success && res.data) {
+        setDatabase((prev) => ({
+          ...prev,
+          wingPrograms: [res.data!, ...(prev.wingPrograms || [])],
+        }));
+        return true;
+      }
+      return false;
+    }
+
+    const newProg: WingProgram = {
+      ...program,
+      id: `wprog_${Date.now()}`,
+    };
+    setDatabase((prev) => ({
+      ...prev,
+      wingPrograms: [newProg, ...(prev.wingPrograms || [])],
+    }));
+    return true;
+  };
+
+  const updateWingProgram = async (id: string, program: Partial<WingProgram>): Promise<boolean> => {
+    const existing = (database.wingPrograms || []).find((wp) => wp.id === id);
+    if (!existing) return false;
+
+    const merged = { ...existing, ...program };
+
+    if (isSupabaseConfigured) {
+      const res = await saveWingProgramInSupabase(merged, id);
+      if (res.success && res.data) {
+        setDatabase((prev) => ({
+          ...prev,
+          wingPrograms: (prev.wingPrograms || []).map((wp) => (wp.id === id ? res.data! : wp)),
+        }));
+        return true;
+      }
+      return false;
+    }
+
+    setDatabase((prev) => ({
+      ...prev,
+      wingPrograms: (prev.wingPrograms || []).map((wp) => (wp.id === id ? merged : wp)),
+    }));
+    return true;
+  };
+
+  const deleteWingProgram = async (id: string): Promise<boolean> => {
+    if (isSupabaseConfigured) {
+      const res = await deleteWingProgramInSupabase(id);
+      if (res.success) {
+        setDatabase((prev) => ({
+          ...prev,
+          wingPrograms: (prev.wingPrograms || []).filter((wp) => wp.id !== id),
+        }));
+        return true;
+      }
+      return false;
+    }
+
+    setDatabase((prev) => ({
+      ...prev,
+      wingPrograms: (prev.wingPrograms || []).filter((wp) => wp.id !== id),
+    }));
+    return true;
+  };
+
+  /* =========================================================================
      NIICS IN-CHARGE
   ========================================================================= */
 
@@ -1528,6 +1607,9 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         addWing,
         updateWing,
         deleteWing,
+        addWingProgram,
+        updateWingProgram,
+        deleteWingProgram,
         addAnnouncement,
         updateAnnouncement,
         deleteAnnouncement,

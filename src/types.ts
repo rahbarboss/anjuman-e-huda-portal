@@ -91,6 +91,21 @@ export interface WingHistoryEntry {
   keyMilestone?: string;
 }
 
+export interface WingProgram {
+  id: string;
+  wingId: string;
+  wingName?: string;
+  title: string; // Program Name
+  targetClass: string; // Category / Class e.g. "Aliya 1st Year", "Sanawiya", "Fazilat", "All Campus Scholars"
+  date: string; // YYYY-MM-DD
+  academicYear: string; // e.g. "2026-27", "2025-26", "2024-25"
+  month: string; // e.g. "October", "November" etc.
+  description?: string;
+  venue?: string;
+  status?: 'Completed' | 'Upcoming' | 'Ongoing';
+  createdAt?: string;
+}
+
 export interface Wing {
   id: string;
   name: string;
@@ -216,6 +231,7 @@ export interface AppDatabase {
   programs: Program[];
   highlights: HighlightItem[];
   wings: Wing[];
+  wingPrograms?: WingProgram[];
   achievements: AchievementsData;
   cau: CAUData;
   rankings: RankingData;

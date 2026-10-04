@@ -18,11 +18,13 @@ import {
   TelemetrySettings,
   TelemetryCard,
   SocialLink,
+  WingProgram,
 } from '../../types';
 import { defaultTelemetrySettings, initialDatabase } from '../../defaultData';
 import {
   CORE_COMMITTEE_POSTERS_SQL_SCHEMA,
   LEADERSHIP_ORDER_SQL_SCHEMA,
+  WING_PROGRAMS_SQL_SCHEMA,
 } from '../../services/supabaseService';
 import { MediaUploadZone } from './MediaUploadZone';
 import {
@@ -118,6 +120,9 @@ export const AdminDashboard: React.FC = () => {
     addWing,
     updateWing,
     deleteWing,
+    addWingProgram,
+    updateWingProgram,
+    deleteWingProgram,
     addAnnouncement,
     updateAnnouncement,
     deleteAnnouncement,
@@ -741,6 +746,119 @@ export const AdminDashboard: React.FC = () => {
       chairman: { name: '', phone: '', contact: '', photo: '' },
       convener: { name: '', phone: '', contact: '', photo: '' },
     });
+  };
+
+  // ================= 5.1 WING CONDUCTED PROGRAMS STATE & HANDLERS =================
+  const [wingSubTab, setWingSubTab] = useState<'wings' | 'programs'>('wings');
+  const [isWingProgramModalOpen, setIsWingProgramModalOpen] = useState(false);
+  const [editingWingProgram, setEditingWingProgram] = useState<WingProgram | null>(null);
+  const [wingProgramForm, setWingProgramForm] = useState<{
+    id?: string;
+    wingId: string;
+    wingName: string;
+    title: string;
+    targetClass: string;
+    date: string;
+    academicYear: string;
+    month: string;
+    venue: string;
+    description: string;
+    status: 'Completed' | 'Upcoming' | 'Ongoing';
+  }>({
+    wingId: '',
+    wingName: '',
+    title: '',
+    targetClass: 'Aliya 1st Year',
+    date: new Date().toISOString().split('T')[0],
+    academicYear: '2026-27',
+    month: 'October',
+    venue: '',
+    description: '',
+    status: 'Completed',
+  });
+
+  const [adminWingFilter, setAdminWingFilter] = useState<string>('All');
+  const [adminWingYearFilter, setAdminWingYearFilter] = useState<string>('All');
+  const [adminWingMonthFilter, setAdminWingMonthFilter] = useState<string>('All');
+  const [adminWingSearch, setAdminWingSearch] = useState<string>('');
+
+  const handleOpenAddWingProgram = (preselectedWingId?: string) => {
+    setEditingWingProgram(null);
+    const defaultWing =
+      database.wings.find((w) => w.id === preselectedWingId) ||
+      database.wings[0] || { id: 'wing-1', name: "Da'wah & Moral Guidance Wing", currentTenure: '2026-27' };
+    const today = new Date().toISOString().split('T')[0];
+    const monthName = new Date().toLocaleString('en-US', { month: 'long' });
+
+    setWingProgramForm({
+      wingId: defaultWing.id,
+      wingName: defaultWing.name,
+      title: '',
+      targetClass: 'Aliya 1st Year',
+      date: today,
+      academicYear: defaultWing.currentTenure || '2026-27',
+      month: monthName,
+      venue: '',
+      description: '',
+      status: 'Completed',
+    });
+    setIsWingProgramModalOpen(true);
+  };
+
+  const handleOpenEditWingProgram = (prog: WingProgram) => {
+    setEditingWingProgram(prog);
+    setWingProgramForm({
+      id: prog.id,
+      wingId: prog.wingId,
+      wingName: prog.wingName || '',
+      title: prog.title,
+      targetClass: prog.targetClass,
+      date: prog.date,
+      academicYear: prog.academicYear,
+      month: prog.month,
+      venue: prog.venue || '',
+      description: prog.description || '',
+      status: prog.status || 'Completed',
+    });
+    setIsWingProgramModalOpen(true);
+  };
+
+  const handleSaveWingProgram = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const selectedWing = database.wings.find((w) => w.id === wingProgramForm.wingId);
+    const finalWingName = selectedWing?.name || wingProgramForm.wingName;
+
+    let month = wingProgramForm.month;
+    if (wingProgramForm.date) {
+      try {
+        const d = new Date(wingProgramForm.date);
+        if (!isNaN(d.getTime())) {
+          month = d.toLocaleString('en-US', { month: 'long' });
+        }
+      } catch {}
+    }
+
+    const payload: Omit<WingProgram, 'id'> = {
+      wingId: wingProgramForm.wingId,
+      wingName: finalWingName,
+      title: wingProgramForm.title.trim(),
+      targetClass: wingProgramForm.targetClass.trim(),
+      date: wingProgramForm.date,
+      academicYear: wingProgramForm.academicYear,
+      month: month || 'October',
+      venue: wingProgramForm.venue.trim(),
+      description: wingProgramForm.description.trim(),
+      status: wingProgramForm.status,
+    };
+
+    if (editingWingProgram) {
+      await updateWingProgram(editingWingProgram.id, payload);
+      showToast(`Wing program "${payload.title}" updated.`);
+    } else {
+      await addWingProgram(payload);
+      showToast(`Program "${payload.title}" recorded for ${finalWingName}.`);
+    }
+    setIsWingProgramModalOpen(false);
   };
 
   // Adding history tenure inside editing wing
@@ -2844,123 +2962,442 @@ export const AdminDashboard: React.FC = () => {
             </div>
           )}
 
-          {/* ================= TAB 5: PARTICIPANTS (WINGS) ================= */}
-          {activeTab === 'participants' && (
-            <div className="space-y-6 max-w-5xl">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h2 className="text-xl font-bold font-heading text-white">Manage Specialized Wings</h2>
-                  <p className="text-xs text-stone-400 mt-0.5">
-                    Maintain the specialized student wings, designated Chairmen, Conveners, and historical archives.
-                  </p>
-                </div>
-                <button
-                  onClick={() => setIsAddWingModalOpen(true)}
-                  className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-semibold flex items-center gap-2 cursor-pointer shadow"
-                >
-                  <Plus className="w-4 h-4" />
-                  <span>Add New Wing</span>
-                </button>
-              </div>
+          {/* ================= TAB 5: PARTICIPANTS (WINGS & CONDUCTED PROGRAMS) ================= */}
+          {activeTab === 'participants' && (() => {
+            const allWPs: WingProgram[] =
+              database.wingPrograms && database.wingPrograms.length > 0
+                ? database.wingPrograms
+                : initialDatabase.wingPrograms || [];
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {database.wings.map((wing, idx) => (
-                  <div
-                    key={`admin-wing-${wing.id}-${idx}`}
-                    className="p-5 bg-stone-900 border border-stone-800 rounded-2xl flex flex-col justify-between space-y-4"
-                  >
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <span className="px-2 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800 text-[10px] font-mono font-bold">
-                          {wing.status} • {wing.currentTenure}
-                        </span>
-                        <span className="text-[10px] text-stone-400 font-mono">
-                          {wing.history?.length || 0} historical archives
-                        </span>
-                      </div>
-                      <h4 className="text-base font-bold text-white">{wing.name}</h4>
-                      <p className="text-xs text-stone-400 leading-relaxed line-clamp-2">
-                        {wing.description}
-                      </p>
+            const distinctYears = Array.from(new Set(allWPs.map((p) => p.academicYear).filter(Boolean))).sort().reverse();
+            if (distinctYears.length === 0) distinctYears.push('2026-27');
 
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1 text-xs">
-                        <div className="p-3 bg-stone-950 rounded-xl border border-stone-800 flex items-center gap-3">
-                          <div className="w-14 h-18 sm:w-16 sm:h-20 rounded-xl bg-stone-900 border-2 border-emerald-500/40 overflow-hidden shrink-0 flex items-center justify-center shadow-md">
-                            {wing.chairman?.photo || wing.chairmanPhoto || wing.manager?.photo ? (
-                              <img
-                                src={wing.chairman?.photo || wing.chairmanPhoto || wing.manager?.photo}
-                                alt="Chairman"
-                                className="w-full h-full object-cover object-top"
-                              />
-                            ) : (
-                              <User className="w-6 h-6 text-emerald-500/50" />
-                            )}
-                          </div>
-                          <div className="min-w-0 flex-1">
-                            <span className="text-[10px] font-mono text-emerald-400 font-bold block mb-1">CHAIRMAN</span>
-                            <span className="font-semibold text-white truncate block text-sm">
-                              {wing.chairman?.name || wing.manager?.name || 'Not assigned'}
-                            </span>
-                            <span className="text-[11px] text-stone-400 truncate block mt-0.5">
-                              {wing.chairman?.contact || wing.manager?.contact || 'chairman@anjuman.edu'}
-                            </span>
-                          </div>
-                        </div>
+            const allMonthsList = [
+              'January', 'February', 'March', 'April', 'May', 'June',
+              'July', 'August', 'September', 'October', 'November', 'December'
+            ];
 
-                        <div className="p-3 bg-stone-950 rounded-xl border border-stone-800 flex items-center gap-3">
-                          <div className="w-14 h-18 sm:w-16 sm:h-20 rounded-xl bg-stone-900 border-2 border-amber-500/40 overflow-hidden shrink-0 flex items-center justify-center shadow-md">
-                            {wing.convener?.photo || wing.convenerPhoto ? (
-                              <img
-                                src={wing.convener?.photo || wing.convenerPhoto}
-                                alt="Convener"
-                                className="w-full h-full object-cover object-top"
-                              />
-                            ) : (
-                              <UserCheck className="w-6 h-6 text-amber-500/50" />
-                            )}
-                          </div>
-                          <div className="min-w-0 flex-1">
-                            <span className="text-[10px] font-mono text-amber-400 font-bold block mb-1">CONVENER</span>
-                            <span className="font-semibold text-white truncate block text-sm">{wing.convener.name}</span>
-                            <span className="text-[11px] text-stone-400 truncate block mt-0.5">
-                              {wing.convener?.contact || 'convener@anjuman.edu'}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+            const filteredAdminWPs = allWPs.filter((p) => {
+              const matchesWing = adminWingFilter === 'All' || p.wingId === adminWingFilter;
+              const matchesYear = adminWingYearFilter === 'All' || p.academicYear === adminWingYearFilter;
+              const matchesMonth = adminWingMonthFilter === 'All' || p.month?.toLowerCase() === adminWingMonthFilter.toLowerCase();
+              const matchesSearch =
+                !adminWingSearch ||
+                p.title.toLowerCase().includes(adminWingSearch.toLowerCase()) ||
+                p.targetClass.toLowerCase().includes(adminWingSearch.toLowerCase()) ||
+                (p.venue && p.venue.toLowerCase().includes(adminWingSearch.toLowerCase())) ||
+                (p.description && p.description.toLowerCase().includes(adminWingSearch.toLowerCase()));
 
-                    <div className="flex items-center justify-between pt-3 border-t border-stone-800">
-                      <button
-                        onClick={() => {
-                          requestDelete({
-                            title: 'Delete Specialized Wing',
-                            message: `Are you sure you want to delete the "${wing.name}" (${wing.shortName}) portfolio?`,
-                            confirmLabel: 'Delete Wing',
-                            onConfirm: async () => {
-                              await deleteWing(wing.id);
-                              showToast(`Wing "${wing.name}" deleted.`);
-                            },
-                          });
-                        }}
-                        className="text-stone-400 hover:text-red-400 text-xs flex items-center gap-1 cursor-pointer"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" /> Delete
-                      </button>
+              return matchesWing && matchesYear && matchesMonth && matchesSearch;
+            });
 
-                      <button
-                        onClick={() => handleOpenEditWing(wing)}
-                        className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
-                      >
-                        <Edit2 className="w-3.5 h-3.5" />
-                        <span>Edit Wing & History</span>
-                      </button>
-                    </div>
+            return (
+              <div className="space-y-6 max-w-5xl">
+                {/* Header & Sub-Tabs Switcher */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-stone-800 pb-4">
+                  <div>
+                    <h2 className="text-xl font-bold font-heading text-white flex items-center gap-2">
+                      <Users className="w-5 h-5 text-emerald-400" />
+                      <span>Specialized Wings & Conducted Programs</span>
+                    </h2>
+                    <p className="text-xs text-stone-400 mt-0.5">
+                      Maintain operational wings, committee leadership, and historical class program ledgers.
+                    </p>
                   </div>
-                ))}
+
+                  <div className="flex items-center gap-2">
+                    {wingSubTab === 'wings' ? (
+                      <button
+                        onClick={() => setIsAddWingModalOpen(true)}
+                        className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 cursor-pointer shadow"
+                      >
+                        <Plus className="w-4 h-4" />
+                        <span>Add New Wing</span>
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => handleOpenAddWingProgram()}
+                        className="px-4 py-2 bg-amber-400 hover:bg-amber-300 text-stone-950 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow"
+                      >
+                        <Plus className="w-4 h-4" />
+                        <span>Record Wing Program</span>
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                {/* Sub-Tab Navigation Bar */}
+                <div className="flex flex-wrap items-center gap-2 bg-stone-900 p-1.5 rounded-2xl border border-stone-800">
+                  <button
+                    type="button"
+                    onClick={() => setWingSubTab('wings')}
+                    className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer ${
+                      wingSubTab === 'wings'
+                        ? 'bg-emerald-600 text-white shadow'
+                        : 'text-stone-400 hover:text-stone-200'
+                    }`}
+                  >
+                    <Users className="w-4 h-4" />
+                    <span>Wings & Portfolios ({database.wings.length})</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setWingSubTab('programs')}
+                    className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer ${
+                      wingSubTab === 'programs'
+                        ? 'bg-amber-400 text-stone-950 font-extrabold shadow'
+                        : 'text-stone-400 hover:text-stone-200'
+                    }`}
+                  >
+                    <Calendar className="w-4 h-4" />
+                    <span>Conducted Programs & Class Archives ({allWPs.length})</span>
+                  </button>
+                </div>
+
+                {/* ================= SUB-TAB 1: WINGS & PORTFOLIOS ================= */}
+                {wingSubTab === 'wings' && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {database.wings.map((wing, idx) => {
+                      const countForThisWing = allWPs.filter(
+                        (wp) => wp.wingId === wing.id || wp.wingName?.toLowerCase() === wing.name.toLowerCase()
+                      ).length;
+
+                      return (
+                        <div
+                          key={`admin-wing-${wing.id}-${idx}`}
+                          className="p-5 bg-stone-900 border border-stone-800 rounded-2xl flex flex-col justify-between space-y-4"
+                        >
+                          <div className="space-y-2">
+                            <div className="flex items-center justify-between flex-wrap gap-2">
+                              <span className="px-2 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800 text-[10px] font-mono font-bold">
+                                {wing.status} • {wing.currentTenure}
+                              </span>
+                              <div className="flex items-center gap-1.5">
+                                <span className="text-[10px] text-amber-300 font-mono px-2 py-0.5 rounded bg-stone-950 border border-stone-800 font-bold">
+                                  {countForThisWing} Programs Logged
+                                </span>
+                              </div>
+                            </div>
+                            <h4 className="text-base font-bold text-white">{wing.name}</h4>
+                            <p className="text-xs text-stone-400 leading-relaxed line-clamp-2">
+                              {wing.description}
+                            </p>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1 text-xs">
+                              <div className="p-3 bg-stone-950 rounded-xl border border-stone-800 flex items-center gap-3">
+                                <div className="w-14 h-18 sm:w-16 sm:h-20 rounded-xl bg-stone-900 border-2 border-emerald-500/40 overflow-hidden shrink-0 flex items-center justify-center shadow-md">
+                                  {wing.chairman?.photo || wing.chairmanPhoto || wing.manager?.photo ? (
+                                    <img
+                                      src={wing.chairman?.photo || wing.chairmanPhoto || wing.manager?.photo}
+                                      alt="Chairman"
+                                      className="w-full h-full object-cover object-top"
+                                    />
+                                  ) : (
+                                    <User className="w-6 h-6 text-emerald-500/50" />
+                                  )}
+                                </div>
+                                <div className="min-w-0 flex-1">
+                                  <span className="text-[10px] font-mono text-emerald-400 font-bold block mb-1">CHAIRMAN</span>
+                                  <span className="font-semibold text-white truncate block text-sm">
+                                    {wing.chairman?.name || wing.manager?.name || 'Not assigned'}
+                                  </span>
+                                  <span className="text-[11px] text-stone-400 truncate block mt-0.5">
+                                    {wing.chairman?.contact || wing.manager?.contact || 'chairman@anjuman.edu'}
+                                  </span>
+                                </div>
+                              </div>
+
+                              <div className="p-3 bg-stone-950 rounded-xl border border-stone-800 flex items-center gap-3">
+                                <div className="w-14 h-18 sm:w-16 sm:h-20 rounded-xl bg-stone-900 border-2 border-amber-500/40 overflow-hidden shrink-0 flex items-center justify-center shadow-md">
+                                  {wing.convener?.photo || wing.convenerPhoto ? (
+                                    <img
+                                      src={wing.convener?.photo || wing.convenerPhoto}
+                                      alt="Convener"
+                                      className="w-full h-full object-cover object-top"
+                                    />
+                                  ) : (
+                                    <UserCheck className="w-6 h-6 text-amber-500/50" />
+                                  )}
+                                </div>
+                                <div className="min-w-0 flex-1">
+                                  <span className="text-[10px] font-mono text-amber-400 font-bold block mb-1">CONVENER</span>
+                                  <span className="font-semibold text-white truncate block text-sm">{wing.convener.name}</span>
+                                  <span className="text-[11px] text-stone-400 truncate block mt-0.5">
+                                    {wing.convener?.contact || 'convener@anjuman.edu'}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-stone-800">
+                            <div className="flex items-center gap-2">
+                              <button
+                                type="button"
+                                onClick={() => handleOpenAddWingProgram(wing.id)}
+                                className="px-2.5 py-1 rounded-lg bg-amber-400/20 hover:bg-amber-400/30 text-amber-300 text-[11px] font-mono font-bold border border-amber-500/30 flex items-center gap-1 cursor-pointer transition-colors"
+                              >
+                                <Plus className="w-3.5 h-3.5" />
+                                <span>+ Record Program</span>
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setAdminWingFilter(wing.id);
+                                  setWingSubTab('programs');
+                                }}
+                                className="px-2.5 py-1 rounded-lg bg-stone-800 hover:bg-stone-700 text-stone-300 text-[11px] font-mono cursor-pointer transition-colors"
+                              >
+                                View ({countForThisWing})
+                              </button>
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                              <button
+                                onClick={() => {
+                                  requestDelete({
+                                    title: 'Delete Specialized Wing',
+                                    message: `Are you sure you want to delete the "${wing.name}" (${wing.shortName}) portfolio?`,
+                                    confirmLabel: 'Delete Wing',
+                                    onConfirm: async () => {
+                                      await deleteWing(wing.id);
+                                      showToast(`Wing "${wing.name}" deleted.`);
+                                    },
+                                  });
+                                }}
+                                className="p-1.5 text-stone-400 hover:text-red-400 rounded-lg hover:bg-stone-800 cursor-pointer transition-colors"
+                                title="Delete Wing"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+
+                              <button
+                                onClick={() => handleOpenEditWing(wing)}
+                                className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 cursor-pointer shadow transition-colors"
+                              >
+                                <Edit2 className="w-3.5 h-3.5" />
+                                <span>Edit Wing</span>
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {/* ================= SUB-TAB 2: CONDUCTED PROGRAMS & CLASS ARCHIVES ================= */}
+                {wingSubTab === 'programs' && (
+                  <div className="space-y-4">
+                    {/* Filter Controls Bar */}
+                    <div className="p-4 rounded-2xl bg-stone-900 border border-stone-800 space-y-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+                        {/* Wing Selector */}
+                        <div>
+                          <label className="block text-[10px] font-mono uppercase text-stone-400 mb-1">
+                            Filter by Wing:
+                          </label>
+                          <select
+                            value={adminWingFilter}
+                            onChange={(e) => setAdminWingFilter(e.target.value)}
+                            className="w-full bg-stone-950 border border-stone-700 rounded-xl px-2.5 py-1.5 text-xs text-white focus:border-emerald-500 focus:outline-none"
+                          >
+                            <option value="All">All Operational Wings</option>
+                            {database.wings.map((w) => (
+                              <option key={`flt-w-${w.id}`} value={w.id}>
+                                {w.name} ({w.shortName})
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+
+                        {/* Academic Year Selector */}
+                        <div>
+                          <label className="block text-[10px] font-mono uppercase text-stone-400 mb-1">
+                            Academic Year:
+                          </label>
+                          <select
+                            value={adminWingYearFilter}
+                            onChange={(e) => setAdminWingYearFilter(e.target.value)}
+                            className="w-full bg-stone-950 border border-stone-700 rounded-xl px-2.5 py-1.5 text-xs text-white focus:border-emerald-500 focus:outline-none font-mono"
+                          >
+                            <option value="All">All Academic Years</option>
+                            {distinctYears.map((yr) => (
+                              <option key={`flt-yr-${yr}`} value={yr}>
+                                {yr}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+
+                        {/* Month Selector */}
+                        <div>
+                          <label className="block text-[10px] font-mono uppercase text-stone-400 mb-1">
+                            Month:
+                          </label>
+                          <select
+                            value={adminWingMonthFilter}
+                            onChange={(e) => setAdminWingMonthFilter(e.target.value)}
+                            className="w-full bg-stone-950 border border-stone-700 rounded-xl px-2.5 py-1.5 text-xs text-white focus:border-emerald-500 focus:outline-none"
+                          >
+                            <option value="All">All Months</option>
+                            {allMonthsList.map((m) => (
+                              <option key={`flt-m-${m}`} value={m}>
+                                {m}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+
+                        {/* Search Input */}
+                        <div>
+                          <label className="block text-[10px] font-mono uppercase text-stone-400 mb-1">
+                            Search Program / Class:
+                          </label>
+                          <div className="relative">
+                            <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-stone-400" />
+                            <input
+                              type="text"
+                              value={adminWingSearch}
+                              onChange={(e) => setAdminWingSearch(e.target.value)}
+                              placeholder="Title or target class..."
+                              className="w-full bg-stone-950 border border-stone-700 rounded-xl pl-8 pr-2.5 py-1.5 text-xs text-white placeholder-stone-500 focus:border-emerald-500 focus:outline-none font-mono"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between pt-2 border-t border-stone-800 text-[11px] font-mono text-stone-400">
+                        <span>
+                          Showing <strong>{filteredAdminWPs.length}</strong> of <strong>{allWPs.length}</strong> recorded wing programs
+                        </span>
+                        {(adminWingFilter !== 'All' || adminWingYearFilter !== 'All' || adminWingMonthFilter !== 'All' || adminWingSearch) && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setAdminWingFilter('All');
+                              setAdminWingYearFilter('All');
+                              setAdminWingMonthFilter('All');
+                              setAdminWingSearch('');
+                            }}
+                            className="text-amber-400 hover:text-amber-300 underline cursor-pointer"
+                          >
+                            Clear Filters
+                          </button>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Programs Grid / List */}
+                    {filteredAdminWPs.length > 0 ? (
+                      <div className="space-y-3">
+                        {filteredAdminWPs.map((prog, pIdx) => {
+                          const wingObj = database.wings.find((w) => w.id === prog.wingId);
+
+                          return (
+                            <div
+                              key={`admin-wp-${prog.id}-${pIdx}`}
+                              className="p-4 bg-stone-900 border border-stone-800 hover:border-emerald-500/40 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4 transition-all"
+                            >
+                              <div className="min-w-0 flex-1 space-y-2">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800">
+                                    {wingObj?.shortName || 'WING'}: {prog.wingName || wingObj?.name || 'Assigned Wing'}
+                                  </span>
+                                  <span className="text-[10px] font-mono font-extrabold px-2 py-0.5 rounded bg-amber-400 text-stone-950 shadow-sm flex items-center gap-1">
+                                    <span>🎓 CLASS: {prog.targetClass}</span>
+                                  </span>
+                                  <span
+                                    className={`text-[9px] font-mono font-bold px-2 py-0.5 rounded-full uppercase ${
+                                      prog.status === 'Completed'
+                                        ? 'bg-emerald-950 text-emerald-400 border border-emerald-800'
+                                        : 'bg-cyan-950 text-cyan-400 border border-cyan-800'
+                                    }`}
+                                  >
+                                    {prog.status || 'Completed'}
+                                  </span>
+                                </div>
+
+                                <h4 className="text-base font-bold text-white leading-snug">
+                                  {prog.title}
+                                </h4>
+
+                                {prog.description && (
+                                  <p className="text-xs text-stone-400 line-clamp-2">
+                                    {prog.description}
+                                  </p>
+                                )}
+
+                                <div className="flex items-center gap-4 text-xs text-stone-400 font-mono flex-wrap">
+                                  <span className="flex items-center gap-1">
+                                    <Calendar className="w-3.5 h-3.5 text-emerald-400" />
+                                    <span>Date: {prog.date}</span>
+                                  </span>
+                                  <span>Year: {prog.academicYear}</span>
+                                  <span>Month: {prog.month}</span>
+                                  {prog.venue && (
+                                    <span className="flex items-center gap-1">
+                                      <MapPin className="w-3.5 h-3.5 text-amber-400" />
+                                      <span>{prog.venue}</span>
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+
+                              <div className="shrink-0 flex items-center gap-2 pt-3 md:pt-0 border-t md:border-t-0 border-stone-800 justify-end">
+                                <button
+                                  type="button"
+                                  onClick={() => handleOpenEditWingProgram(prog)}
+                                  className="p-2 text-stone-300 hover:text-emerald-400 rounded-xl hover:bg-stone-800 cursor-pointer transition-colors"
+                                  title="Edit Program & Class"
+                                >
+                                  <Edit2 className="w-4 h-4" />
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    requestDelete({
+                                      title: 'Delete Wing Program Record',
+                                      message: `Are you sure you want to remove the record for "${prog.title}" (${prog.targetClass})?`,
+                                      confirmLabel: 'Delete Record',
+                                      onConfirm: async () => {
+                                        await deleteWingProgram(prog.id);
+                                        showToast(`Program "${prog.title}" deleted.`);
+                                      },
+                                    });
+                                  }}
+                                  className="p-2 text-stone-300 hover:text-red-400 rounded-xl hover:bg-stone-800 cursor-pointer transition-colors"
+                                  title="Delete Record"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    ) : (
+                      <div className="py-12 text-center bg-stone-900 rounded-2xl border border-stone-800 text-stone-400 space-y-3">
+                        <Calendar className="w-8 h-8 text-stone-600 mx-auto" />
+                        <p className="text-sm font-semibold text-stone-300">
+                          No wing conducted programs match the current filter.
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => handleOpenAddWingProgram()}
+                          className="px-4 py-2 bg-amber-400 hover:bg-amber-300 text-stone-950 rounded-xl text-xs font-bold inline-flex items-center gap-1.5 cursor-pointer shadow"
+                        >
+                          <Plus className="w-4 h-4" />
+                          <span>Record First Program for this Period</span>
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
-            </div>
-          )}
+            );
+          })()}
 
           {/* ================= TAB 6: PROGRAMS ================= */}
           {activeTab === 'programs' && (
@@ -5127,6 +5564,270 @@ export const AdminDashboard: React.FC = () => {
         </div>
       )}
 
+      {/* ================= MODAL: ADD / EDIT WING PROGRAM (CLASS & TARGET AUDIENCE ARCHIVE) ================= */}
+      {isWingProgramModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-stone-900 border border-stone-700 rounded-2xl p-6 w-full max-w-xl shadow-2xl text-stone-100 max-h-[92vh] overflow-y-auto space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-stone-800">
+              <div className="flex items-center gap-2.5">
+                <div className="w-10 h-10 rounded-xl bg-amber-950 border border-amber-500/40 flex items-center justify-center text-amber-400 shrink-0">
+                  <Calendar className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-white">
+                    {editingWingProgram ? 'Edit Conducted Wing Program' : 'Record Conducted Wing Program'}
+                  </h3>
+                  <p className="text-xs text-stone-400">
+                    Archive program name, target class/audience, and date for future committee records
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsWingProgramModalOpen(false)}
+                className="p-1.5 rounded-lg text-stone-400 hover:text-white hover:bg-stone-800 transition-colors cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveWingProgram} className="space-y-4">
+              {/* Specialized Wing Selection */}
+              <div>
+                <label className="block text-xs font-semibold text-stone-300 mb-1">
+                  Select Specialized Wing <span className="text-emerald-400">*</span>
+                </label>
+                <select
+                  required
+                  value={wingProgramForm.wingId}
+                  onChange={(e) => {
+                    const selWing = database.wings.find((w) => w.id === e.target.value);
+                    setWingProgramForm((prev) => ({
+                      ...prev,
+                      wingId: e.target.value,
+                      wingName: selWing?.name || '',
+                      academicYear: selWing?.currentTenure || prev.academicYear,
+                    }));
+                  }}
+                  className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500"
+                >
+                  {database.wings.map((w) => (
+                    <option key={`modal-wing-opt-${w.id}`} value={w.id}>
+                      {w.name} ({w.shortName})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Program Name */}
+              <div>
+                <label className="block text-xs font-semibold text-stone-300 mb-1">
+                  Program Name / Title <span className="text-emerald-400">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Tafseer-e-Quran Comprehensive Seminar & Qiraat Workshop"
+                  value={wingProgramForm.title}
+                  onChange={(e) => setWingProgramForm({ ...wingProgramForm, title: e.target.value })}
+                  className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500"
+                />
+              </div>
+
+              {/* Category / Target Class (Kis ke liye chalaya tha) */}
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="text-xs font-semibold text-stone-300">
+                    Category / Target Class <span className="text-amber-400 font-normal">(Kis Ke Liye Chalaya Tha)</span> <span className="text-emerald-400">*</span>
+                  </label>
+                  <span className="text-[10px] text-stone-400 font-mono">Select quick class or type custom</span>
+                </div>
+
+                {/* Quick Class Pills */}
+                <div className="flex flex-wrap gap-1.5 mb-2">
+                  {[
+                    'Aliya 1st Year',
+                    'Aliya 2nd Year',
+                    'Aliya 1st & 2nd Year',
+                    'Sanawiya Scholars',
+                    'Fazilat Final Year',
+                    'High School Scholars',
+                    'All Campus Scholars',
+                    'General Public / Off-Campus',
+                  ].map((quickClass) => (
+                    <button
+                      key={`quick-cls-${quickClass}`}
+                      type="button"
+                      onClick={() => setWingProgramForm((prev) => ({ ...prev, targetClass: quickClass }))}
+                      className={`px-2 py-0.5 rounded-lg text-[10px] font-mono transition-all border cursor-pointer ${
+                        wingProgramForm.targetClass === quickClass
+                          ? 'bg-amber-400 text-stone-950 font-bold border-amber-300 shadow-sm'
+                          : 'bg-stone-950 text-stone-400 border-stone-800 hover:text-stone-200 hover:border-stone-700'
+                      }`}
+                    >
+                      {quickClass}
+                    </button>
+                  ))}
+                </div>
+
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Aliya 1st Year, Sanawiya, Fazilat, or Youth Delegation"
+                  value={wingProgramForm.targetClass}
+                  onChange={(e) => setWingProgramForm({ ...wingProgramForm, targetClass: e.target.value })}
+                  className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500 font-mono"
+                />
+              </div>
+
+              {/* Date, Month & Academic Year Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {/* Specific Date */}
+                <div>
+                  <label className="block text-xs font-semibold text-stone-300 mb-1">
+                    Event Date <span className="text-emerald-400">*</span>
+                  </label>
+                  <input
+                    type="date"
+                    required
+                    value={wingProgramForm.date}
+                    onChange={(e) => {
+                      const newDate = e.target.value;
+                      let derivedMonth = wingProgramForm.month;
+                      let derivedYear = wingProgramForm.academicYear;
+                      if (newDate) {
+                        try {
+                          const d = new Date(newDate);
+                          if (!isNaN(d.getTime())) {
+                            derivedMonth = d.toLocaleString('en-US', { month: 'long' });
+                            const y = d.getFullYear();
+                            const m = d.getMonth() + 1;
+                            if (m >= 7) {
+                              derivedYear = `${y}-${(y + 1).toString().slice(2)}`;
+                            } else {
+                              derivedYear = `${y - 1}-${y.toString().slice(2)}`;
+                            }
+                          }
+                        } catch {}
+                      }
+                      setWingProgramForm((prev) => ({
+                        ...prev,
+                        date: newDate,
+                        month: derivedMonth,
+                        academicYear: derivedYear,
+                      }));
+                    }}
+                    className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500 font-mono"
+                  />
+                </div>
+
+                {/* Academic Year */}
+                <div>
+                  <label className="block text-xs font-semibold text-stone-300 mb-1">
+                    Academic Year <span className="text-emerald-400">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. 2026-27"
+                    value={wingProgramForm.academicYear}
+                    onChange={(e) => setWingProgramForm({ ...wingProgramForm, academicYear: e.target.value })}
+                    className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500 font-mono"
+                  />
+                </div>
+
+                {/* Month */}
+                <div>
+                  <label className="block text-xs font-semibold text-stone-300 mb-1">
+                    Month <span className="text-emerald-400">*</span>
+                  </label>
+                  <select
+                    value={wingProgramForm.month}
+                    onChange={(e) => setWingProgramForm({ ...wingProgramForm, month: e.target.value })}
+                    className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500"
+                  >
+                    {[
+                      'January', 'February', 'March', 'April', 'May', 'June',
+                      'July', 'August', 'September', 'October', 'November', 'December'
+                    ].map((m) => (
+                      <option key={`prog-month-opt-${m}`} value={m}>
+                        {m}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              {/* Status & Venue */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-stone-300 mb-1">Status</label>
+                  <select
+                    value={wingProgramForm.status}
+                    onChange={(e) =>
+                      setWingProgramForm({
+                        ...wingProgramForm,
+                        status: e.target.value as 'Completed' | 'Upcoming' | 'Ongoing',
+                      })
+                    }
+                    className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500"
+                  >
+                    <option value="Completed">Completed (Organized)</option>
+                    <option value="Upcoming">Upcoming (Scheduled)</option>
+                    <option value="Ongoing">Ongoing (Active Drive)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-stone-300 mb-1">
+                    Venue / Campus Location (Optional)
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Main Auditorium / Seminar Hall"
+                    value={wingProgramForm.venue}
+                    onChange={(e) => setWingProgramForm({ ...wingProgramForm, venue: e.target.value })}
+                    className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500"
+                  />
+                </div>
+              </div>
+
+              {/* Description / Summary Report */}
+              <div>
+                <label className="block text-xs font-semibold text-stone-300 mb-1">
+                  Program Report / Key Highlights (Optional)
+                </label>
+                <textarea
+                  rows={2}
+                  placeholder="e.g. Brief summary of outcomes, key speakers, or student participation counts..."
+                  value={wingProgramForm.description}
+                  onChange={(e) => setWingProgramForm({ ...wingProgramForm, description: e.target.value })}
+                  className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500"
+                />
+              </div>
+
+              {/* Form Action Buttons */}
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-stone-800">
+                <button
+                  type="button"
+                  onClick={() => setIsWingProgramModalOpen(false)}
+                  className="px-4 py-2 bg-stone-800 hover:bg-stone-700 text-stone-300 rounded-xl text-xs font-medium cursor-pointer transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 bg-amber-400 hover:bg-amber-300 text-stone-950 rounded-xl text-xs font-bold cursor-pointer shadow transition-colors flex items-center gap-1.5"
+                >
+                  <CheckCircle className="w-3.5 h-3.5" />
+                  <span>{editingWingProgram ? 'Update Wing Program' : 'Save Wing Program'}</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
       {/* ================= MODAL: SUPABASE SQL SCRIPT GUIDE ================= */}
       {showSqlModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm">
@@ -5138,7 +5839,7 @@ export const AdminDashboard: React.FC = () => {
                 </div>
                 <div>
                   <h3 className="text-base font-bold text-white">Supabase SQL Migration Script</h3>
-                  <p className="text-xs text-stone-400">Core Committee Posters Table & RLS Security Policies</p>
+                  <p className="text-xs text-stone-400">Wing Programs, Core Committee Posters & Hierarchy RLS</p>
                 </div>
               </div>
               <button
@@ -5151,22 +5852,22 @@ export const AdminDashboard: React.FC = () => {
             </div>
 
             <p className="text-xs text-stone-300 leading-relaxed">
-              Run this SQL script in your <strong>Supabase Dashboard ➔ SQL Editor</strong> to create the <code className="text-emerald-400 bg-stone-950 px-1 py-0.5 rounded font-mono">core_committee_posters</code> table and add <code className="text-amber-400 bg-stone-950 px-1 py-0.5 rounded font-mono">order_index</code> column for duty hierarchy ranking.
+              Run this SQL script in your <strong>Supabase Dashboard ➔ SQL Editor</strong> to create the <code className="text-amber-400 bg-stone-950 px-1 py-0.5 rounded font-mono">wing_programs</code> table, <code className="text-emerald-400 bg-stone-950 px-1 py-0.5 rounded font-mono">core_committee_posters</code> table, and add <code className="text-cyan-400 bg-stone-950 px-1 py-0.5 rounded font-mono">order_index</code> column for duty hierarchy ranking.
             </p>
 
             <div className="relative">
               <pre className="p-4 bg-stone-950 rounded-xl border border-stone-800 text-emerald-300 font-mono text-[11px] overflow-x-auto leading-relaxed max-h-72">
-                {`${CORE_COMMITTEE_POSTERS_SQL_SCHEMA}\n\n${LEADERSHIP_ORDER_SQL_SCHEMA}`}
+                {`${WING_PROGRAMS_SQL_SCHEMA}\n\n${CORE_COMMITTEE_POSTERS_SQL_SCHEMA}\n\n${LEADERSHIP_ORDER_SQL_SCHEMA}`}
               </pre>
               <button
                 type="button"
                 onClick={() => {
-                  navigator.clipboard.writeText(`${CORE_COMMITTEE_POSTERS_SQL_SCHEMA}\n\n${LEADERSHIP_ORDER_SQL_SCHEMA}`);
+                  navigator.clipboard.writeText(`${WING_PROGRAMS_SQL_SCHEMA}\n\n${CORE_COMMITTEE_POSTERS_SQL_SCHEMA}\n\n${LEADERSHIP_ORDER_SQL_SCHEMA}`);
                   setSqlCopied(true);
                   showToast('SQL script copied to clipboard!');
                   setTimeout(() => setSqlCopied(false), 3000);
                 }}
-                className="absolute top-2.5 right-2.5 px-3 py-1.5 bg-stone-800 hover:bg-stone-700 text-stone-200 hover:text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow border border-stone-700 transition-colors"
+                className="absolute top-2.5 right-2.5 px-3 py-1.5 bg-stone-800 hover:bg-stone-700 text-stone-200 hover:text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow border border-stone-700 transition-colors cursor-pointer"
               >
                 {sqlCopied ? (
                   <>

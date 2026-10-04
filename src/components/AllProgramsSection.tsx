@@ -262,114 +262,77 @@ export const AllProgramsSection: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Detailed Cards Showing category badges, banners, event names, tags, date, and venue */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Cards matching the Visual Highlights Gallery aesthetic (Second Image) */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                   {filteredPrograms.map((prog, pIdx) => (
                     <div
                       key={`prog-item-${prog.id || pIdx}`}
-                      className="bg-stone-950 border border-stone-800 hover:border-emerald-500/50 rounded-2xl overflow-hidden shadow-xl transition-all hover:-translate-y-1 flex flex-col justify-between group"
+                      onClick={() => setSelectedProgramAgenda(prog)}
+                      className="bg-stone-950 border border-stone-800 hover:border-emerald-500/60 rounded-2xl overflow-hidden shadow-xl cursor-pointer group transition-all hover:-translate-y-1 flex flex-col justify-between"
+                      title="Click to view full uncropped agenda & lightbox"
                     >
-                      <div>
-                        {/* Banner & Badges */}
-                        <div
-                          className="relative h-48 w-full overflow-hidden bg-stone-900 cursor-pointer group"
-                          onClick={() => setSelectedProgramAgenda(prog)}
-                          title="Click to view full uncropped agenda"
-                        >
-                          <img
-                            src={prog.banner}
-                            alt={prog.title}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                          />
-                          <div className="absolute inset-0 bg-stone-950/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                            <span className="px-3 py-1.5 rounded-lg bg-black/75 backdrop-blur-sm text-white text-xs font-medium flex items-center gap-1.5 shadow">
-                              <ZoomIn className="w-3.5 h-3.5 text-emerald-400" />
-                              View Full Agenda
-                            </span>
-                          </div>
-                          <div className="absolute top-3 left-3">
-                            <span className="bg-stone-950/85 backdrop-blur-sm text-emerald-400 border border-emerald-500/40 text-[11px] font-mono font-bold px-2.5 py-1 rounded-lg shadow">
-                              {prog.category}
-                            </span>
-                          </div>
-                          <div className="absolute top-3 right-3">
-                            <span
-                              className={`text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider ${
-                                prog.status === 'Live'
-                                  ? 'bg-red-600 text-white animate-pulse'
-                                  : prog.status === 'Upcoming'
-                                  ? 'bg-emerald-600 text-white'
-                                  : 'bg-stone-800 text-stone-300'
-                              }`}
-                            >
-                              {prog.status}
-                            </span>
-                          </div>
+                      {/* 4:3 Aspect Ratio Image with Category Badge & Status */}
+                      <div className="relative aspect-[4/3] overflow-hidden bg-stone-900">
+                        <img
+                          src={prog.banner}
+                          alt={prog.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          loading="lazy"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-transparent to-transparent opacity-80" />
+
+                        {/* Top Left Category Pill */}
+                        <div className="absolute top-3 left-3">
+                          <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-stone-950/80 backdrop-blur-sm text-emerald-400 border border-emerald-500/40">
+                            {prog.category}
+                          </span>
                         </div>
 
-                        {/* Card Body */}
-                        <div className="p-5">
-                          <div className="flex items-center gap-3 text-xs text-stone-400 mb-2 font-mono">
-                            <span className="flex items-center gap-1 text-amber-400">
-                              <CalendarIcon className="w-3.5 h-3.5" />
-                              {prog.date}
-                            </span>
-                            <span>•</span>
-                            <span className="flex items-center gap-1">
-                              <Clock className="w-3.5 h-3.5 text-stone-500" />
-                              {prog.time}
-                            </span>
-                          </div>
+                        {/* Top Right Status Badge */}
+                        <div className="absolute top-3 right-3">
+                          <span
+                            className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-stone-950/80 backdrop-blur-sm uppercase border ${
+                              prog.status === 'Live'
+                                ? 'text-red-400 border-red-500/40 animate-pulse'
+                                : prog.status === 'Upcoming'
+                                ? 'text-emerald-400 border-emerald-500/40'
+                                : 'text-stone-300 border-stone-700'
+                            }`}
+                          >
+                            {prog.status}
+                          </span>
+                        </div>
 
-                          <h3 className="text-lg font-bold text-white group-hover:text-emerald-300 transition-colors mb-2 leading-snug">
-                            {prog.title}
-                          </h3>
-
-                          <p className="text-xs text-stone-300 leading-relaxed line-clamp-3 mb-4">
-                            {prog.description}
-                          </p>
-
-                          {/* Venue info */}
-                          <div className="flex items-center gap-1.5 text-xs text-stone-400 font-medium mb-4">
-                            <MapPin className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                            <span className="truncate">{prog.venue}</span>
-                          </div>
-
-                          {/* Tags list */}
-                          <div className="flex flex-wrap items-center gap-1.5 mb-2">
-                            {prog.tags.map((t, tIdx) => (
-                              <span
-                                key={`prog-${prog.id}-tag-${t}-${tIdx}`}
-                                className="px-2 py-0.5 rounded bg-stone-900 border border-stone-800 text-[10px] text-stone-400 font-mono"
-                              >
-                                #{t}
-                              </span>
-                            ))}
-                          </div>
+                        {/* Hover Download/Preview Pill */}
+                        <div className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <span className="p-1.5 px-2.5 rounded-lg bg-emerald-600 text-white shadow-lg flex items-center gap-1 text-[10px] font-bold">
+                            <ZoomIn className="w-3 h-3" />
+                            View Agenda
+                          </span>
                         </div>
                       </div>
 
-                      {/* Card Footer */}
-                      <div className="p-5 pt-0">
-                        <div className="pt-4 border-t border-stone-800/80 flex items-center justify-between gap-2">
-                          <button
-                            type="button"
-                            onClick={() => setSelectedProgramAgenda(prog)}
-                            className="text-xs font-semibold text-emerald-400 hover:text-emerald-300 flex items-center gap-1 cursor-pointer transition-colors"
-                          >
-                            <span>View Full Agenda</span>
-                            <ChevronRight className="w-3.5 h-3.5" />
-                          </button>
+                      {/* Body Content */}
+                      <div className="p-4 flex-1 flex flex-col justify-between">
+                        <div>
+                          <div className="flex items-center justify-between text-[11px] font-mono text-stone-400 mb-1">
+                            <span>{prog.date}</span>
+                            <span>{prog.time}</span>
+                          </div>
+                          <h4 className="text-sm font-bold text-white group-hover:text-emerald-300 transition-colors leading-snug line-clamp-2">
+                            {prog.title}
+                          </h4>
+                          <p className="text-xs text-stone-400 line-clamp-2 mt-1.5 leading-relaxed">
+                            {prog.description}
+                          </p>
+                        </div>
 
-                          <button
-                            onClick={() => {
-                              setSelectedProgramAgenda(prog);
-                              setRegistrationNotice(`Registration & Inquiry open for: "${prog.title}". Please visit the Central Secretariat Desk or contact the respective Wing Manager.`);
-                            }}
-                            className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-semibold transition-colors cursor-pointer shrink-0"
-                          >
-                            Details & Registration
-                          </button>
+                        {/* Bottom Card Footer */}
+                        <div className="pt-3 border-t border-stone-900 mt-3 flex items-center justify-between text-[11px] text-stone-500">
+                          <span className="truncate max-w-[140px] font-mono">{prog.venue || 'Main Campus'}</span>
+                          <span className="text-emerald-400 font-semibold flex items-center gap-1">
+                            Full Lightbox <ChevronRight className="w-3 h-3" />
+                          </span>
                         </div>
                       </div>
                     </div>
