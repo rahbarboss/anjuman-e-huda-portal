@@ -21,7 +21,7 @@ interface Props {
 
 export const LatestProgramsAndAnnouncements: React.FC<Props> = () => {
   const { database } = useData();
-  const { programs, highlights = [] } = database;
+  const { programs } = database;
   const { navigateTo } = useNavigation();
 
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
@@ -34,21 +34,8 @@ export const LatestProgramsAndAnnouncements: React.FC<Props> = () => {
     programs.forEach((p) => {
       if (p.category) set.add(p.category);
     });
-    highlights.forEach((h) => {
-      if (h.category) set.add(h.category);
-    });
     return ['All', ...Array.from(set)];
-  }, [programs, highlights]);
-
-  // Filter highlights based on selected category and search term
-  const filteredHighlights = highlights.filter((h) => {
-    const matchesCategory = selectedCategory === 'All' || h.category === selectedCategory;
-    const matchesSearch =
-      !searchTerm ||
-      h.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (h.description && h.description.toLowerCase().includes(searchTerm.toLowerCase()));
-    return matchesCategory && matchesSearch;
-  });
+  }, [programs]);
 
   // Filter programs based on selected category and search term
   const filteredPrograms = programs.filter((p) => {
@@ -94,11 +81,11 @@ export const LatestProgramsAndAnnouncements: React.FC<Props> = () => {
               </span>
             </div>
             <h2 className="text-3xl sm:text-4xl font-bold font-heading text-white tracking-tight">
-              Visual Highlights & Union Programs
+              Union Programs & Colloquiums
             </h2>
             <p className="text-stone-400 text-sm sm:text-base max-w-2xl mt-2 leading-relaxed">
-              Side-by-side photographic activity archives alongside high-profile union colloquiums, inter-collegiate
-              galas, and leadership conclaves.
+              Official collegiate calendar of presidential symposiums, inter-collegiate galas, academic declamations,
+              and humanitarian initiatives organized across our campus.
             </p>
           </div>
 
@@ -188,224 +175,125 @@ export const LatestProgramsAndAnnouncements: React.FC<Props> = () => {
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search highlights or programs..."
+              placeholder="Search programs..."
               className="w-full bg-stone-950 border border-stone-800 rounded-xl pl-10 pr-3 py-2 text-xs text-white placeholder-stone-500 focus:outline-none focus:border-emerald-500 font-mono"
             />
           </div>
         </div>
 
         {/* =========================================================================
-            SIDE-BY-SIDE 2 COLUMNS:
-            LEFT SIDE: HIGHLIGHT PROGRAMS (Visual Highlights Gallery - All Admin Uploads)
-            RIGHT SIDE: PROGRAMS (Union Programs & Colloquiums)
-            SECOND IMAGE EXACT STYLE
+            PROGRAMS SECTION ONLY: Full width responsive cards grid
         ========================================================================= */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-          {/* ================= COLUMN 1 (LEFT): HIGHLIGHT PROGRAMS ================= */}
-          <div className="space-y-6">
-            <div className="flex items-center justify-between border-b border-stone-800 pb-3">
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-emerald-950 border border-emerald-500/40 text-emerald-400 flex items-center justify-center shrink-0 shadow-sm">
-                  <Sparkles className="w-4 h-4 text-emerald-400" />
-                </div>
-                <div>
-                  <h3 className="text-lg sm:text-xl font-bold font-heading text-white tracking-tight">
-                    HIGHLIGHT PROGRAMS
-                  </h3>
-                  <p className="text-xs text-stone-400 font-mono">
-                    Visual Highlights Gallery • Admin Uploads
-                  </p>
-                </div>
+        <div className="space-y-6">
+          <div className="flex items-center justify-between border-b border-stone-800 pb-3">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-xl bg-amber-950/80 border border-amber-500/40 text-amber-400 flex items-center justify-center shrink-0 shadow-sm">
+                <Calendar className="w-4 h-4 text-amber-400" />
               </div>
-              <span className="text-xs font-mono font-bold px-2.5 py-1 rounded-md bg-stone-900 border border-stone-800 text-emerald-400 shadow-xs">
-                {filteredHighlights.length} Highlights
-              </span>
+              <div>
+                <h3 className="text-lg sm:text-xl font-bold font-heading text-white tracking-tight">
+                  PROGRAMS
+                </h3>
+                <p className="text-xs text-stone-400 font-mono">
+                  Union Programs & Colloquiums ({filteredPrograms.length} Listed)
+                </p>
+              </div>
             </div>
-
-            {/* Highlights Cards (Second Image Style) */}
-            {filteredHighlights.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                {filteredHighlights.map((hl, hlIdx) => (
-                  <div
-                    key={`front-hl-${hl.id}-${hlIdx}`}
-                    onClick={() => setActiveLightboxItem(hl)}
-                    className="group bg-stone-900/90 rounded-2xl border border-stone-800/90 hover:border-emerald-500/50 hover:shadow-2xl hover:shadow-emerald-950/20 transition-all duration-300 overflow-hidden flex flex-col cursor-pointer hover:-translate-y-1"
-                  >
-                    {/* 4:3 Aspect Ratio poster/photo container */}
-                    <div className="aspect-[4/3] w-full relative overflow-hidden bg-stone-950">
-                      <img
-                        src={hl.imageUrl}
-                        alt={hl.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 select-none"
-                        loading="lazy"
-                      />
-                      {/* Gradient shadow */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/20 to-transparent" />
-
-                      {/* Top-Left Category Badge: font-mono px-2 py-0.5 rounded bg-stone-950/80 text-emerald-400 border border-emerald-500/40 */}
-                      <div className="absolute top-3 left-3 z-10">
-                        <span className="font-mono text-[10px] font-bold px-2 py-0.5 rounded bg-stone-950/80 text-emerald-400 border border-emerald-500/40 backdrop-blur-xs">
-                          {hl.category}
-                        </span>
-                      </div>
-
-                      {/* Top-Right zoom button */}
-                      <div className="absolute top-3 right-3 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <span className="p-1.5 rounded-lg bg-stone-950/80 text-emerald-300 border border-emerald-500/40 flex items-center justify-center backdrop-blur-xs">
-                          <Maximize2 className="w-3.5 h-3.5" />
-                        </span>
-                      </div>
-
-                      {/* Bottom-left Date on image: text-[11px] font-mono text-stone-300 */}
-                      <div className="absolute bottom-2.5 left-3 z-10 flex items-center gap-1.5 text-[11px] font-mono text-stone-300 font-medium">
-                        <Calendar className="w-3.5 h-3.5 text-emerald-400" />
-                        <span>{hl.date}</span>
-                      </div>
-                    </div>
-
-                    {/* Card Body */}
-                    <div className="p-4 flex-1 flex flex-col justify-between">
-                      {/* Bold Title: High-contrast readable typography */}
-                      <div>
-                        <h4 className="text-sm sm:text-base font-bold text-white group-hover:text-emerald-300 transition-colors line-clamp-2 leading-snug">
-                          {hl.title}
-                        </h4>
-                        {hl.description && (
-                          <p className="text-xs text-stone-400 line-clamp-2 mt-1.5 leading-relaxed">
-                            {hl.description}
-                          </p>
-                        )}
-                      </div>
-
-                      {/* Card Footer: Archive #{id} aur Full Lightbox -> */}
-                      <div className="pt-3 mt-3 border-t border-stone-800/80 flex items-center justify-between text-xs text-stone-400">
-                        <span className="font-mono text-[10px] text-stone-500 uppercase">
-                          Archive #{hl.id}
-                        </span>
-                        <span className="font-mono text-[11px] text-emerald-400 group-hover:text-emerald-300 font-semibold flex items-center gap-1">
-                          <span>Full Lightbox</span>
-                          <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="py-16 text-center bg-stone-900/50 rounded-2xl border border-stone-800 text-stone-400 space-y-2">
-                <Sparkles className="w-8 h-8 text-stone-600 mx-auto" />
-                <p className="text-sm font-semibold text-stone-300">No highlights match the current criteria.</p>
-                <p className="text-xs text-stone-500">Highlights uploaded by admin will appear here live.</p>
-              </div>
-            )}
+            <button
+              type="button"
+              onClick={scrollToAllPrograms}
+              className="text-xs font-mono font-semibold text-emerald-400 hover:text-emerald-300 flex items-center gap-1 underline cursor-pointer"
+            >
+              <span>View All Catalog ({programs.length})</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
           </div>
 
-          {/* ================= COLUMN 2 (RIGHT): PROGRAMS ================= */}
-          <div className="space-y-6">
-            <div className="flex items-center justify-between border-b border-stone-800 pb-3">
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-amber-950/80 border border-amber-500/40 text-amber-400 flex items-center justify-center shrink-0 shadow-sm">
-                  <Calendar className="w-4 h-4 text-amber-400" />
-                </div>
-                <div>
-                  <h3 className="text-lg sm:text-xl font-bold font-heading text-white tracking-tight">
-                    PROGRAMS
-                  </h3>
-                  <p className="text-xs text-stone-400 font-mono">
-                    Union Programs & Colloquiums
-                  </p>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={scrollToAllPrograms}
-                className="text-xs font-mono font-semibold text-emerald-400 hover:text-emerald-300 flex items-center gap-1 underline cursor-pointer"
-              >
-                <span>View All Catalog ({programs.length})</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </button>
-            </div>
+          {/* Programs Cards Grid */}
+          {filteredPrograms.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {filteredPrograms.map((prog, pIdx) => (
+                <div
+                  key={`front-prog-${prog.id}-${pIdx}`}
+                  onClick={() => setActiveLightboxItem(programToHighlightItem(prog))}
+                  className="group bg-stone-900/90 rounded-2xl border border-stone-800/90 hover:border-amber-500/50 hover:shadow-2xl hover:shadow-amber-950/20 transition-all duration-300 overflow-hidden flex flex-col cursor-pointer hover:-translate-y-1"
+                >
+                  {/* 4:3 Aspect Ratio poster/photo container */}
+                  <div className="aspect-[4/3] w-full relative overflow-hidden bg-stone-950">
+                    <img
+                      src={prog.banner}
+                      alt={prog.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 select-none"
+                      loading="lazy"
+                    />
+                    {/* Gradient shadow */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/20 to-transparent" />
 
-            {/* Programs Cards (Second Image Style) */}
-            {filteredPrograms.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                {filteredPrograms.slice(0, 6).map((prog, pIdx) => (
-                  <div
-                    key={`front-prog-${prog.id}-${pIdx}`}
-                    onClick={() => setActiveLightboxItem(programToHighlightItem(prog))}
-                    className="group bg-stone-900/90 rounded-2xl border border-stone-800/90 hover:border-amber-500/50 hover:shadow-2xl hover:shadow-amber-950/20 transition-all duration-300 overflow-hidden flex flex-col cursor-pointer hover:-translate-y-1"
-                  >
-                    {/* 4:3 Aspect Ratio poster/photo container */}
-                    <div className="aspect-[4/3] w-full relative overflow-hidden bg-stone-950">
-                      <img
-                        src={prog.banner}
-                        alt={prog.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 select-none"
-                        loading="lazy"
-                      />
-                      {/* Gradient shadow */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/20 to-transparent" />
-
-                      {/* Top-Left Category Badge: font-mono px-2 py-0.5 rounded bg-stone-950/80 text-emerald-400 border border-emerald-500/40 */}
-                      <div className="absolute top-3 left-3 z-10">
-                        <span className="font-mono text-[10px] font-bold px-2 py-0.5 rounded bg-stone-950/80 text-emerald-400 border border-emerald-500/40 backdrop-blur-xs">
-                          {prog.category}
-                        </span>
-                      </div>
-
-                      {/* Top-Right zoom button */}
-                      <div className="absolute top-3 right-3 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <span className="p-1.5 rounded-lg bg-stone-950/80 text-amber-300 border border-amber-500/40 flex items-center justify-center backdrop-blur-xs">
-                          <Maximize2 className="w-3.5 h-3.5" />
-                        </span>
-                      </div>
-
-                      {/* Bottom-left Date on image: text-[11px] font-mono text-stone-300 */}
-                      <div className="absolute bottom-2.5 left-3 z-10 flex items-center gap-1.5 text-[11px] font-mono text-stone-300 font-medium">
-                        <Calendar className="w-3.5 h-3.5 text-amber-400" />
-                        <span>{prog.date}</span>
-                      </div>
+                    {/* Top-Left Category Badge */}
+                    <div className="absolute top-3 left-3 z-10">
+                      <span className="font-mono text-[10px] font-bold px-2 py-0.5 rounded bg-stone-950/80 text-emerald-400 border border-emerald-500/40 backdrop-blur-xs">
+                        {prog.category}
+                      </span>
                     </div>
 
-                    {/* Card Body */}
-                    <div className="p-4 flex-1 flex flex-col justify-between">
-                      {/* Bold Title: High-contrast readable typography */}
-                      <div>
-                        <h4 className="text-sm sm:text-base font-bold text-white group-hover:text-amber-200 transition-colors line-clamp-2 leading-snug">
-                          {prog.title}
-                        </h4>
+                    {/* Top-Right zoom button */}
+                    <div className="absolute top-3 right-3 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <span className="p-1.5 rounded-lg bg-stone-950/80 text-amber-300 border border-amber-500/40 flex items-center justify-center backdrop-blur-xs">
+                        <Maximize2 className="w-3.5 h-3.5" />
+                      </span>
+                    </div>
+
+                    {/* Bottom-left Date on image */}
+                    <div className="absolute bottom-2.5 left-3 z-10 flex items-center gap-1.5 text-[11px] font-mono text-stone-300 font-medium">
+                      <Calendar className="w-3.5 h-3.5 text-amber-400" />
+                      <span>{prog.date}</span>
+                    </div>
+                  </div>
+
+                  {/* Card Body */}
+                  <div className="p-4 flex-1 flex flex-col justify-between">
+                    <div>
+                      <h4 className="text-sm sm:text-base font-bold text-white group-hover:text-amber-200 transition-colors line-clamp-2 leading-snug">
+                        {prog.title}
+                      </h4>
+                      {prog.venue && (
                         <div className="flex items-center gap-1.5 text-xs text-stone-400 mt-1.5 truncate">
                           <MapPin className="w-3 h-3 text-stone-500 shrink-0" />
                           <span className="truncate">{prog.venue}</span>
                         </div>
-                      </div>
+                      )}
+                      {prog.description && (
+                        <p className="text-xs text-stone-400 line-clamp-2 mt-2 leading-relaxed">
+                          {prog.description}
+                        </p>
+                      )}
+                    </div>
 
-                      {/* Card Footer: Archive #{id} aur Full Lightbox -> */}
-                      <div className="pt-3 mt-3 border-t border-stone-800/80 flex items-center justify-between text-xs text-stone-400">
-                        <span className="font-mono text-[10px] text-stone-500 uppercase">
-                          Archive #{prog.id}
-                        </span>
-                        <span className="font-mono text-[11px] text-amber-400 group-hover:text-amber-300 font-semibold flex items-center gap-1">
-                          <span>Full Lightbox</span>
-                          <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
-                        </span>
-                      </div>
+                    {/* Card Footer: Archive #{id} and Full Lightbox */}
+                    <div className="pt-3 mt-3 border-t border-stone-800/80 flex items-center justify-between text-xs text-stone-400">
+                      <span className="font-mono text-[10px] text-stone-500 uppercase">
+                        Archive #{prog.id}
+                      </span>
+                      <span className="font-mono text-[11px] text-amber-400 group-hover:text-amber-300 font-semibold flex items-center gap-1">
+                        <span>Full Lightbox</span>
+                        <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
+                      </span>
                     </div>
                   </div>
-                ))}
-              </div>
-            ) : (
-              <div className="py-16 text-center bg-stone-900/50 rounded-2xl border border-stone-800 text-stone-400 space-y-2">
-                <Calendar className="w-8 h-8 text-stone-600 mx-auto" />
-                <p className="text-sm font-semibold text-stone-300">No programs match the current criteria.</p>
-                <p className="text-xs text-stone-500">Explore the full catalog or adjust category filters.</p>
-              </div>
-            )}
-          </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="py-16 text-center bg-stone-900/50 rounded-2xl border border-stone-800 text-stone-400 space-y-2">
+              <Calendar className="w-8 h-8 text-stone-600 mx-auto" />
+              <p className="text-sm font-semibold text-stone-300">No programs match the current criteria.</p>
+              <p className="text-xs text-stone-500">Explore the full catalog or adjust category filters.</p>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Full-screen Lightbox Modal Viewer (Triggered on click of ANY Highlight or Program Card) */}
+      {/* Full-screen Lightbox Modal Viewer */}
       <LightboxModal
         isOpen={Boolean(activeLightboxItem)}
         highlight={activeLightboxItem}

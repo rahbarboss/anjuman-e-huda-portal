@@ -793,25 +793,29 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const updateWing = async (id: string, wing: Partial<Wing>): Promise<boolean> => {
+    const existing = database.wings.find((w) => w.id === id);
+    const oldChairmanPhoto = existing?.chairman?.photo || existing?.chairmanPhoto || existing?.manager?.photo;
+    const oldConvenerPhoto = existing?.convener?.photo || existing?.convenerPhoto;
+
+    const merged = existing ? { ...existing, ...wing } : (wing as Wing);
+    let finalWing: Wing = merged;
+
     if (isSupabaseConfigured) {
-      const existing = database.wings.find((w) => w.id === id);
-      const merged = existing ? { ...existing, ...wing } : (wing as Wing);
-      const res = await saveWingInSupabase(merged, id);
-      if (res.success && res.data) {
-        setDatabase((prev) => ({
-          ...prev,
-          wings: prev.wings.map((w) => (w.id === id ? res.data! : w)),
-        }));
-        return true;
+      try {
+        const res = await saveWingInSupabase(merged, id, oldChairmanPhoto, oldConvenerPhoto);
+        if (res.success && res.data) {
+          finalWing = res.data;
+        }
+      } catch (e) {
+        console.error('Supabase update wing error:', e);
       }
-      return false;
     }
 
     try {
       const res = await fetch(`/api/wings/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(wing),
+        body: JSON.stringify(finalWing),
       });
       if (res.ok) {
         const json = await res.json();
@@ -825,7 +829,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
     setDatabase((prev) => ({
       ...prev,
-      wings: prev.wings.map((w) => (w.id === id ? { ...w, ...wing } : w)),
+      wings: prev.wings.map((w) => (w.id === id ? finalWing : w)),
     }));
     return true;
   };

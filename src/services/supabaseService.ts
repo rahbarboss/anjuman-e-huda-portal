@@ -975,7 +975,9 @@ export async function deleteHighlightInSupabase(
 
 export async function saveWingInSupabase(
   wing: Wing | Omit<Wing, 'id'>,
-  id?: string
+  id?: string,
+  oldChairmanPhoto?: string,
+  oldConvenerPhoto?: string
 ): Promise<{ success: boolean; data?: Wing; message?: string }> {
   if (!supabase || !isSupabaseConfigured) {
     return { success: false, message: 'Supabase is not configured' };
@@ -985,6 +987,22 @@ export async function saveWingInSupabase(
     const wingId = id || ('id' in wing && wing.id ? wing.id : `wing_${Date.now()}`);
     const chairmanPhoto = wing.chairman?.photo || wing.chairmanPhoto || (wing as any).manager?.photo || '';
     const convenerPhoto = wing.convener?.photo || wing.convenerPhoto || '';
+
+    // If photos changed and old photos were in Supabase Storage, remove the old ones
+    if (oldChairmanPhoto && oldChairmanPhoto !== chairmanPhoto) {
+      try {
+        await deleteFromSupabaseStorage(oldChairmanPhoto, 'members');
+      } catch (err) {
+        console.warn('[Supabase Storage] Could not delete old chairman photo:', err);
+      }
+    }
+    if (oldConvenerPhoto && oldConvenerPhoto !== convenerPhoto) {
+      try {
+        await deleteFromSupabaseStorage(oldConvenerPhoto, 'members');
+      } catch (err) {
+        console.warn('[Supabase Storage] Could not delete old convener photo:', err);
+      }
+    }
 
     const chairmanObj = {
       name: wing.chairman?.name || (wing as any).manager?.name || '',

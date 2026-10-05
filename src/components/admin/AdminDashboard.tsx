@@ -80,6 +80,7 @@ import {
   ArrowUp,
   ArrowDown,
   Hash,
+  Camera,
 } from 'lucide-react';
 
 export type AdminTab =
@@ -685,6 +686,66 @@ export const AdminDashboard: React.FC = () => {
   const [editingWing, setEditingWing] = useState<Wing | null>(null);
   const [isWingModalOpen, setIsWingModalOpen] = useState(false);
   const [isAddWingModalOpen, setIsAddWingModalOpen] = useState(false);
+
+  // Quick change leader photo state (Chairman or Convener)
+  const [changeLeaderPhotoModal, setChangeLeaderPhotoModal] = useState<{
+    isOpen: boolean;
+    wing: Wing | null;
+    role: 'chairman' | 'convener';
+    newPhotoUrl: string;
+    isSaving: boolean;
+  } | null>(null);
+
+  const handleOpenChangeLeaderPhoto = (wing: Wing, role: 'chairman' | 'convener') => {
+    const currentPhoto =
+      role === 'chairman'
+        ? wing.chairman?.photo || wing.chairmanPhoto || wing.manager?.photo || ''
+        : wing.convener?.photo || wing.convenerPhoto || '';
+    setChangeLeaderPhotoModal({
+      isOpen: true,
+      wing,
+      role,
+      newPhotoUrl: currentPhoto,
+      isSaving: false,
+    });
+  };
+
+  const handleSaveChangedLeaderPhoto = async () => {
+    if (!changeLeaderPhotoModal || !changeLeaderPhotoModal.wing) return;
+    const { wing, role, newPhotoUrl } = changeLeaderPhotoModal;
+    setChangeLeaderPhotoModal((prev) => (prev ? { ...prev, isSaving: true } : null));
+
+    try {
+      if (role === 'chairman') {
+        const updatedChairman = {
+          name: wing.chairman?.name || wing.manager?.name || '',
+          contact: wing.chairman?.contact || wing.manager?.contact || '',
+          photo: newPhotoUrl,
+        };
+        await updateWing(wing.id, {
+          chairman: updatedChairman,
+          chairmanPhoto: newPhotoUrl,
+          manager: updatedChairman,
+        });
+        showToast(`Chairman photo for "${wing.name}" replaced & saved in Supabase.`);
+      } else {
+        const updatedConvener = {
+          name: wing.convener?.name || '',
+          contact: wing.convener?.contact || '',
+          photo: newPhotoUrl,
+        };
+        await updateWing(wing.id, {
+          convener: updatedConvener,
+          convenerPhoto: newPhotoUrl,
+        });
+        showToast(`Convener photo for "${wing.name}" replaced & saved in Supabase.`);
+      }
+      setChangeLeaderPhotoModal(null);
+    } catch (err: any) {
+      showToast(err.message || 'Error updating leader photo in Supabase');
+      setChangeLeaderPhotoModal((prev) => (prev ? { ...prev, isSaving: false } : null));
+    }
+  };
 
   const [newWingForm, setNewWingForm] = useState({
     name: '',
@@ -3026,32 +3087,32 @@ export const AdminDashboard: React.FC = () => {
                     </p>
                   </div>
 
-                  <div className="flex items-center gap-2">
-                    {wingSubTab === 'wings' ? (
+                  <div className="flex flex-wrap items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => handleOpenAddCoreCommitteeProgram()}
+                      className="px-4 py-2 bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-stone-950 rounded-xl text-xs font-black flex items-center gap-1.5 cursor-pointer shadow-md shadow-amber-950/40 transition-transform active:scale-95"
+                    >
+                      <Crown className="w-4 h-4 text-stone-950" />
+                      <span>Upload Core Committee Program</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleOpenAddWingProgram()}
+                      className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow"
+                    >
+                      <Plus className="w-4 h-4" />
+                      <span>Record Wing Program</span>
+                    </button>
+                    {wingSubTab === 'wings' && (
                       <button
+                        type="button"
                         onClick={() => setIsAddWingModalOpen(true)}
-                        className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 cursor-pointer shadow"
+                        className="px-3.5 py-2 bg-stone-800 hover:bg-stone-700 text-stone-300 rounded-xl text-xs font-semibold flex items-center gap-1.5 cursor-pointer border border-stone-700 transition-colors"
                       >
                         <Plus className="w-4 h-4" />
                         <span>Add New Wing</span>
                       </button>
-                    ) : (
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => handleOpenAddCoreCommitteeProgram()}
-                          className="px-4 py-2 bg-linear-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-stone-950 rounded-xl text-xs font-extrabold flex items-center gap-1.5 cursor-pointer shadow-md shadow-amber-950/40"
-                        >
-                          <Crown className="w-4 h-4 text-stone-950" />
-                          <span>Upload Core Committee Program</span>
-                        </button>
-                        <button
-                          onClick={() => handleOpenAddWingProgram()}
-                          className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow"
-                        >
-                          <Plus className="w-4 h-4" />
-                          <span>Record Wing Program</span>
-                        </button>
-                      </div>
                     )}
                   </div>
                 </div>
@@ -3088,10 +3149,78 @@ export const AdminDashboard: React.FC = () => {
                 {/* ================= SUB-TAB 1: WINGS & PORTFOLIOS ================= */}
                 {wingSubTab === 'wings' && (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Special Highlighted Card: Core Committee Apex Executive */}
+                    {(() => {
+                      const coreProgramsCount = allWPs.filter(
+                        (wp) => wp.wingId === 'core-committee' || wp.wingName?.toLowerCase() === 'core committee'
+                      ).length;
+
+                      return (
+                        <div className="p-5 bg-gradient-to-br from-amber-950/40 via-stone-900 to-stone-950 border-2 border-amber-500/50 rounded-2xl flex flex-col justify-between space-y-4 shadow-xl shadow-amber-950/20 md:col-span-2 relative overflow-hidden">
+                          <div className="space-y-2">
+                            <div className="flex items-center justify-between flex-wrap gap-2">
+                              <div className="flex items-center gap-2">
+                                <span className="px-2.5 py-1 rounded-lg bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[11px] font-mono font-black flex items-center gap-1.5">
+                                  <Crown className="w-3.5 h-3.5 text-amber-400" />
+                                  APEX EXECUTIVE COUNCIL • 2026-27
+                                </span>
+                                <span className="px-2 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800 text-[10px] font-mono font-bold">
+                                  Central Markazi Majlis
+                                </span>
+                              </div>
+                              <span className="text-xs text-amber-300 font-mono px-2.5 py-1 rounded-lg bg-stone-950 border border-amber-500/40 font-extrabold flex items-center gap-1.5">
+                                <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                                {coreProgramsCount} Core Committee Programs Logged
+                              </span>
+                            </div>
+
+                            <h4 className="text-base sm:text-lg font-black text-amber-200 flex items-center gap-2">
+                              <span>Core Committee (Markazi Majlis-e-Amila)</span>
+                            </h4>
+                            <p className="text-xs text-stone-300 leading-relaxed max-w-3xl">
+                              Supreme collegiate council governing campus-wide presidential colloquiums, grand annual conventions, central assemblies, and core initiatives. Highlighted directly as the first column on the portal.
+                            </p>
+                          </div>
+
+                          <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-amber-500/20">
+                            <div className="flex items-center gap-2.5">
+                              <button
+                                type="button"
+                                onClick={() => handleOpenAddCoreCommitteeProgram()}
+                                className="px-4 py-2 bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-stone-950 rounded-xl text-xs font-black flex items-center gap-1.5 cursor-pointer shadow-md shadow-amber-950/40 transition-transform active:scale-95"
+                              >
+                                <Crown className="w-4 h-4 text-stone-950" />
+                                <span>+ Upload Core Committee Program</span>
+                              </button>
+
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setAdminWingFilter('core-committee');
+                                  setWingSubTab('programs');
+                                }}
+                                className="px-3 py-2 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-200 text-xs font-semibold border border-stone-700 flex items-center gap-1.5 cursor-pointer transition-colors"
+                              >
+                                <Calendar className="w-3.5 h-3.5 text-amber-400" />
+                                <span>View Core Programs ({coreProgramsCount})</span>
+                              </button>
+                            </div>
+
+                            <span className="text-[11px] text-amber-400/90 font-mono font-medium">
+                              ★ Highlighted in dedicated Core Committee column on website
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })()}
+
                     {database.wings.map((wing, idx) => {
                       const countForThisWing = allWPs.filter(
                         (wp) => wp.wingId === wing.id || wp.wingName?.toLowerCase() === wing.name.toLowerCase()
                       ).length;
+
+                      const chairmanPhoto = wing.chairman?.photo || wing.chairmanPhoto || wing.manager?.photo || '';
+                      const convenerPhoto = wing.convener?.photo || wing.convenerPhoto || '';
 
                       return (
                         <div
@@ -3115,17 +3244,28 @@ export const AdminDashboard: React.FC = () => {
                             </p>
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1 text-xs">
-                              <div className="p-3 bg-stone-950 rounded-xl border border-stone-800 flex items-center gap-3">
-                                <div className="w-14 h-18 sm:w-16 sm:h-20 rounded-xl bg-stone-900 border-2 border-emerald-500/40 overflow-hidden shrink-0 flex items-center justify-center shadow-md">
-                                  {wing.chairman?.photo || wing.chairmanPhoto || wing.manager?.photo ? (
+                              {/* CHAIRMAN CARD WITH DIRECT PHOTO CHANGE OPTION */}
+                              <div className="p-3 bg-stone-950 rounded-xl border border-stone-800 flex items-center gap-3 relative group">
+                                <div className="w-14 h-18 sm:w-16 sm:h-20 rounded-xl bg-stone-900 border-2 border-emerald-500/40 overflow-hidden shrink-0 flex items-center justify-center shadow-md relative group/photo">
+                                  {chairmanPhoto ? (
                                     <img
-                                      src={wing.chairman?.photo || wing.chairmanPhoto || wing.manager?.photo}
+                                      src={chairmanPhoto}
                                       alt="Chairman"
                                       className="w-full h-full object-cover object-top"
                                     />
                                   ) : (
                                     <User className="w-6 h-6 text-emerald-500/50" />
                                   )}
+                                  {/* Quick Hover Overlay to change photo */}
+                                  <button
+                                    type="button"
+                                    onClick={() => handleOpenChangeLeaderPhoto(wing, 'chairman')}
+                                    title="Click to Change Chairman Photo in Supabase"
+                                    className="absolute inset-0 bg-black/75 opacity-0 group-hover/photo:opacity-100 flex flex-col items-center justify-center text-white text-[9px] font-bold transition-opacity cursor-pointer p-1 text-center"
+                                  >
+                                    <Camera className="w-4 h-4 text-emerald-400 mb-0.5" />
+                                    <span>Change Photo</span>
+                                  </button>
                                 </div>
                                 <div className="min-w-0 flex-1">
                                   <span className="text-[10px] font-mono text-emerald-400 font-bold block mb-1">CHAIRMAN</span>
@@ -3135,20 +3275,41 @@ export const AdminDashboard: React.FC = () => {
                                   <span className="text-[11px] text-stone-400 truncate block mt-0.5">
                                     {wing.chairman?.contact || wing.manager?.contact || 'chairman@anjuman.edu'}
                                   </span>
+                                  {/* Direct Change Button */}
+                                  <button
+                                    type="button"
+                                    onClick={() => handleOpenChangeLeaderPhoto(wing, 'chairman')}
+                                    className="mt-2 text-[10px] font-semibold text-emerald-400 hover:text-emerald-300 bg-emerald-950/70 hover:bg-emerald-900/80 border border-emerald-700/60 px-2 py-0.5 rounded-md flex items-center gap-1 cursor-pointer transition-colors w-fit"
+                                    title="Replace Chairman Photo URL in Supabase"
+                                  >
+                                    <Camera className="w-3 h-3 text-emerald-400" />
+                                    <span>Change Photo</span>
+                                  </button>
                                 </div>
                               </div>
 
-                              <div className="p-3 bg-stone-950 rounded-xl border border-stone-800 flex items-center gap-3">
-                                <div className="w-14 h-18 sm:w-16 sm:h-20 rounded-xl bg-stone-900 border-2 border-amber-500/40 overflow-hidden shrink-0 flex items-center justify-center shadow-md">
-                                  {wing.convener?.photo || wing.convenerPhoto ? (
+                              {/* CONVENER CARD WITH DIRECT PHOTO CHANGE OPTION */}
+                              <div className="p-3 bg-stone-950 rounded-xl border border-stone-800 flex items-center gap-3 relative group">
+                                <div className="w-14 h-18 sm:w-16 sm:h-20 rounded-xl bg-stone-900 border-2 border-amber-500/40 overflow-hidden shrink-0 flex items-center justify-center shadow-md relative group/photo">
+                                  {convenerPhoto ? (
                                     <img
-                                      src={wing.convener?.photo || wing.convenerPhoto}
+                                      src={convenerPhoto}
                                       alt="Convener"
                                       className="w-full h-full object-cover object-top"
                                     />
                                   ) : (
                                     <UserCheck className="w-6 h-6 text-amber-500/50" />
                                   )}
+                                  {/* Quick Hover Overlay to change photo */}
+                                  <button
+                                    type="button"
+                                    onClick={() => handleOpenChangeLeaderPhoto(wing, 'convener')}
+                                    title="Click to Change Convener Photo in Supabase"
+                                    className="absolute inset-0 bg-black/75 opacity-0 group-hover/photo:opacity-100 flex flex-col items-center justify-center text-white text-[9px] font-bold transition-opacity cursor-pointer p-1 text-center"
+                                  >
+                                    <Camera className="w-4 h-4 text-amber-400 mb-0.5" />
+                                    <span>Change Photo</span>
+                                  </button>
                                 </div>
                                 <div className="min-w-0 flex-1">
                                   <span className="text-[10px] font-mono text-amber-400 font-bold block mb-1">CONVENER</span>
@@ -3156,6 +3317,16 @@ export const AdminDashboard: React.FC = () => {
                                   <span className="text-[11px] text-stone-400 truncate block mt-0.5">
                                     {wing.convener?.contact || 'convener@anjuman.edu'}
                                   </span>
+                                  {/* Direct Change Button */}
+                                  <button
+                                    type="button"
+                                    onClick={() => handleOpenChangeLeaderPhoto(wing, 'convener')}
+                                    className="mt-2 text-[10px] font-semibold text-amber-400 hover:text-amber-300 bg-amber-950/70 hover:bg-amber-900/80 border border-amber-700/60 px-2 py-0.5 rounded-md flex items-center gap-1 cursor-pointer transition-colors w-fit"
+                                    title="Replace Convener Photo URL in Supabase"
+                                  >
+                                    <Camera className="w-3 h-3 text-amber-400" />
+                                    <span>Change Photo</span>
+                                  </button>
                                 </div>
                               </div>
                             </div>
@@ -4730,6 +4901,145 @@ export const AdminDashboard: React.FC = () => {
         </div>
       )}
 
+      {/* ================= MODAL: QUICK CHANGE LEADER PHOTO ================= */}
+      {changeLeaderPhotoModal && changeLeaderPhotoModal.isOpen && changeLeaderPhotoModal.wing && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm">
+          <div className="bg-stone-900 border border-stone-700 rounded-2xl p-6 w-full max-w-md shadow-2xl text-stone-100 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between pb-3 border-b border-stone-800">
+              <div className="flex items-center gap-2.5">
+                <div
+                  className={`p-2 rounded-xl ${
+                    changeLeaderPhotoModal.role === 'chairman'
+                      ? 'bg-emerald-950 text-emerald-400 border border-emerald-800'
+                      : 'bg-amber-950 text-amber-400 border border-amber-800'
+                  }`}
+                >
+                  <Camera className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-white">
+                    Change {changeLeaderPhotoModal.role === 'chairman' ? 'Chairman' : 'Convener'} Photo
+                  </h3>
+                  <p className="text-xs text-stone-400">
+                    {changeLeaderPhotoModal.wing.name}
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setChangeLeaderPhotoModal(null)}
+                className="p-1 rounded-lg text-stone-400 hover:text-white hover:bg-stone-800 cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-4 pt-4">
+              {/* Leader Details Card */}
+              <div className="p-3.5 rounded-xl bg-stone-950 border border-stone-800 flex items-center justify-between text-xs">
+                <div>
+                  <span className="text-[10px] font-mono uppercase text-stone-400 block mb-0.5">
+                    Assigned Officer
+                  </span>
+                  <span className="text-sm font-bold text-white block">
+                    {changeLeaderPhotoModal.role === 'chairman'
+                      ? changeLeaderPhotoModal.wing.chairman?.name ||
+                        changeLeaderPhotoModal.wing.manager?.name ||
+                        'Current Chairman'
+                      : changeLeaderPhotoModal.wing.convener.name || 'Current Convener'}
+                  </span>
+                  <span className="text-[11px] text-stone-400 font-mono">
+                    {changeLeaderPhotoModal.role === 'chairman'
+                      ? changeLeaderPhotoModal.wing.chairman?.contact ||
+                        changeLeaderPhotoModal.wing.manager?.contact ||
+                        'chairman@anjuman.edu'
+                      : changeLeaderPhotoModal.wing.convener?.contact || 'convener@anjuman.edu'}
+                  </span>
+                </div>
+                <span
+                  className={`px-2.5 py-1 rounded-md text-[10px] font-mono font-bold uppercase tracking-wider ${
+                    changeLeaderPhotoModal.role === 'chairman'
+                      ? 'bg-emerald-950 text-emerald-400 border border-emerald-800'
+                      : 'bg-amber-950 text-amber-400 border border-amber-800'
+                  }`}
+                >
+                  {changeLeaderPhotoModal.role}
+                </span>
+              </div>
+
+              {/* Upload Component with instant preview */}
+              <div>
+                <label className="block text-xs font-semibold text-stone-300 mb-1.5">
+                  Upload Passport Photo (Auto-saved to Supabase & Database):
+                </label>
+                <MediaUploadZone
+                  bucket="members"
+                  label={`Upload New ${changeLeaderPhotoModal.role === 'chairman' ? 'Chairman' : 'Convener'} Photo`}
+                  currentUrl={changeLeaderPhotoModal.newPhotoUrl}
+                  onUploadSuccess={(url) => {
+                    setChangeLeaderPhotoModal((prev) => (prev ? { ...prev, newPhotoUrl: url } : null));
+                    showToast('Photo uploaded to Supabase Storage!');
+                  }}
+                />
+              </div>
+
+              {/* Manual URL input fallback */}
+              <div>
+                <label className="block text-[11px] font-medium text-stone-400 mb-1">
+                  Or Paste Direct Image URL:
+                </label>
+                <input
+                  type="url"
+                  placeholder="https://... or /uploads/..."
+                  value={changeLeaderPhotoModal.newPhotoUrl}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setChangeLeaderPhotoModal((prev) => (prev ? { ...prev, newPhotoUrl: val } : null));
+                  }}
+                  className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
+                />
+              </div>
+
+              <div className="p-2.5 rounded-xl bg-emerald-950/40 border border-emerald-800/40 text-[11px] text-emerald-300 flex items-start gap-2">
+                <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-400 mt-0.5" />
+                <span>
+                  Replacing this photo will automatically update the URL in Supabase database & storage, and update both the website wings section and leadership archives.
+                </span>
+              </div>
+
+              {/* Actions */}
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-stone-800">
+                <button
+                  type="button"
+                  onClick={() => setChangeLeaderPhotoModal(null)}
+                  className="px-4 py-2 bg-stone-800 hover:bg-stone-700 text-stone-300 rounded-xl text-xs font-semibold cursor-pointer transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  disabled={changeLeaderPhotoModal.isSaving || !changeLeaderPhotoModal.newPhotoUrl}
+                  onClick={handleSaveChangedLeaderPhoto}
+                  className="px-5 py-2 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 disabled:opacity-50 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow transition-all"
+                >
+                  {changeLeaderPhotoModal.isSaving ? (
+                    <>
+                      <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                      <span>Updating Supabase...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Save className="w-3.5 h-3.5" />
+                      <span>Save & Replace in Supabase</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ================= MODAL: EDIT WING & HISTORY ================= */}
       {isWingModalOpen && editingWing && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm">
@@ -4813,6 +5123,29 @@ export const AdminDashboard: React.FC = () => {
                         showToast('Chairman passport photo uploaded.');
                       }}
                     />
+                    <div className="mt-2">
+                      <label className="block text-[10px] text-stone-400 mb-0.5">Or Chairman Photo URL</label>
+                      <input
+                        type="url"
+                        placeholder="https://... or /uploads/..."
+                        value={editingWing.chairman?.photo || editingWing.chairmanPhoto || editingWing.manager?.photo || ''}
+                        onChange={(e) => {
+                          const url = e.target.value;
+                          const updated = {
+                            name: editingWing.chairman?.name || editingWing.manager?.name || '',
+                            contact: editingWing.chairman?.contact || editingWing.manager?.contact || '',
+                            photo: url,
+                          };
+                          setEditingWing({
+                            ...editingWing,
+                            chairman: updated,
+                            chairmanPhoto: url,
+                            manager: updated,
+                          });
+                        }}
+                        className="w-full bg-stone-900 border border-stone-700 rounded-xl px-2.5 py-1 text-xs text-white"
+                      />
+                    </div>
                   </div>
                 </div>
 
@@ -4878,6 +5211,27 @@ export const AdminDashboard: React.FC = () => {
                         showToast('Convener passport photo uploaded.');
                       }}
                     />
+                    <div className="mt-2">
+                      <label className="block text-[10px] text-stone-400 mb-0.5">Or Convener Photo URL</label>
+                      <input
+                        type="url"
+                        placeholder="https://... or /uploads/..."
+                        value={editingWing.convener?.photo || editingWing.convenerPhoto || ''}
+                        onChange={(e) => {
+                          const url = e.target.value;
+                          setEditingWing({
+                            ...editingWing,
+                            convener: {
+                              name: editingWing.convener.name,
+                              contact: editingWing.convener?.contact || '',
+                              photo: url,
+                            },
+                            convenerPhoto: url,
+                          });
+                        }}
+                        className="w-full bg-stone-900 border border-stone-700 rounded-xl px-2.5 py-1 text-xs text-white"
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -5605,11 +5959,26 @@ export const AdminDashboard: React.FC = () => {
                   <Calendar className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-white">
-                    {editingWingProgram ? 'Edit Conducted Wing Program' : 'Record Conducted Wing Program'}
+                  <h3 className="text-base font-bold text-white flex items-center gap-2">
+                    <span>
+                      {wingProgramForm.wingId === 'core-committee'
+                        ? editingWingProgram
+                          ? 'Edit Core Committee Program'
+                          : 'Upload Core Committee Program'
+                        : editingWingProgram
+                        ? 'Edit Conducted Wing Program'
+                        : 'Record Conducted Wing Program'}
+                    </span>
+                    {wingProgramForm.wingId === 'core-committee' && (
+                      <span className="px-2 py-0.5 rounded-full bg-amber-400 text-stone-950 text-[10px] font-mono font-black uppercase shadow-xs">
+                        Apex Program
+                      </span>
+                    )}
                   </h3>
                   <p className="text-xs text-stone-400">
-                    Archive program name, target class/audience, and date for future committee records
+                    {wingProgramForm.wingId === 'core-committee'
+                      ? 'Upload program directly to the highlighted Core Committee column on the portal'
+                      : 'Archive program name, target class/audience, and date for future committee records'}
                   </p>
                 </div>
               </div>
