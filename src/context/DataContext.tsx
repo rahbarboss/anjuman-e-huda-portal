@@ -259,15 +259,11 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const deletePillar = async (id: string): Promise<boolean> => {
     if (isSupabaseConfigured) {
-      const res = await deletePillarInSupabase(id);
-      if (res.success) {
-        setDatabase((prev) => ({
-          ...prev,
-          pillars: (prev.pillars || []).filter((p) => p.id !== id),
-        }));
-        return true;
+      try {
+        await deletePillarInSupabase(id);
+      } catch (e) {
+        console.error('Supabase delete pillar error:', e);
       }
-      return false;
     }
 
     try {
@@ -401,30 +397,20 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const deleteLeader = async (id: string): Promise<boolean> => {
     if (isSupabaseConfigured) {
-      const existing = database.leaders.find((l) => l.id === id);
-      const res = await deleteLeaderInSupabase(id, existing?.photo);
-      if (res.success) {
-        setDatabase((prev) => ({
-          ...prev,
-          leaders: prev.leaders.filter((l) => l.id !== id),
-        }));
-        return true;
+      try {
+        const existing = database.leaders.find((l) => l.id === id);
+        await deleteLeaderInSupabase(id, existing?.photo);
+      } catch (e) {
+        console.error('Supabase delete leader error:', e);
       }
-      return false;
     }
 
     try {
-      const res = await fetch(`/api/leaders/${id}`, { method: 'DELETE' });
-      if (res.ok) {
-        const json = await res.json();
-        if (json.leaders) {
-          setDatabase((prev) => ({ ...prev, leaders: json.leaders }));
-          return true;
-        }
-      }
+      await fetch(`/api/leaders/${id}`, { method: 'DELETE' });
     } catch (err) {
       console.error(err);
     }
+
     setDatabase((prev) => ({
       ...prev,
       leaders: prev.leaders.filter((l) => l.id !== id),
@@ -558,30 +544,20 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const deleteProgram = async (id: string): Promise<boolean> => {
     if (isSupabaseConfigured) {
-      const existing = database.programs.find((p) => p.id === id);
-      const res = await deleteProgramInSupabase(id, existing?.banner);
-      if (res.success) {
-        setDatabase((prev) => ({
-          ...prev,
-          programs: prev.programs.filter((p) => p.id !== id),
-        }));
-        return true;
+      try {
+        const existing = database.programs.find((p) => p.id === id);
+        await deleteProgramInSupabase(id, existing?.banner);
+      } catch (e) {
+        console.error('Supabase delete program error:', e);
       }
-      return false;
     }
 
     try {
-      const res = await fetch(`/api/programs/${id}`, { method: 'DELETE' });
-      if (res.ok) {
-        const json = await res.json();
-        if (json.programs) {
-          setDatabase((prev) => ({ ...prev, programs: json.programs }));
-          return true;
-        }
-      }
+      await fetch(`/api/programs/${id}`, { method: 'DELETE' });
     } catch (err) {
       console.error(err);
     }
+
     setDatabase((prev) => ({
       ...prev,
       programs: prev.programs.filter((p) => p.id !== id),
@@ -664,30 +640,20 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const deleteAnnouncement = async (id: string): Promise<boolean> => {
     if (isSupabaseConfigured) {
-      const existing = database.announcements.find((a) => a.id === id);
-      const res = await deleteAnnouncementInSupabase(id, existing?.fileUrl, existing?.imageUrl);
-      if (res.success) {
-        setDatabase((prev) => ({
-          ...prev,
-          announcements: prev.announcements.filter((a) => a.id !== id),
-        }));
-        return true;
+      try {
+        const existing = database.announcements.find((a) => a.id === id);
+        await deleteAnnouncementInSupabase(id, existing?.fileUrl, existing?.imageUrl);
+      } catch (e) {
+        console.error('Supabase delete announcement error:', e);
       }
-      return false;
     }
 
     try {
-      const res = await fetch(`/api/announcements/${id}`, { method: 'DELETE' });
-      if (res.ok) {
-        const json = await res.json();
-        if (json.announcements) {
-          setDatabase((prev) => ({ ...prev, announcements: json.announcements }));
-          return true;
-        }
-      }
+      await fetch(`/api/announcements/${id}`, { method: 'DELETE' });
     } catch (err) {
       console.error(err);
     }
+
     setDatabase((prev) => ({
       ...prev,
       announcements: prev.announcements.filter((a) => a.id !== id),
@@ -770,30 +736,20 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const deleteHighlight = async (id: string): Promise<boolean> => {
     if (isSupabaseConfigured) {
-      const existing = database.highlights.find((h) => h.id === id);
-      const res = await deleteHighlightInSupabase(id, existing?.imageUrl);
-      if (res.success) {
-        setDatabase((prev) => ({
-          ...prev,
-          highlights: prev.highlights.filter((h) => h.id !== id),
-        }));
-        return true;
+      try {
+        const existing = database.highlights.find((h) => h.id === id);
+        await deleteHighlightInSupabase(id, existing?.imageUrl);
+      } catch (e) {
+        console.error('Supabase delete highlight error:', e);
       }
-      return false;
     }
 
     try {
-      const res = await fetch(`/api/highlights/${id}`, { method: 'DELETE' });
-      if (res.ok) {
-        const json = await res.json();
-        if (json.highlights) {
-          setDatabase((prev) => ({ ...prev, highlights: json.highlights }));
-          return true;
-        }
-      }
+      await fetch(`/api/highlights/${id}`, { method: 'DELETE' });
     } catch (err) {
       console.error(err);
     }
+
     setDatabase((prev) => ({
       ...prev,
       highlights: prev.highlights.filter((h) => h.id !== id),
@@ -877,33 +833,23 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const deleteWing = async (id: string): Promise<boolean> => {
     const existing = database.wings.find((w) => w.id === id);
     if (isSupabaseConfigured) {
-      const res = await deleteWingInSupabase(
-        id,
-        existing?.chairman?.photo || existing?.chairmanPhoto,
-        existing?.convener?.photo || existing?.convenerPhoto
-      );
-      if (res.success) {
-        setDatabase((prev) => ({
-          ...prev,
-          wings: prev.wings.filter((w) => w.id !== id),
-        }));
-        return true;
+      try {
+        await deleteWingInSupabase(
+          id,
+          existing?.chairman?.photo || existing?.chairmanPhoto,
+          existing?.convener?.photo || existing?.convenerPhoto
+        );
+      } catch (e) {
+        console.error('Supabase delete wing error:', e);
       }
-      return false;
     }
 
     try {
-      const res = await fetch(`/api/wings/${id}`, { method: 'DELETE' });
-      if (res.ok) {
-        const json = await res.json();
-        if (json.wings) {
-          setDatabase((prev) => ({ ...prev, wings: json.wings }));
-          return true;
-        }
-      }
+      await fetch(`/api/wings/${id}`, { method: 'DELETE' });
     } catch (err) {
       console.error(err);
     }
+
     setDatabase((prev) => ({
       ...prev,
       wings: prev.wings.filter((w) => w.id !== id),
@@ -916,25 +862,37 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   ========================================================================= */
 
   const addWingProgram = async (program: Omit<WingProgram, 'id'>): Promise<boolean> => {
+    let savedProgram: WingProgram | null = null;
+
     if (isSupabaseConfigured) {
-      const res = await saveWingProgramInSupabase(program);
-      if (res.success && res.data) {
-        setDatabase((prev) => ({
-          ...prev,
-          wingPrograms: [res.data!, ...(prev.wingPrograms || [])],
-        }));
-        return true;
+      try {
+        const res = await saveWingProgramInSupabase(program);
+        if (res.success && res.data) {
+          savedProgram = res.data;
+        }
+      } catch (e) {
+        console.error('Supabase add wing program error:', e);
       }
-      return false;
     }
 
-    const newProg: WingProgram = {
+    const payload = savedProgram || {
       ...program,
       id: `wprog_${Date.now()}`,
     };
+
+    try {
+      await fetch('/api/wing-programs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+    } catch (err) {
+      console.error(err);
+    }
+
     setDatabase((prev) => ({
       ...prev,
-      wingPrograms: [newProg, ...(prev.wingPrograms || [])],
+      wingPrograms: [payload, ...(prev.wingPrograms || [])],
     }));
     return true;
   };
@@ -944,37 +902,49 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (!existing) return false;
 
     const merged = { ...existing, ...program };
+    let finalProgram: WingProgram = merged;
 
     if (isSupabaseConfigured) {
-      const res = await saveWingProgramInSupabase(merged, id);
-      if (res.success && res.data) {
-        setDatabase((prev) => ({
-          ...prev,
-          wingPrograms: (prev.wingPrograms || []).map((wp) => (wp.id === id ? res.data! : wp)),
-        }));
-        return true;
+      try {
+        const res = await saveWingProgramInSupabase(merged, id);
+        if (res.success && res.data) {
+          finalProgram = res.data;
+        }
+      } catch (e) {
+        console.error('Supabase update wing program error:', e);
       }
-      return false;
+    }
+
+    try {
+      await fetch(`/api/wing-programs/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(finalProgram),
+      });
+    } catch (err) {
+      console.error(err);
     }
 
     setDatabase((prev) => ({
       ...prev,
-      wingPrograms: (prev.wingPrograms || []).map((wp) => (wp.id === id ? merged : wp)),
+      wingPrograms: (prev.wingPrograms || []).map((wp) => (wp.id === id ? finalProgram : wp)),
     }));
     return true;
   };
 
   const deleteWingProgram = async (id: string): Promise<boolean> => {
     if (isSupabaseConfigured) {
-      const res = await deleteWingProgramInSupabase(id);
-      if (res.success) {
-        setDatabase((prev) => ({
-          ...prev,
-          wingPrograms: (prev.wingPrograms || []).filter((wp) => wp.id !== id),
-        }));
-        return true;
+      try {
+        await deleteWingProgramInSupabase(id);
+      } catch (e) {
+        console.error('Supabase delete wing program error:', e);
       }
-      return false;
+    }
+
+    try {
+      await fetch(`/api/wing-programs/${id}`, { method: 'DELETE' });
+    } catch (err) {
+      console.error(err);
     }
 
     setDatabase((prev) => ({
@@ -1062,30 +1032,21 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const deleteNIICSInCharge = async (id: string): Promise<boolean> => {
     if (isSupabaseConfigured) {
-      const existing = (database.niicsInCharge || []).find((n) => n.id === id);
-      const res = await deleteNIICSInChargeInSupabase(id, existing?.photo);
-      if (res.success) {
-        setDatabase((prev) => ({
-          ...prev,
-          niicsInCharge: (prev.niicsInCharge || []).filter((n) => n.id !== id),
-        }));
-        return true;
+      try {
+        const existing = (database.niicsInCharge || []).find((n) => n.id === id);
+        await deleteNIICSInChargeInSupabase(id, existing?.photo);
+      } catch (e) {
+        console.error('Supabase delete NIICS in-charge error:', e);
       }
-      return false;
     }
 
     try {
-      const res = await fetch(`/api/niics/${id}`, { method: 'DELETE' });
-      if (res.ok) {
-        const json = await res.json();
-        if (json.niicsInCharge) {
-          setDatabase((prev) => ({ ...prev, niicsInCharge: json.niicsInCharge }));
-          return true;
-        }
-      }
+      await fetch(`/api/niics/${id}`, { method: 'DELETE' });
+      await fetch(`/api/niics-incharge/${id}`, { method: 'DELETE' });
     } catch (err) {
       console.error(err);
     }
+
     setDatabase((prev) => ({
       ...prev,
       niicsInCharge: (prev.niicsInCharge || []).filter((n) => n.id !== id),

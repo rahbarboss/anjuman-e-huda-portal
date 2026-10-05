@@ -823,10 +823,31 @@ export const AdminDashboard: React.FC = () => {
     setIsWingProgramModalOpen(true);
   };
 
+  const handleOpenAddCoreCommitteeProgram = () => {
+    setEditingWingProgram(null);
+    setWingProgramForm({
+      id: '',
+      wingId: 'core-committee',
+      wingName: 'Core Committee',
+      title: '',
+      targetClass: 'All Campus Students & Scholars',
+      date: new Date().toISOString().split('T')[0],
+      academicYear: '2026-27',
+      month: 'October',
+      venue: 'Central Secretariat Quadrangle',
+      description: '',
+      status: 'Completed',
+    });
+    setIsWingProgramModalOpen(true);
+  };
+
   const handleSaveWingProgram = async (e: React.FormEvent) => {
     e.preventDefault();
     const selectedWing = database.wings.find((w) => w.id === wingProgramForm.wingId);
-    const finalWingName = selectedWing?.name || wingProgramForm.wingName;
+    const finalWingName =
+      wingProgramForm.wingId === 'core-committee'
+        ? 'Core Committee'
+        : selectedWing?.name || wingProgramForm.wingName || 'Specialized Wing';
 
     let month = wingProgramForm.month;
     if (wingProgramForm.date) {
@@ -3015,13 +3036,22 @@ export const AdminDashboard: React.FC = () => {
                         <span>Add New Wing</span>
                       </button>
                     ) : (
-                      <button
-                        onClick={() => handleOpenAddWingProgram()}
-                        className="px-4 py-2 bg-amber-400 hover:bg-amber-300 text-stone-950 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow"
-                      >
-                        <Plus className="w-4 h-4" />
-                        <span>Record Wing Program</span>
-                      </button>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => handleOpenAddCoreCommitteeProgram()}
+                          className="px-4 py-2 bg-linear-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-stone-950 rounded-xl text-xs font-extrabold flex items-center gap-1.5 cursor-pointer shadow-md shadow-amber-950/40"
+                        >
+                          <Crown className="w-4 h-4 text-stone-950" />
+                          <span>Upload Core Committee Program</span>
+                        </button>
+                        <button
+                          onClick={() => handleOpenAddWingProgram()}
+                          className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow"
+                        >
+                          <Plus className="w-4 h-4" />
+                          <span>Record Wing Program</span>
+                        </button>
+                      </div>
                     )}
                   </div>
                 </div>
@@ -3203,7 +3233,8 @@ export const AdminDashboard: React.FC = () => {
                             onChange={(e) => setAdminWingFilter(e.target.value)}
                             className="w-full bg-stone-950 border border-stone-700 rounded-xl px-2.5 py-1.5 text-xs text-white focus:border-emerald-500 focus:outline-none"
                           >
-                            <option value="All">All Operational Wings</option>
+                            <option value="All">All Wings & Core Committee</option>
+                            <option value="core-committee">★ Core Committee (Apex Executive)</option>
                             {database.wings.map((w) => (
                               <option key={`flt-w-${w.id}`} value={w.id}>
                                 {w.name} ({w.shortName})
@@ -5595,22 +5626,32 @@ export const AdminDashboard: React.FC = () => {
               {/* Specialized Wing Selection */}
               <div>
                 <label className="block text-xs font-semibold text-stone-300 mb-1">
-                  Select Specialized Wing <span className="text-emerald-400">*</span>
+                  Select Specialized Wing or Executive Council <span className="text-emerald-400">*</span>
                 </label>
                 <select
                   required
                   value={wingProgramForm.wingId}
                   onChange={(e) => {
-                    const selWing = database.wings.find((w) => w.id === e.target.value);
-                    setWingProgramForm((prev) => ({
-                      ...prev,
-                      wingId: e.target.value,
-                      wingName: selWing?.name || '',
-                      academicYear: selWing?.currentTenure || prev.academicYear,
-                    }));
+                    if (e.target.value === 'core-committee') {
+                      setWingProgramForm((prev) => ({
+                        ...prev,
+                        wingId: 'core-committee',
+                        wingName: 'Core Committee',
+                        academicYear: prev.academicYear || '2026-27',
+                      }));
+                    } else {
+                      const selWing = database.wings.find((w) => w.id === e.target.value);
+                      setWingProgramForm((prev) => ({
+                        ...prev,
+                        wingId: e.target.value,
+                        wingName: selWing?.name || '',
+                        academicYear: selWing?.currentTenure || prev.academicYear,
+                      }));
+                    }
                   }}
-                  className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500"
+                  className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500 font-medium"
                 >
+                  <option value="core-committee">★ Core Committee (Apex Executive)</option>
                   {database.wings.map((w) => (
                     <option key={`modal-wing-opt-${w.id}`} value={w.id}>
                       {w.name} ({w.shortName})

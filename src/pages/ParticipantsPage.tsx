@@ -39,7 +39,7 @@ export const ParticipantsPage: React.FC = () => {
                 EXECUTIVE STUDENT WINGS & COUNCILS
               </span>
               <h1 className="text-3xl sm:text-5xl font-bold font-heading text-white tracking-tight">
-                Our Wings & Portfolios
+                Our Wings & Core Committee Programs
               </h1>
               <p className="text-stone-300 text-sm sm:text-base max-w-2xl mt-2 leading-relaxed">
                 Explore the specialized student wings, council portfolios, designated Chairmen, and Conveners driving campus vibrancy across every discipline.

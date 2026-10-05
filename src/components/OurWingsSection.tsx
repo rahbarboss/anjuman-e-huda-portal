@@ -36,6 +36,55 @@ const iconMap: Record<string, React.ElementType> = {
   Laptop,
   Trophy,
   GraduationCap,
+  Crown,
+  Award,
+};
+
+const coreCommitteeWing: Wing = {
+  id: 'core-committee',
+  name: 'Core Committee',
+  shortName: 'Apex Exec',
+  description:
+    'Supreme governing executive council of ANJUMAN-E-HUDA steering union constitutional resolutions, presidential convocations, and campus-wide policy directives.',
+  iconName: 'Crown',
+  status: 'Active',
+  currentTenure: '2026-27',
+  chairman: {
+    name: 'Sayyid Muhammad Hashir',
+    contact: 'president@anjuman.edu',
+    photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80',
+  },
+  manager: {
+    name: 'Sayyid Muhammad Hashir',
+    contact: 'president@anjuman.edu',
+    photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80',
+  },
+  convener: {
+    name: 'Ahmad Farhan',
+    contact: 'gen.secretary@anjuman.edu',
+  },
+  assistant: {
+    name: 'Umar Farooq',
+    contact: 'secretary@anjuman.edu',
+  },
+  history: [
+    {
+      tenure: '2026-27',
+      chairman: 'Sayyid Muhammad Hashir',
+      manager: 'Sayyid Muhammad Hashir',
+      convener: 'Ahmad Farhan',
+      assistant: 'Umar Farooq',
+      keyMilestone: 'Ratified the 2026-27 union constitution and unified off-campus student charter.',
+    },
+    {
+      tenure: '2025-26',
+      chairman: 'Maulana Zubair Qasim',
+      manager: 'Maulana Zubair Qasim',
+      convener: 'Hafiz Noman Al-Huda',
+      assistant: 'Tariq Anis',
+      keyMilestone: 'Convened triennial student assembly deliberating academic scholarships.',
+    },
+  ],
 };
 
 export const OurWingsSection: React.FC = () => {
@@ -84,14 +133,14 @@ export const OurWingsSection: React.FC = () => {
           <div>
             <span className="text-xs font-semibold tracking-wider uppercase text-emerald-400 font-mono flex items-center gap-1.5">
               <Users className="w-4 h-4 text-emerald-400" />
-              Specialized Operational Wings
+              Specialized Operational Wings & Apex Executive
             </span>
             <h2 className="text-3xl sm:text-4xl font-bold font-heading text-white mt-1">
-              Our Wings & Portfolios
+              Our Wings & Core Committee Programs
             </h2>
             <p className="text-sm text-stone-400 mt-2 max-w-xl">
-              ANJUMAN-E-HUDA operates through six specialized student-run wings driving academic
-              excellence, literary publications, humanitarian disaster relief, sports, and media.
+              ANJUMAN-E-HUDA operates through its Apex Core Committee and specialized student-run wings
+              driving academic excellence, oratory clubs, humanitarian disaster relief, sports, and media.
             </p>
           </div>
 
@@ -130,6 +179,196 @@ export const OurWingsSection: React.FC = () => {
 
         {/* Wing Cards Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* ================= CORE COMMITTEE COLUMN (Apex Executive - Highlighted & Left of Arabic Club) ================= */}
+          {(() => {
+            const matchesStatus = statusFilter === 'All' || statusFilter === 'Active';
+            const matchesSearch =
+              !searchTerm ||
+              'core committee'.includes(searchTerm.toLowerCase()) ||
+              'apex'.includes(searchTerm.toLowerCase()) ||
+              (coreCommitteeWing.chairman?.name || '').toLowerCase().includes(searchTerm.toLowerCase());
+
+            if (!matchesStatus || !matchesSearch) return null;
+
+            const currentYear = selectedYears['core-committee'] || coreCommitteeWing.currentTenure || '2026-27';
+            const historicalEntry = coreCommitteeWing.history?.find((h) => h.tenure === currentYear);
+            const isHistorical = currentYear !== coreCommitteeWing.currentTenure;
+            const availableYears = ['2026-27', '2025-26', '2024-25'];
+
+            const corePrograms = allWingPrograms.filter(
+              (wp) =>
+                wp.wingId === 'core-committee' ||
+                wp.wingName?.toLowerCase().includes('core')
+            );
+            const displayedCorePrograms =
+              corePrograms.filter((wp) => wp.academicYear === currentYear).length > 0
+                ? corePrograms.filter((wp) => wp.academicYear === currentYear)
+                : corePrograms;
+
+            return (
+              <div
+                key="wing-entry-core-committee"
+                className="relative bg-gradient-to-b from-stone-900 via-stone-900 to-stone-950 border-2 border-amber-500/60 hover:border-amber-400 rounded-3xl p-6 sm:p-7 shadow-2xl shadow-amber-950/40 flex flex-col justify-between transition-all ring-1 ring-amber-500/25 group/core"
+              >
+                {/* Visual Golden Subtle Glow */}
+                <div className="absolute top-0 right-0 w-48 h-48 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+
+                <div>
+                  {/* Top Header */}
+                  <div className="flex items-start justify-between gap-4 mb-4">
+                    <div className="flex items-center gap-3.5">
+                      <div className="w-13 h-13 rounded-2xl bg-amber-500/20 border border-amber-500/50 text-amber-300 flex items-center justify-center shrink-0 shadow-[0_0_20px_rgba(245,158,11,0.3)] group-hover/core:scale-105 transition-transform">
+                        <Crown className="w-7 h-7 text-amber-300" />
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[11px] font-mono font-extrabold px-2.5 py-0.5 rounded-md bg-amber-400 text-stone-950 uppercase tracking-wider shadow-sm">
+                            APEX EXECUTIVE
+                          </span>
+                          <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-800 uppercase">
+                            Central Secretariat
+                          </span>
+                        </div>
+                        <h3 className="text-xl sm:text-2xl font-bold font-heading text-white mt-1 group-hover/core:text-amber-200 transition-colors">
+                          Core Committee
+                        </h3>
+                      </div>
+                    </div>
+
+                    {/* Tenure Archive */}
+                    <div className="relative shrink-0">
+                      <label className="block text-[9px] font-mono uppercase text-amber-400/90 font-bold mb-1">
+                        Executive Tenure
+                      </label>
+                      <select
+                        value={currentYear}
+                        onChange={(e) => handleYearChange('core-committee', e.target.value)}
+                        className="bg-stone-950 border border-amber-500/40 text-amber-200 text-xs rounded-xl px-2.5 py-1.5 focus:outline-none focus:border-amber-400 cursor-pointer font-mono font-bold"
+                      >
+                        {availableYears.map((yr) => (
+                          <option key={`core-yr-${yr}`} value={yr}>
+                            {yr === '2026-27' ? `${yr} (Active)` : yr}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  <p className="text-xs text-stone-300 leading-relaxed mb-4">
+                    Supreme governing council of ANJUMAN-E-HUDA steering union constitutional affairs,
+                    general body convocations, and campus-wide policy directives.
+                  </p>
+
+                  {/* Prominent Button to open Core Committee Ledger */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setActiveWingModal(coreCommitteeWing);
+                      setModalYearFilter('All');
+                      setModalSearchTerm('');
+                    }}
+                    className="w-full mb-5 py-2.5 px-4 rounded-xl bg-gradient-to-r from-amber-500/20 via-stone-900 to-amber-500/20 hover:from-amber-500/30 hover:to-amber-500/30 text-amber-200 border border-amber-500/50 text-xs font-bold flex items-center justify-between cursor-pointer shadow-lg transition-all group"
+                  >
+                    <span className="flex items-center gap-2 text-amber-300 font-mono">
+                      <Crown className="w-4 h-4 text-amber-400" />
+                      <span>Click to Open Core Committee Full Ledger & Programs</span>
+                    </span>
+                    <span className="text-[11px] font-mono text-amber-400 flex items-center gap-1 font-bold">
+                      <span>View Ledger</span>
+                      <ChevronRight className="w-4 h-4 text-amber-400 group-hover:translate-x-1 transition-transform" />
+                    </span>
+                  </button>
+
+                  {/* Leadership snippet */}
+                  <div className="grid grid-cols-2 gap-3 mb-5 p-3.5 rounded-2xl bg-stone-950/80 border border-amber-500/30">
+                    <div>
+                      <span className="text-[10px] font-mono text-amber-400/90 uppercase font-bold block">
+                        Central President
+                      </span>
+                      <span className="text-xs sm:text-sm font-bold text-white block mt-0.5 truncate">
+                        {isHistorical && historicalEntry ? historicalEntry.chairman : coreCommitteeWing.chairman?.name || 'Sayyid Muhammad Hashir'}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-[10px] font-mono text-stone-400 uppercase font-bold block">
+                        General Secretary
+                      </span>
+                      <span className="text-xs sm:text-sm font-bold text-white block mt-0.5 truncate">
+                        {isHistorical && historicalEntry ? historicalEntry.convener : coreCommitteeWing.convener.name}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Conducted Programs Column (ONLY Program Name, Date, Category) */}
+                  <div className="p-4 rounded-2xl bg-stone-950/90 border border-amber-500/40 space-y-3">
+                    <div className="flex flex-wrap items-center justify-between gap-2 border-b border-stone-800 pb-2.5">
+                      <div className="flex items-center gap-2">
+                        <Calendar className="w-4 h-4 text-amber-400" />
+                        <h4 className="text-xs font-bold font-mono uppercase text-amber-200 tracking-wider">
+                          Conducted Programs ({corePrograms.length})
+                        </h4>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActiveWingModal(coreCommitteeWing);
+                          setModalYearFilter('All');
+                          setModalSearchTerm('');
+                        }}
+                        className="text-[11px] font-mono font-bold text-amber-400 hover:text-amber-300 flex items-center gap-1 underline cursor-pointer"
+                      >
+                        <span>Open Full Ledger</span>
+                        <ChevronRight className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+
+                    {displayedCorePrograms.length > 0 ? (
+                      <div className="space-y-2 max-h-56 overflow-y-auto pr-1 scrollbar-thin">
+                        {displayedCorePrograms.map((prog, pIdx) => (
+                          <div
+                            key={`core-prog-${prog.id}-${pIdx}`}
+                            className="p-3 rounded-xl bg-stone-900 border border-stone-800 hover:border-amber-500/50 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-2"
+                          >
+                            <div className="min-w-0 flex-1 space-y-1">
+                              <h5 className="text-xs sm:text-sm font-bold text-white leading-snug truncate" title={prog.title}>
+                                {prog.title}
+                              </h5>
+                              <div className="flex items-center gap-2">
+                                <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-amber-400 text-stone-950 text-[10px] font-mono font-bold shadow-xs">
+                                  Category: {prog.targetClass}
+                                </span>
+                              </div>
+                            </div>
+                            <div className="shrink-0 flex items-center">
+                              <span className="text-[11px] font-mono text-emerald-400 font-bold bg-emerald-950/80 px-2 py-0.5 rounded border border-emerald-800/40">
+                                Date: {prog.date}
+                              </span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="p-3.5 rounded-xl bg-stone-900/40 border border-stone-800/50 text-center text-xs text-stone-400">
+                        No recorded programs for Core Committee ({currentYear}).
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Footer status */}
+                <div className="pt-4 mt-6 border-t border-stone-800/80 flex items-center justify-between text-xs text-stone-400">
+                  <span className="flex items-center gap-1 text-[11px] font-mono text-amber-400/90 font-bold">
+                    <Calendar className="w-3.5 h-3.5" />
+                    Viewing Committee: {currentYear}
+                  </span>
+                  <span className="text-xs font-semibold text-amber-400 flex items-center gap-1 font-mono">
+                    <Crown className="w-3.5 h-3.5" />
+                    Supreme Jurisdiction
+                  </span>
+                </div>
+              </div>
+            );
+          })()}
           {filteredWings.map((wing, wingIdx) => {
             const Icon = iconMap[wing.iconName] || Users;
             const currentYear = selectedYears[wing.id] || wing.currentTenure || '2026-27';
@@ -502,60 +741,12 @@ export const OurWingsSection: React.FC = () => {
           if (wName && (wName === modalName || modalName.includes(wName) || wName.includes(modalName))) return true;
           if (modalShort && (wName.includes(modalShort) || modalShort.includes(wName))) return true;
           if ((modalShort.includes('iic') || modalName.includes('iic')) && (wName.includes('iic') || wp.wingId?.includes('iic'))) return true;
+          if ((activeWingModal.id === 'core-committee' || modalName.includes('core')) && (wp.wingId === 'core-committee' || wName.includes('core'))) return true;
           return false;
         });
 
-        // If no programs found in state for this wing, generate fallback sample programs so it's never empty
-        const wingPrograms = matchedPrograms.length > 0 ? matchedPrograms : [
-          {
-            id: `wp-${activeWingModal.id}-sample-1`,
-            wingId: activeWingModal.id,
-            wingName: activeWingModal.name,
-            title: `${activeWingModal.name} Orientation & General Assembly`,
-            targetClass: 'Class: All Students & Scholars',
-            date: '2026-10-15',
-            academicYear: '2026-27',
-            month: 'October',
-            venue: 'Central Campus Hall',
-            status: 'Completed',
-          },
-          {
-            id: `wp-${activeWingModal.id}-sample-2`,
-            wingId: activeWingModal.id,
-            wingName: activeWingModal.name,
-            title: `Specialized Skill Building & Academic Guidance Workshop`,
-            targetClass: 'Class: Thanawiyah & High School',
-            date: '2026-09-20',
-            academicYear: '2026-27',
-            month: 'September',
-            venue: 'Lecture Theatre 2',
-            status: 'Completed',
-          },
-          {
-            id: `wp-${activeWingModal.id}-sample-3`,
-            wingId: activeWingModal.id,
-            wingName: activeWingModal.name,
-            title: `Inter-Collegiate Symposium & Educational Colloquium`,
-            targetClass: 'Class: Al-Aaliyah & Senior Section',
-            date: '2025-11-14',
-            academicYear: '2025-26',
-            month: 'November',
-            venue: 'Main Auditorium',
-            status: 'Completed',
-          },
-          {
-            id: `wp-${activeWingModal.id}-sample-4`,
-            wingId: activeWingModal.id,
-            wingName: activeWingModal.name,
-            title: `Foundational Training & Leadership Development Camp`,
-            targetClass: 'Class: Junior Section (Classes 6-10)',
-            date: '2024-10-08',
-            academicYear: '2024-25',
-            month: 'October',
-            venue: 'Darul Uloom Quadrangle',
-            status: 'Completed',
-          },
-        ];
+        // Only actual recorded programs in database! Absolutely no fake sample programs!
+        const wingPrograms = matchedPrograms;
 
         // Unique academic years available
         const distinctYears = Array.from(

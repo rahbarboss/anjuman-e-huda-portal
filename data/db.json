@@ -331,6 +331,51 @@
   ],
   "wings": [
     {
+      "id": "wing-arabic",
+      "name": "Arabic Club (Al-Nadi Al-Arabi)",
+      "shortName": "Arabic Club",
+      "description": "Premier collegiate forum for classical rhetoric, modern Arabic literature, international declamation symposiums, and student journals.",
+      "iconName": "BookOpen",
+      "status": "Active",
+      "currentTenure": "2026-27",
+      "chairman": {
+        "name": "Sayyid Munawwar Ali",
+        "contact": "arabic.club@anjuman.edu",
+        "photo": "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=400&q=80"
+      },
+      "manager": {
+        "name": "Sayyid Munawwar Ali",
+        "contact": "arabic.club@anjuman.edu",
+        "photo": "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=400&q=80"
+      },
+      "convener": {
+        "name": "Tariq Al-Qasimi",
+        "contact": "tariq.arabic@anjuman.edu"
+      },
+      "assistant": {
+        "name": "Ahmad Bilal",
+        "contact": "bilal.arabic@anjuman.edu"
+      },
+      "history": [
+        {
+          "tenure": "2026-27",
+          "chairman": "Sayyid Munawwar Ali",
+          "manager": "Sayyid Munawwar Ali",
+          "convener": "Tariq Al-Qasimi",
+          "assistant": "Ahmad Bilal",
+          "keyMilestone": "Organized national Arabic oratory declamation attended by 32 universities."
+        },
+        {
+          "tenure": "2025-26",
+          "chairman": "Hafiz Farhan Al-Huda",
+          "manager": "Hafiz Farhan Al-Huda",
+          "convener": "Kashif Jameel",
+          "assistant": "Muawiya Hasan",
+          "keyMilestone": "Published bilingual Arabic anthology \"Nafahat Al-Huda\" volume IV."
+        }
+      ]
+    },
+    {
       "id": "wing-1",
       "name": "Da'wah & Moral Guidance Wing",
       "shortName": "DMW",
@@ -614,6 +659,51 @@
         "contact": "research@anjuman.edu",
         "photo": "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=400&q=80"
       }
+    },
+    {
+      "id": "wing-iic",
+      "name": "IIC WING (Islamic Information Centre)",
+      "shortName": "IIC WING",
+      "description": "Central coordination hub for Islamic Information, off-campus orientation, digital awareness archives, and inter-collegiate student development.",
+      "iconName": "Sparkles",
+      "status": "Active",
+      "currentTenure": "2026-27",
+      "chairman": {
+        "name": "Maulana Tanveerul Islam",
+        "contact": "iic.chairman@anjuman.edu",
+        "photo": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80"
+      },
+      "manager": {
+        "name": "Maulana Tanveerul Islam",
+        "contact": "iic.chairman@anjuman.edu",
+        "photo": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80"
+      },
+      "convener": {
+        "name": "Ahmad Raza Qadri",
+        "contact": "iic.convener@anjuman.edu"
+      },
+      "assistant": {
+        "name": "Sayyid Bilal",
+        "contact": "iic.office@anjuman.edu"
+      },
+      "history": [
+        {
+          "tenure": "2026-27",
+          "chairman": "Maulana Tanveerul Islam",
+          "manager": "Maulana Tanveerul Islam",
+          "convener": "Ahmad Raza Qadri",
+          "assistant": "Sayyid Bilal",
+          "keyMilestone": "Executed 12 inter-campus Islamic Information and youth orientation programs."
+        },
+        {
+          "tenure": "2025-26",
+          "chairman": "Mufti Shahid Akhtar",
+          "manager": "Mufti Shahid Akhtar",
+          "convener": "Tariq Jameel",
+          "assistant": "Umair Siddiqui",
+          "keyMilestone": "Digitized comprehensive question-answer Islamic Information database."
+        }
+      ]
     }
   ],
   "achievements": {
@@ -922,5 +1012,215 @@
         "color": "purple"
       }
     ]
-  }
+  },
+  "wingPrograms": [
+    {
+      "id": "wp-1",
+      "wingId": "wing-1",
+      "wingName": "Da'wah & Moral Guidance Wing",
+      "title": "Tafseer-e-Quran Comprehensive Seminar & Qiraat Workshop",
+      "targetClass": "Aliya 1st & 2nd Year",
+      "date": "2026-10-14",
+      "academicYear": "2026-27",
+      "month": "October",
+      "venue": "Central Masjid Hall",
+      "status": "Completed",
+      "description": "Intensive thematic exegesis of Surah Al-Hujurat focusing on civic ethics and student discipline."
+    },
+    {
+      "id": "wp-2",
+      "wingId": "wing-1",
+      "wingName": "Da'wah & Moral Guidance Wing",
+      "title": "Halaqah: Foundations of Islamic Jurisprudence & Daily Fiqh Basics",
+      "targetClass": "Sanawiya Scholars",
+      "date": "2026-09-22",
+      "academicYear": "2026-27",
+      "month": "September",
+      "venue": "Auditorium Quadrangle",
+      "status": "Completed",
+      "description": "Introductory legal methodology and daily moral obligations for junior students."
+    },
+    {
+      "id": "wp-3",
+      "wingId": "wing-1",
+      "wingName": "Da'wah & Moral Guidance Wing",
+      "title": "Dawah Methodologies in Modern Pluralistic Societies",
+      "targetClass": "Fazilat Final Year",
+      "date": "2025-11-18",
+      "academicYear": "2025-26",
+      "month": "November",
+      "venue": "Imam Ghazali Seminar Hall",
+      "status": "Completed",
+      "description": "Advanced communication and interfaith dialogue protocols for graduating scholars."
+    },
+    {
+      "id": "wp-4",
+      "wingId": "wing-2",
+      "wingName": "Literature, Oratory & Arts Wing",
+      "title": "All-India Bilingual Declamation Championship (Urdu & English)",
+      "targetClass": "All Campus Scholars",
+      "date": "2026-10-02",
+      "academicYear": "2026-27",
+      "month": "October",
+      "venue": "Grand Convention Centre",
+      "status": "Completed",
+      "description": "Annual flagship parliamentary debate contest on educational modernization."
+    },
+    {
+      "id": "wp-5",
+      "wingId": "wing-2",
+      "wingName": "Literature, Oratory & Arts Wing",
+      "title": "Classical Calligraphy & Khat-e-Nastaliq Masterclass",
+      "targetClass": "Sanawiya & Aliya 1st Year",
+      "date": "2026-08-15",
+      "academicYear": "2026-27",
+      "month": "August",
+      "venue": "Art Studio Wing",
+      "status": "Completed",
+      "description": "Hands-on penmanship workshop led by renowned traditional master calligraphers."
+    },
+    {
+      "id": "wp-6",
+      "wingId": "wing-2",
+      "wingName": "Literature, Oratory & Arts Wing",
+      "title": "Annual Wall-Magazine \"Al-Qalam\" Editorial Release & Review",
+      "targetClass": "Aliya 2nd Year & Fazilat",
+      "date": "2025-12-10",
+      "academicYear": "2025-26",
+      "month": "December",
+      "venue": "Central Library Foyer",
+      "status": "Completed",
+      "description": "Showcase of 65 curated student essays, short stories, and poetic tributes."
+    },
+    {
+      "id": "wp-7",
+      "wingId": "wing-3",
+      "wingName": "Social Welfare & Relief Wing",
+      "title": "Winter Blanket & Emergency Health Relief Distribution Camp",
+      "targetClass": "Off-Campus & Surrounding Localities",
+      "date": "2026-11-05",
+      "academicYear": "2026-27",
+      "month": "November",
+      "venue": "Community Relief Center",
+      "status": "Upcoming",
+      "description": "Distribution of warm clothing, dry rations, and basic medical checkups."
+    },
+    {
+      "id": "wp-8",
+      "wingId": "wing-3",
+      "wingName": "Social Welfare & Relief Wing",
+      "title": "Campus Voluntary Blood Donation Drive & Health Screening",
+      "targetClass": "All Campus Students & Faculty",
+      "date": "2026-09-10",
+      "academicYear": "2026-27",
+      "month": "September",
+      "venue": "Union Health Clinic",
+      "status": "Completed",
+      "description": "Collected 180+ units of emergency blood for regional government hospitals."
+    },
+    {
+      "id": "wp-9",
+      "wingId": "wing-4",
+      "wingName": "Media, IT & Public Relations Wing",
+      "title": "Digital Literacy, Graphic Design & Web Publishing BootCamp",
+      "targetClass": "Aliya 1st Year",
+      "date": "2026-10-18",
+      "academicYear": "2026-27",
+      "month": "October",
+      "venue": "Central Computer Lab",
+      "status": "Ongoing",
+      "description": "Training student media reporters on typography, social journalism, and CMS tools."
+    },
+    {
+      "id": "wp-10",
+      "wingId": "wing-5",
+      "wingName": "Sports & Physical Health Wing",
+      "title": "Annual Inter-Wing Football & Volleyball Tournament",
+      "targetClass": "All Wing Delegations (All Classes)",
+      "date": "2026-09-28",
+      "academicYear": "2026-27",
+      "month": "September",
+      "venue": "Union Sports Complex",
+      "status": "Completed",
+      "description": "Multi-stage knockout matches fostering camaraderie and physical stamina."
+    },
+    {
+      "id": "wp-11",
+      "wingId": "wing-6",
+      "wingName": "Academic Research & Guidance Wing",
+      "title": "Postgraduate Fellowships & UGC-NET Orientation Workshop",
+      "targetClass": "Fazilat Final Year & Post-Graduates",
+      "date": "2026-10-08",
+      "academicYear": "2026-27",
+      "month": "October",
+      "venue": "Research Scholars Lounge",
+      "status": "Completed",
+      "description": "Comprehensive research methodology and national scholarship guidance session."
+    },
+    {
+      "id": "wp-iic-bulbul",
+      "wingId": "wing-iic",
+      "wingName": "IIC WING",
+      "title": "BULBUL-E-HUDA",
+      "targetClass": "U1 TO U5",
+      "date": "2026-10-08",
+      "academicYear": "2026-27",
+      "month": "October",
+      "venue": "Main Campus Quadrangle",
+      "status": "Completed",
+      "description": "Official conducted program organized by IIC WING."
+    },
+    {
+      "id": "wp-arabic-1",
+      "wingId": "wing-arabic",
+      "wingName": "Arabic Club (Al-Nadi Al-Arabi)",
+      "title": "Al-Multaqa Al-Adabi: Classical Arabic Oratory & Poetry Colloquium",
+      "targetClass": "Aliya & Fazilat Sections",
+      "date": "2026-10-05",
+      "academicYear": "2026-27",
+      "month": "October",
+      "venue": "Al-Khalil Arabic Language Lab",
+      "status": "Completed",
+      "description": "Annual flagship symposium in classical rhetoric, poetry improvisation, and eloquence."
+    },
+    {
+      "id": "wp-arabic-2",
+      "wingId": "wing-arabic",
+      "wingName": "Arabic Club (Al-Nadi Al-Arabi)",
+      "title": "Inter-Collegiate Arabic Debating Championship (Tawjeeh Cup)",
+      "targetClass": "All University Scholars",
+      "date": "2026-09-15",
+      "academicYear": "2026-27",
+      "month": "September",
+      "venue": "Central Senate Hall",
+      "status": "Completed",
+      "description": "Parliamentary debate tournament judged by international linguists."
+    },
+    {
+      "id": "wp-core-1",
+      "wingId": "core-committee",
+      "wingName": "Core Committee",
+      "title": "Central Executive Oath-Taking Ceremony & Academic Convention",
+      "targetClass": "All Campus Delegates & Scholars",
+      "date": "2026-09-01",
+      "academicYear": "2026-27",
+      "month": "September",
+      "venue": "Central Secretariat Quadrangle",
+      "status": "Completed",
+      "description": "Official ceremonial induction of union executives and portfolio leaders."
+    },
+    {
+      "id": "wp-core-2",
+      "wingId": "core-committee",
+      "wingName": "Core Committee",
+      "title": "Annual General Body Conclave & Student Welfare Charter",
+      "targetClass": "All Students & Off-Campus Representatives",
+      "date": "2026-08-15",
+      "academicYear": "2026-27",
+      "month": "August",
+      "venue": "Main University Auditorium",
+      "status": "Completed",
+      "description": "Central union assembly deliberating student welfare resolutions."
+    }
+  ]
 }

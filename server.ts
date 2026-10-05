@@ -31,8 +31,52 @@ function readDb(): AppDatabase {
     if (fs.existsSync(DB_FILE)) {
       const raw = fs.readFileSync(DB_FILE, 'utf-8');
       const parsed: AppDatabase = JSON.parse(raw);
+      let needsWrite = false;
+
       if (!parsed.niicsInCharge || parsed.niicsInCharge.length === 0) {
         parsed.niicsInCharge = initialDatabase.niicsInCharge || [];
+        needsWrite = true;
+      }
+
+      if (!parsed.wingPrograms || parsed.wingPrograms.length === 0) {
+        parsed.wingPrograms = initialDatabase.wingPrograms || [];
+        needsWrite = true;
+      } else {
+        // Enforce: IIC WING must only have BULBUL-E-HUDA
+        const iicOther = parsed.wingPrograms.filter(
+          (p: any) =>
+            ((p.wingId && p.wingId.includes('iic')) || (p.wingName && p.wingName.toLowerCase().includes('iic'))) &&
+            !p.title?.toLowerCase().includes('bulbul')
+        );
+        if (iicOther.length > 0) {
+          parsed.wingPrograms = parsed.wingPrograms.filter(
+            (p: any) =>
+              !((p.wingId && p.wingId.includes('iic')) || (p.wingName && p.wingName.toLowerCase().includes('iic'))) ||
+              p.title?.toLowerCase().includes('bulbul')
+          );
+          needsWrite = true;
+        }
+      }
+
+      // Ensure Arabic Club is present in wings list
+      if (parsed.wings && !parsed.wings.some((w: any) => w.id === 'wing-arabic')) {
+        const arabicWing = initialDatabase.wings.find((w: any) => w.id === 'wing-arabic');
+        if (arabicWing) {
+          parsed.wings.unshift(arabicWing);
+          needsWrite = true;
+        }
+      }
+
+      // Ensure IIC WING is present in wings list
+      if (parsed.wings && !parsed.wings.some((w: any) => w.id === 'wing-iic')) {
+        const iicWing = initialDatabase.wings.find((w: any) => w.id === 'wing-iic');
+        if (iicWing) {
+          parsed.wings.push(iicWing);
+          needsWrite = true;
+        }
+      }
+
+      if (needsWrite) {
         writeDb(parsed);
       }
       return parsed;
@@ -364,6 +408,44 @@ app.delete('/api/wings/:id', (req, res) => {
   db.wings = db.wings.filter((w) => w.id !== req.params.id);
   writeDb(db);
   res.json({ success: true, wings: db.wings });
+});
+
+// Wing Programs CRUD
+app.get('/api/wing-programs', (_req, res) => {
+  const db = readDb();
+  res.json({ success: true, wingPrograms: db.wingPrograms || [] });
+});
+
+app.post('/api/wing-programs', (req, res) => {
+  const db = readDb();
+  if (!db.wingPrograms) db.wingPrograms = [];
+  const newWP = {
+    id: `wp-${Date.now()}`,
+    ...req.body,
+  };
+  db.wingPrograms.unshift(newWP);
+  writeDb(db);
+  res.json({ success: true, item: newWP, wingPrograms: db.wingPrograms });
+});
+
+app.put('/api/wing-programs/:id', (req, res) => {
+  const db = readDb();
+  if (!db.wingPrograms) db.wingPrograms = [];
+  const index = db.wingPrograms.findIndex((wp) => wp.id === req.params.id);
+  if (index === -1) {
+    return res.status(404).json({ success: false, message: 'Wing program not found' });
+  }
+  db.wingPrograms[index] = { ...db.wingPrograms[index], ...req.body };
+  writeDb(db);
+  res.json({ success: true, item: db.wingPrograms[index], wingPrograms: db.wingPrograms });
+});
+
+app.delete('/api/wing-programs/:id', (req, res) => {
+  const db = readDb();
+  if (!db.wingPrograms) db.wingPrograms = [];
+  db.wingPrograms = db.wingPrograms.filter((wp) => wp.id !== req.params.id);
+  writeDb(db);
+  res.json({ success: true, wingPrograms: db.wingPrograms });
 });
 
 // Announcements CRUD
