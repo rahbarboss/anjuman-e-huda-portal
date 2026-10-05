@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 import { useData } from '../../context/DataContext';
 import { StorageBucket } from '../../services/supabaseService';
-import { optimizeImageBeforeUpload, OptimizationStats } from '../../utils/imageOptimizer';
+import { formatFileSize } from '../../utils/imageOptimizer';
 
 interface MediaUploadZoneProps {
   onUploadSuccess: (url: string) => void;
@@ -29,7 +29,7 @@ export const MediaUploadZone: React.FC<MediaUploadZoneProps> = ({
   const [isDragging, setIsDragging] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(currentUrl || null);
-  const [compressionStats, setCompressionStats] = useState<OptimizationStats | null>(null);
+  const [uploadedFileSize, setUploadedFileSize] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [showUrlInput, setShowUrlInput] = useState(false);
   const [manualUrl, setManualUrl] = useState('');
@@ -41,9 +41,31 @@ export const MediaUploadZone: React.FC<MediaUploadZoneProps> = ({
     if (currentUrl) setManualUrl(currentUrl);
   }, [currentUrl]);
 
+  const isImageFile = (f: File): boolean => {
+    if (f.type && f.type.toLowerCase().startsWith('image/')) return true;
+    const name = (f.name || '').toLowerCase();
+    const imageExtensions = [
+      '.jpg',
+      '.jpeg',
+      '.png',
+      '.webp',
+      '.svg',
+      '.gif',
+      '.bmp',
+      '.jfif',
+      '.avif',
+      '.heic',
+      '.heif',
+      '.ico',
+      '.tiff',
+      '.tif',
+    ];
+    return imageExtensions.some((ext) => name.endsWith(ext));
+  };
+
   const processUpload = async (file: File) => {
-    if (!file.type.startsWith('image/')) {
-      setErrorMsg('Only image files (JPEG, PNG, WEBP, SVG) are permitted.');
+    if (!isImageFile(file)) {
+      setErrorMsg('Please select a valid image file (JPG, PNG, WEBP, SVG, JFIF, etc.).');
       return;
     }
 
@@ -51,15 +73,27 @@ export const MediaUploadZone: React.FC<MediaUploadZoneProps> = ({
     setUploading(true);
 
     try {
-      // Adaptively optimize image before upload (max-w 1200px, 80-100 KB target, 0.82->0.55 quality, WebP conversion)
-      const { file: optimizedFile, stats } = await optimizeImageBeforeUpload(file);
-      setCompressionStats(stats);
+      // Ensure proper image MIME type if missing or empty
+      let uploadFile = file;
+      if (!uploadFile.type || !uploadFile.type.startsWith('image/')) {
+        const ext = uploadFile.name.split('.').pop()?.toLowerCase() || '';
+        let mime = 'image/jpeg';
+        if (ext === 'png') mime = 'image/png';
+        else if (ext === 'webp') mime = 'image/webp';
+        else if (ext === 'svg') mime = 'image/svg+xml';
+        else if (ext === 'gif') mime = 'image/gif';
+        else if (ext === 'avif') mime = 'image/avif';
+        uploadFile = new File([file], file.name, { type: mime });
+      }
 
-      const res = await uploadMedia(optimizedFile, bucket);
+      // Upload file directly preserving original KB and full quality
+      const res = await uploadMedia(uploadFile, bucket);
 
       if (res.success && res.url) {
+        setErrorMsg(null);
         setPreviewUrl(res.url);
         setManualUrl(res.url);
+        setUploadedFileSize(formatFileSize(uploadFile.size));
         onUploadSuccess(res.url);
       } else {
         setErrorMsg(res.message || 'Upload failed. Please try again.');
@@ -98,7 +132,7 @@ export const MediaUploadZone: React.FC<MediaUploadZoneProps> = ({
     e.stopPropagation();
     setPreviewUrl(null);
     setManualUrl('');
-    setCompressionStats(null);
+    setUploadedFileSize(null);
     onUploadSuccess('');
   };
 
@@ -157,7 +191,7 @@ export const MediaUploadZone: React.FC<MediaUploadZoneProps> = ({
         <input
           ref={fileInputRef}
           type="file"
-          accept="image/*"
+          accept="image/*,.jpg,.jpeg,.png,.webp,.svg,.jfif,.avif,.gif"
           className="hidden"
           onChange={handleFileSelect}
         />
@@ -166,7 +200,7 @@ export const MediaUploadZone: React.FC<MediaUploadZoneProps> = ({
           <div className="py-6 flex flex-col items-center gap-2">
             <RefreshCw className="w-8 h-8 text-emerald-400 animate-spin" />
             <span className="text-xs font-medium text-emerald-300 font-mono">
-              Optimizing & Uploading to Supabase...
+              Uploading photo asset...
             </span>
           </div>
         ) : previewUrl ? (
@@ -194,21 +228,8 @@ export const MediaUploadZone: React.FC<MediaUploadZoneProps> = ({
 
             <div className="flex items-center gap-1.5 text-xs text-emerald-400 font-medium">
               <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-              <span>Image uploaded & optimized</span>
+              <span>Image uploaded {uploadedFileSize ? `(${uploadedFileSize})` : ''}</span>
             </div>
-
-            {compressionStats && (
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-stone-900 border border-stone-700 text-xs font-mono text-stone-200 shadow-inner">
-                <span className="text-stone-400">{compressionStats.formattedOriginal}</span>
-                <span className="text-emerald-400 font-bold">→</span>
-                <span className="text-emerald-300 font-semibold">{compressionStats.formattedOptimized}</span>
-                {compressionStats.savedPercent > 0 && (
-                  <span className="text-[10px] text-emerald-400 bg-emerald-950/80 px-1.5 py-0.5 rounded border border-emerald-500/30">
-                    -{compressionStats.savedPercent}%
-                  </span>
-                )}
-              </div>
-            )}
 
             {/* Direct Change & Remove Buttons */}
             <div className="flex items-center gap-2 pt-1 w-full justify-center">

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useData } from '../context/DataContext';
 import { Wing, WingProgram } from '../types';
-import { initialDatabase } from '../defaultData';
+import { initialDatabase, defaultCoreCommitteeWing } from '../defaultData';
 import {
   Search,
   Filter,
@@ -40,56 +40,12 @@ const iconMap: Record<string, React.ElementType> = {
   Award,
 };
 
-const coreCommitteeWing: Wing = {
-  id: 'core-committee',
-  name: 'Core Committee',
-  shortName: 'Apex Exec',
-  description:
-    'Supreme governing executive council of ANJUMAN-E-HUDA steering union constitutional resolutions, presidential convocations, and campus-wide policy directives.',
-  iconName: 'Crown',
-  status: 'Active',
-  currentTenure: '2026-27',
-  chairman: {
-    name: 'Sayyid Muhammad Hashir',
-    contact: 'president@anjuman.edu',
-    photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80',
-  },
-  manager: {
-    name: 'Sayyid Muhammad Hashir',
-    contact: 'president@anjuman.edu',
-    photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80',
-  },
-  convener: {
-    name: 'Ahmad Farhan',
-    contact: 'gen.secretary@anjuman.edu',
-  },
-  assistant: {
-    name: 'Umar Farooq',
-    contact: 'secretary@anjuman.edu',
-  },
-  history: [
-    {
-      tenure: '2026-27',
-      chairman: 'Sayyid Muhammad Hashir',
-      manager: 'Sayyid Muhammad Hashir',
-      convener: 'Ahmad Farhan',
-      assistant: 'Umar Farooq',
-      keyMilestone: 'Ratified the 2026-27 union constitution and unified off-campus student charter.',
-    },
-    {
-      tenure: '2025-26',
-      chairman: 'Maulana Zubair Qasim',
-      manager: 'Maulana Zubair Qasim',
-      convener: 'Hafiz Noman Al-Huda',
-      assistant: 'Tariq Anis',
-      keyMilestone: 'Convened triennial student assembly deliberating academic scholarships.',
-    },
-  ],
-};
-
 export const OurWingsSection: React.FC = () => {
   const { database } = useData();
   const { wings } = database;
+
+  const coreCommitteeWing =
+    wings.find((w) => w.id === 'core-committee') || defaultCoreCommitteeWing;
 
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('All');
@@ -109,6 +65,7 @@ export const OurWingsSection: React.FC = () => {
   const [modalSearchTerm, setModalSearchTerm] = useState<string>('');
 
   const filteredWings = wings.filter((wing) => {
+    if (wing.id === 'core-committee') return false;
     const matchesStatus = statusFilter === 'All' || wing.status === statusFilter;
     const chairmanName = wing.chairman?.name || wing.manager?.name || '';
     const convenerName = wing.convener?.name || '';
@@ -279,25 +236,94 @@ export const OurWingsSection: React.FC = () => {
                     </span>
                   </button>
 
-                  {/* Leadership snippet */}
-                  <div className="grid grid-cols-2 gap-3 mb-5 p-3.5 rounded-2xl bg-stone-950/80 border border-amber-500/30">
-                    <div>
-                      <span className="text-[10px] font-mono text-amber-400/90 uppercase font-bold block">
-                        Central President
-                      </span>
-                      <span className="text-xs sm:text-sm font-bold text-white block mt-0.5 truncate">
-                        {isHistorical && historicalEntry ? historicalEntry.chairman : coreCommitteeWing.chairman?.name || 'Sayyid Muhammad Hashir'}
-                      </span>
-                    </div>
-                    <div>
-                      <span className="text-[10px] font-mono text-stone-400 uppercase font-bold block">
-                        General Secretary
-                      </span>
-                      <span className="text-xs sm:text-sm font-bold text-white block mt-0.5 truncate">
-                        {isHistorical && historicalEntry ? historicalEntry.convener : coreCommitteeWing.convener.name}
-                      </span>
-                    </div>
-                  </div>
+                  {/* Leadership snippet with Portraits */}
+                  {(() => {
+                    const presidentName = isHistorical && historicalEntry
+                      ? (historicalEntry.chairman || 'Sayyid Muhammad Hashir')
+                      : (coreCommitteeWing.chairman?.name || coreCommitteeWing.manager?.name || 'Sayyid Muhammad Hashir');
+                    const presidentPhoto = isHistorical && historicalEntry?.chairmanPhoto
+                      ? historicalEntry.chairmanPhoto
+                      : (coreCommitteeWing.chairman?.photo || coreCommitteeWing.chairmanPhoto || coreCommitteeWing.manager?.photo || '');
+
+                    const genSecName = isHistorical && historicalEntry
+                      ? (historicalEntry.convener || 'Ahmad Abdullah Misbahi')
+                      : (coreCommitteeWing.convener?.name || 'Ahmad Abdullah Misbahi');
+                    const genSecPhoto = isHistorical && historicalEntry?.convenerPhoto
+                      ? historicalEntry.convenerPhoto
+                      : (coreCommitteeWing.convener?.photo || coreCommitteeWing.convenerPhoto || '');
+
+                    return (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5">
+                        {/* 1. Central President */}
+                        <div className="p-3 rounded-2xl bg-stone-950/90 border border-amber-500/40 flex items-center gap-3 shadow-md">
+                          <div
+                            onClick={() => presidentPhoto && setPreviewImage({ url: presidentPhoto, title: presidentName, subtitle: 'Core Committee • Central President' })}
+                            className={`relative w-16 h-20 sm:w-18 sm:h-24 rounded-xl overflow-hidden bg-stone-900 border-2 border-amber-500/60 shadow-md shrink-0 ${presidentPhoto ? 'cursor-pointer hover:ring-2 hover:ring-amber-400' : ''}`}
+                            title={presidentPhoto ? 'Click to view full photo' : undefined}
+                          >
+                            {presidentPhoto ? (
+                              <img
+                                src={presidentPhoto}
+                                alt={presidentName}
+                                className="w-full h-full object-cover object-top hover:scale-105 transition-transform duration-300"
+                              />
+                            ) : (
+                              <div className="w-full h-full flex flex-col items-center justify-center bg-stone-900 text-stone-500">
+                                <Crown className="w-5 h-5 text-amber-400/60 mb-0.5" />
+                                <span className="text-[8px] font-mono uppercase text-amber-400">No Photo</span>
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <span className="text-[9px] font-mono text-amber-400 font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-amber-950/80 border border-amber-500/30 inline-flex items-center gap-1 mb-1">
+                              <Crown className="w-3 h-3 text-amber-400" />
+                              President
+                            </span>
+                            <h4 className="text-xs sm:text-sm font-bold text-white leading-tight truncate" title={presidentName}>
+                              {presidentName}
+                            </h4>
+                            <p className="text-[10px] text-stone-400 font-mono mt-0.5 truncate">
+                              {coreCommitteeWing.chairman?.contact || 'president@anjuman.edu'}
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* 2. General Secretary */}
+                        <div className="p-3 rounded-2xl bg-stone-950/90 border border-amber-500/40 flex items-center gap-3 shadow-md">
+                          <div
+                            onClick={() => genSecPhoto && setPreviewImage({ url: genSecPhoto, title: genSecName, subtitle: 'Core Committee • General Secretary' })}
+                            className={`relative w-16 h-20 sm:w-18 sm:h-24 rounded-xl overflow-hidden bg-stone-900 border-2 border-amber-500/40 shadow-md shrink-0 ${genSecPhoto ? 'cursor-pointer hover:ring-2 hover:ring-amber-400' : ''}`}
+                            title={genSecPhoto ? 'Click to view full photo' : undefined}
+                          >
+                            {genSecPhoto ? (
+                              <img
+                                src={genSecPhoto}
+                                alt={genSecName}
+                                className="w-full h-full object-cover object-top hover:scale-105 transition-transform duration-300"
+                              />
+                            ) : (
+                              <div className="w-full h-full flex flex-col items-center justify-center bg-stone-900 text-stone-500">
+                                <User className="w-5 h-5 text-stone-400 mb-0.5" />
+                                <span className="text-[8px] font-mono uppercase text-stone-400">No Photo</span>
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <span className="text-[9px] font-mono text-stone-300 font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-stone-900 border border-stone-800 inline-flex items-center gap-1 mb-1">
+                              <UserCheck className="w-3 h-3 text-stone-400" />
+                              Gen Secretary
+                            </span>
+                            <h4 className="text-xs sm:text-sm font-bold text-white leading-tight truncate" title={genSecName}>
+                              {genSecName}
+                            </h4>
+                            <p className="text-[10px] text-stone-400 font-mono mt-0.5 truncate">
+                              {coreCommitteeWing.convener?.contact || 'gensec@anjuman.edu'}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })()}
 
                   {/* Conducted Programs Column (ONLY Program Name, Date, Category) */}
                   <div className="p-4 rounded-2xl bg-stone-950/90 border border-amber-500/40 space-y-3">

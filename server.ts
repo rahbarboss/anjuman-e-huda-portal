@@ -3,7 +3,7 @@ import path from 'path';
 import fs from 'fs';
 import multer from 'multer';
 import { createServer as createViteServer } from 'vite';
-import { initialDatabase } from './src/defaultData.ts';
+import { initialDatabase, defaultCoreCommitteeWing } from './src/defaultData.ts';
 import { AppDatabase } from './src/types.ts';
 
 const app = express();
@@ -56,6 +56,12 @@ function readDb(): AppDatabase {
           );
           needsWrite = true;
         }
+      }
+
+      // Ensure Core Committee is present in wings list
+      if (parsed.wings && !parsed.wings.some((w: any) => w.id === 'core-committee')) {
+        parsed.wings.unshift(defaultCoreCommitteeWing);
+        needsWrite = true;
       }
 
       // Ensure Arabic Club is present in wings list
@@ -396,7 +402,10 @@ app.put('/api/wings/:id', (req, res) => {
   const db = readDb();
   const index = db.wings.findIndex((w) => w.id === req.params.id);
   if (index === -1) {
-    return res.status(404).json({ success: false, message: 'Wing not found' });
+    const newWing = { id: req.params.id, ...req.body };
+    db.wings.push(newWing);
+    writeDb(db);
+    return res.json({ success: true, item: newWing, wings: db.wings });
   }
   db.wings[index] = { ...db.wings[index], ...req.body };
   writeDb(db);

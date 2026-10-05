@@ -23,13 +23,12 @@ import {
   ZoomIn,
   Maximize2,
 } from 'lucide-react';
-import { LightboxModal } from './LightboxModal';
 
-type ProgramSidebarTab = 'all-programs' | 'calendar' | 'highlights' | 'achievements';
+type ProgramSidebarTab = 'all-programs' | 'calendar' | 'achievements';
 
 export const AllProgramsSection: React.FC = () => {
   const { database } = useData();
-  const { programs, highlights, achievements } = database;
+  const { programs, achievements } = database;
 
   const [activeTab, setActiveTab] = useState<ProgramSidebarTab>('all-programs');
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
@@ -39,10 +38,6 @@ export const AllProgramsSection: React.FC = () => {
   const [programCategory, setProgramCategory] = useState<string>('All');
   const [selectedProgramAgenda, setSelectedProgramAgenda] = useState<Program | null>(null);
   const [agendaLightbox, setAgendaLightbox] = useState<string | null>(null);
-
-  // Highlights state
-  const [highlightFilter, setHighlightFilter] = useState<'All' | 'Event' | 'Announcement'>('All');
-  const [selectedHighlightIndex, setSelectedHighlightIndex] = useState<number | null>(null);
 
   // Calendar State
   const [currentMonthDate, setCurrentMonthDate] = useState<Date>(new Date(2026, 8, 1)); // September 2026
@@ -61,12 +56,6 @@ export const AllProgramsSection: React.FC = () => {
       return matchesCat && matchesSearch;
     });
   }, [programs, programCategory, programSearch]);
-
-  // Filtered Highlights
-  const filteredHighlights = useMemo(() => {
-    if (highlightFilter === 'All') return highlights;
-    return highlights.filter((h) => h.category === highlightFilter);
-  }, [highlights, highlightFilter]);
 
   // Calendar Helpers
   const year = currentMonthDate.getFullYear();
@@ -93,20 +82,6 @@ export const AllProgramsSection: React.FC = () => {
     setCurrentMonthDate(new Date(year, month + 1, 1));
   };
 
-  const currentHighlightItem =
-    selectedHighlightIndex !== null ? filteredHighlights[selectedHighlightIndex] : null;
-
-  const handleNextHighlight = () => {
-    if (selectedHighlightIndex === null) return;
-    setSelectedHighlightIndex((selectedHighlightIndex + 1) % filteredHighlights.length);
-  };
-  const handlePrevHighlight = () => {
-    if (selectedHighlightIndex === null) return;
-    setSelectedHighlightIndex(
-      (selectedHighlightIndex - 1 + filteredHighlights.length) % filteredHighlights.length,
-    );
-  };
-
   const programCategories = useMemo(() => {
     const cats = new Set([
       'All',
@@ -126,7 +101,6 @@ export const AllProgramsSection: React.FC = () => {
   const sidebarMenus = [
     { id: 'all-programs' as ProgramSidebarTab, label: 'All Program', icon: Layers },
     { id: 'calendar' as ProgramSidebarTab, label: 'Program Calender', icon: CalendarIcon },
-    { id: 'highlights' as ProgramSidebarTab, label: 'Highlights', icon: Sparkles },
     { id: 'achievements' as ProgramSidebarTab, label: 'Our Achievements', icon: Trophy },
   ];
 
@@ -136,14 +110,13 @@ export const AllProgramsSection: React.FC = () => {
         {/* Section Header */}
         <div className="mb-10 text-center sm:text-left">
           <span className="text-xs font-semibold tracking-wider uppercase text-emerald-400 font-mono">
-            Executive Programs & Galleries
+            Executive Programs & Calendars
           </span>
           <h2 className="text-3xl sm:text-4xl font-bold font-heading text-white mt-1">
             Program Portfolios & Archives
           </h2>
           <p className="text-sm text-stone-400 mt-2 max-w-2xl">
-            Explore union conferences, our live interactive calendar, campus visual highlights, and
-            institutional milestones.
+            Explore union conferences, our live interactive calendar, and institutional milestones.
           </p>
         </div>
 
@@ -495,90 +468,7 @@ export const AllProgramsSection: React.FC = () => {
               </div>
             )}
 
-            {/* TAB 3: HIGHLIGHTS SECTION */}
-            {activeTab === 'highlights' && (
-              <div className="space-y-6 animate-fadeIn">
-                {/* Header & Tab Filters: (All, Event, Announcement) */}
-                <div className="bg-stone-950 border border-stone-800 rounded-2xl p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
-                  <div>
-                    <h3 className="text-lg font-bold font-heading text-white">Visual Highlights Gallery</h3>
-                    <p className="text-xs text-stone-400">
-                      Click any photo to open full-screen Lightbox image viewer with direct Download
-                    </p>
-                  </div>
-
-                  {/* Tab Filters: All, Event, Announcement */}
-                  <div className="flex items-center gap-2 bg-stone-900 p-1.5 rounded-xl border border-stone-800">
-                    {(['All', 'Event', 'Announcement'] as const).map((filter) => (
-                      <button
-                        key={`hl-filter-${filter}`}
-                        onClick={() => setHighlightFilter(filter)}
-                        className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                          highlightFilter === filter
-                            ? 'bg-emerald-600 text-white shadow'
-                            : 'text-stone-400 hover:text-white'
-                        }`}
-                      >
-                        {filter}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Highlight Image Cards */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {filteredHighlights.map((hl, index) => (
-                    <div
-                      key={`hl-card-${hl.id}-${index}`}
-                      onClick={() => setSelectedHighlightIndex(index)}
-                      className="bg-stone-950 border border-stone-800 hover:border-emerald-500/60 rounded-2xl overflow-hidden shadow-xl cursor-pointer group transition-all hover:-translate-y-1 flex flex-col"
-                    >
-                      <div className="relative aspect-[4/3] overflow-hidden bg-stone-900">
-                        <img
-                          src={hl.imageUrl}
-                          alt={hl.title}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-transparent to-transparent opacity-80" />
-
-                        <div className="absolute top-3 left-3">
-                          <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-stone-950/80 backdrop-blur-sm text-emerald-400 border border-emerald-500/40">
-                            {hl.category}
-                          </span>
-                        </div>
-
-                        <div className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <span className="p-2 rounded-lg bg-emerald-600 text-white shadow-lg flex items-center gap-1 text-[10px] font-bold">
-                            <Download className="w-3.5 h-3.5" />
-                            View & Download
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="p-4 flex-1 flex flex-col justify-between">
-                        <div>
-                          <span className="text-[11px] font-mono text-stone-400 block mb-1">
-                            {hl.date}
-                          </span>
-                          <h4 className="text-sm font-bold text-white group-hover:text-emerald-300 transition-colors leading-snug line-clamp-2">
-                            {hl.title}
-                          </h4>
-                        </div>
-
-                        <div className="pt-3 border-t border-stone-900 mt-3 flex items-center justify-between text-[11px] text-stone-500">
-                          <span>Archive #{hl.id}</span>
-                          <span className="text-emerald-400 font-semibold flex items-center gap-1">
-                            Full Lightbox <ChevronRight className="w-3 h-3" />
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* TAB 4: OUR ACHIEVEMENTS */}
+            {/* TAB 3: OUR ACHIEVEMENTS */}
             {activeTab === 'achievements' && (
               <div className="space-y-6 animate-fadeIn">
                 {/* Dashboard-style Stat Section */}
@@ -664,15 +554,6 @@ export const AllProgramsSection: React.FC = () => {
           </main>
         </div>
       </div>
-
-      {/* Lightbox Modal for Highlights */}
-      <LightboxModal
-        isOpen={selectedHighlightIndex !== null}
-        highlight={currentHighlightItem}
-        onClose={() => setSelectedHighlightIndex(null)}
-        onNext={handleNextHighlight}
-        onPrev={handlePrevHighlight}
-      />
 
       {/* Program Agenda Full Modal */}
       {selectedProgramAgenda && (

@@ -20,7 +20,7 @@ import {
   SocialLink,
   WingProgram,
 } from '../../types';
-import { defaultTelemetrySettings, initialDatabase } from '../../defaultData';
+import { defaultTelemetrySettings, initialDatabase, defaultCoreCommitteeWing } from '../../defaultData';
 import {
   CORE_COMMITTEE_POSTERS_SQL_SCHEMA,
   LEADERSHIP_ORDER_SQL_SCHEMA,
@@ -3151,13 +3151,20 @@ export const AdminDashboard: React.FC = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {/* Special Highlighted Card: Core Committee Apex Executive */}
                     {(() => {
+                      const coreWing =
+                        database.wings.find((w) => w.id === 'core-committee') || defaultCoreCommitteeWing;
                       const coreProgramsCount = allWPs.filter(
                         (wp) => wp.wingId === 'core-committee' || wp.wingName?.toLowerCase() === 'core committee'
                       ).length;
 
+                      const presidentPhoto =
+                        coreWing.chairman?.photo || coreWing.chairmanPhoto || coreWing.manager?.photo || '';
+                      const genSecPhoto =
+                        coreWing.convener?.photo || coreWing.convenerPhoto || '';
+
                       return (
                         <div className="p-5 bg-gradient-to-br from-amber-950/40 via-stone-900 to-stone-950 border-2 border-amber-500/50 rounded-2xl flex flex-col justify-between space-y-4 shadow-xl shadow-amber-950/20 md:col-span-2 relative overflow-hidden">
-                          <div className="space-y-2">
+                          <div className="space-y-3">
                             <div className="flex items-center justify-between flex-wrap gap-2">
                               <div className="flex items-center gap-2">
                                 <span className="px-2.5 py-1 rounded-lg bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[11px] font-mono font-black flex items-center gap-1.5">
@@ -3178,12 +3185,101 @@ export const AdminDashboard: React.FC = () => {
                               <span>Core Committee (Markazi Majlis-e-Amila)</span>
                             </h4>
                             <p className="text-xs text-stone-300 leading-relaxed max-w-3xl">
-                              Supreme collegiate council governing campus-wide presidential colloquiums, grand annual conventions, central assemblies, and core initiatives. Highlighted directly as the first column on the portal.
+                              Supreme collegiate council governing campus-wide presidential colloquiums, grand annual conventions, central assemblies, and core initiatives. Highlighted directly as the apex column on the portal.
                             </p>
+
+                            {/* Core Committee Leadership Photos & Direct Change Option */}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 text-xs">
+                              {/* 1. Central President Card */}
+                              <div className="p-3 bg-stone-950/90 rounded-xl border border-amber-500/40 flex items-center gap-3 relative group">
+                                <div className="w-14 h-18 sm:w-16 sm:h-20 rounded-xl bg-stone-900 border-2 border-amber-500/50 overflow-hidden shrink-0 flex items-center justify-center shadow-md relative group/photo">
+                                  {presidentPhoto ? (
+                                    <img
+                                      src={presidentPhoto}
+                                      alt="Central President"
+                                      className="w-full h-full object-cover object-top"
+                                    />
+                                  ) : (
+                                    <Crown className="w-6 h-6 text-amber-500/50" />
+                                  )}
+                                  <button
+                                    type="button"
+                                    onClick={() => handleOpenChangeLeaderPhoto(coreWing, 'chairman')}
+                                    title="Click to Change President Photo"
+                                    className="absolute inset-0 bg-black/75 opacity-0 group-hover/photo:opacity-100 flex flex-col items-center justify-center text-white text-[9px] font-bold transition-opacity cursor-pointer p-1 text-center"
+                                  >
+                                    <Camera className="w-4 h-4 text-amber-400 mb-0.5" />
+                                    <span>Change Photo</span>
+                                  </button>
+                                </div>
+                                <div className="min-w-0 flex-1">
+                                  <span className="text-[10px] font-mono text-amber-400 font-bold block mb-1">
+                                    CENTRAL PRESIDENT
+                                  </span>
+                                  <span className="font-semibold text-white truncate block text-sm">
+                                    {coreWing.chairman?.name || coreWing.manager?.name || 'Sayyid Muhammad Hashir'}
+                                  </span>
+                                  <span className="text-[11px] text-stone-400 truncate block mt-0.5">
+                                    {coreWing.chairman?.contact || 'president@anjuman.edu'}
+                                  </span>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleOpenChangeLeaderPhoto(coreWing, 'chairman')}
+                                    className="mt-2 text-[10px] font-semibold text-amber-300 hover:text-amber-200 bg-amber-950/70 hover:bg-amber-900/80 border border-amber-700/60 px-2 py-0.5 rounded-md flex items-center gap-1 cursor-pointer transition-colors w-fit"
+                                  >
+                                    <Camera className="w-3 h-3 text-amber-400" />
+                                    <span>Change Photo</span>
+                                  </button>
+                                </div>
+                              </div>
+
+                              {/* 2. General Secretary Card */}
+                              <div className="p-3 bg-stone-950/90 rounded-xl border border-amber-500/40 flex items-center gap-3 relative group">
+                                <div className="w-14 h-18 sm:w-16 sm:h-20 rounded-xl bg-stone-900 border-2 border-amber-500/30 overflow-hidden shrink-0 flex items-center justify-center shadow-md relative group/photo">
+                                  {genSecPhoto ? (
+                                    <img
+                                      src={genSecPhoto}
+                                      alt="General Secretary"
+                                      className="w-full h-full object-cover object-top"
+                                    />
+                                  ) : (
+                                    <User className="w-6 h-6 text-stone-500" />
+                                  )}
+                                  <button
+                                    type="button"
+                                    onClick={() => handleOpenChangeLeaderPhoto(coreWing, 'convener')}
+                                    title="Click to Change General Secretary Photo"
+                                    className="absolute inset-0 bg-black/75 opacity-0 group-hover/photo:opacity-100 flex flex-col items-center justify-center text-white text-[9px] font-bold transition-opacity cursor-pointer p-1 text-center"
+                                  >
+                                    <Camera className="w-4 h-4 text-amber-400 mb-0.5" />
+                                    <span>Change Photo</span>
+                                  </button>
+                                </div>
+                                <div className="min-w-0 flex-1">
+                                  <span className="text-[10px] font-mono text-stone-300 font-bold block mb-1">
+                                    GENERAL SECRETARY
+                                  </span>
+                                  <span className="font-semibold text-white truncate block text-sm">
+                                    {coreWing.convener?.name || 'Ahmad Abdullah Misbahi'}
+                                  </span>
+                                  <span className="text-[11px] text-stone-400 truncate block mt-0.5">
+                                    {coreWing.convener?.contact || 'gensec@anjuman.edu'}
+                                  </span>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleOpenChangeLeaderPhoto(coreWing, 'convener')}
+                                    className="mt-2 text-[10px] font-semibold text-stone-200 hover:text-white bg-stone-800 hover:bg-stone-700 border border-stone-600 px-2 py-0.5 rounded-md flex items-center gap-1 cursor-pointer transition-colors w-fit"
+                                  >
+                                    <Camera className="w-3 h-3 text-stone-300" />
+                                    <span>Change Photo</span>
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
                           </div>
 
                           <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-amber-500/20">
-                            <div className="flex items-center gap-2.5">
+                            <div className="flex items-center gap-2.5 flex-wrap">
                               <button
                                 type="button"
                                 onClick={() => handleOpenAddCoreCommitteeProgram()}
@@ -3204,6 +3300,15 @@ export const AdminDashboard: React.FC = () => {
                                 <Calendar className="w-3.5 h-3.5 text-amber-400" />
                                 <span>View Core Programs ({coreProgramsCount})</span>
                               </button>
+
+                              <button
+                                type="button"
+                                onClick={() => handleOpenEditWing(coreWing)}
+                                className="px-3 py-2 rounded-xl bg-amber-950/60 hover:bg-amber-900 text-amber-200 text-xs font-semibold border border-amber-600/50 flex items-center gap-1.5 cursor-pointer transition-colors"
+                              >
+                                <Edit2 className="w-3.5 h-3.5" />
+                                <span>Edit Committee Details</span>
+                              </button>
                             </div>
 
                             <span className="text-[11px] text-amber-400/90 font-mono font-medium">
@@ -3214,7 +3319,7 @@ export const AdminDashboard: React.FC = () => {
                       );
                     })()}
 
-                    {database.wings.map((wing, idx) => {
+                    {database.wings.filter((w) => w.id !== 'core-committee').map((wing, idx) => {
                       const countForThisWing = allWPs.filter(
                         (wp) => wp.wingId === wing.id || wp.wingName?.toLowerCase() === wing.name.toLowerCase()
                       ).length;

@@ -1,4 +1,54 @@
-import { AppDatabase } from './types';
+import { AppDatabase, Wing } from './types';
+
+export const defaultCoreCommitteeWing: Wing = {
+  id: 'core-committee',
+  name: 'Core Committee',
+  shortName: 'Apex Exec',
+  description:
+    'Supreme governing executive council of ANJUMAN-E-HUDA steering union constitutional resolutions, presidential convocations, and campus-wide policy directives.',
+  iconName: 'Crown',
+  status: 'Active',
+  currentTenure: '2026-27',
+  chairman: {
+    name: 'Sayyid Muhammad Hashir',
+    contact: 'president@anjuman.edu',
+    photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80',
+  },
+  chairmanPhoto: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80',
+  manager: {
+    name: 'Sayyid Muhammad Hashir',
+    contact: 'president@anjuman.edu',
+    photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80',
+  },
+  convener: {
+    name: 'Ahmad Abdullah Misbahi',
+    contact: 'gensec@anjuman.edu',
+    photo: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80',
+  },
+  convenerPhoto: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80',
+  history: [
+    {
+      tenure: '2026-27',
+      chairman: 'Sayyid Muhammad Hashir',
+      chairmanPhoto: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80',
+      convener: 'Ahmad Abdullah Misbahi',
+      convenerPhoto: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80',
+      keyMilestone: 'Establishment of Central Secretariat Digital Union Portal & Constitution',
+    },
+    {
+      tenure: '2025-26',
+      chairman: 'Maulana Zeeshan Akhtar',
+      convener: 'Hafiz Bilal Farooqi',
+      keyMilestone: 'Grand Centenary Golden Jubilee Conclave & Academic Delegation',
+    },
+    {
+      tenure: '2024-25',
+      chairman: 'Maulana Tanveer Alam',
+      convener: 'Muhammad Rashid Nomani',
+      keyMilestone: 'Campus-wide Student Welfare & Literacy Endowment Fund Inauguration',
+    },
+  ],
+};
 
 export const initialDatabase: AppDatabase = {
   homepage: {
@@ -381,6 +431,7 @@ export const initialDatabase: AppDatabase = {
     },
   ],
   wings: [
+    defaultCoreCommitteeWing,
     {
       id: 'wing-arabic',
       name: 'Arabic Club (Al-Nadi Al-Arabi)',

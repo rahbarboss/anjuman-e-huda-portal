@@ -38,11 +38,11 @@ export const ProgramsPage: React.FC = () => {
                 OFFICIAL UNION CALENDAR & PHOTO ARCHIVES
               </span>
               <h1 className="text-3xl sm:text-5xl font-bold font-heading text-white tracking-tight">
-                Programs, Colloquiums & Highlights
+                Programs & Portfolios
               </h1>
               <p className="text-stone-300 text-sm sm:text-base max-w-2xl mt-2 leading-relaxed">
-                Explore the complete catalog of symposiums, literary conventions, declamation contests, relief
-                initiatives, and event photo highlights spearheaded across our campus.
+                Explore the complete catalog of symposiums, literary conventions, declamation contests, and
+                student initiatives spearheaded across our campus.
               </p>
             </div>
 

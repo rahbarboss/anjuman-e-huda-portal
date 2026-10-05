@@ -19,7 +19,7 @@ import {
   TelemetrySettings,
   SocialLink,
 } from '../types';
-import { initialDatabase, defaultTelemetrySettings } from '../defaultData';
+import { initialDatabase, defaultTelemetrySettings, defaultCoreCommitteeWing } from '../defaultData';
 import { isSupabaseConfigured } from '../lib/supabase';
 import { optimizeImageBeforeUpload } from '../utils/imageOptimizer';
 import {
@@ -793,7 +793,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const updateWing = async (id: string, wing: Partial<Wing>): Promise<boolean> => {
-    const existing = database.wings.find((w) => w.id === id);
+    const existing = database.wings.find((w) => w.id === id) || (id === 'core-committee' ? defaultCoreCommitteeWing : undefined);
     const oldChairmanPhoto = existing?.chairman?.photo || existing?.chairmanPhoto || existing?.manager?.photo;
     const oldConvenerPhoto = existing?.convener?.photo || existing?.convenerPhoto;
 
@@ -827,10 +827,15 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch (err) {
       console.error(err);
     }
-    setDatabase((prev) => ({
-      ...prev,
-      wings: prev.wings.map((w) => (w.id === id ? finalWing : w)),
-    }));
+    setDatabase((prev) => {
+      const exists = prev.wings.some((w) => w.id === id);
+      return {
+        ...prev,
+        wings: exists
+          ? prev.wings.map((w) => (w.id === id ? finalWing : w))
+          : [finalWing, ...prev.wings],
+      };
+    });
     return true;
   };
 
@@ -1421,39 +1426,60 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   ): Promise<{ success: boolean; url?: string; message?: string }> => {
     try {
       let fileToUpload = file;
-      if (file.type.startsWith('image/') && file.size > 100 * 1024) {
-        try {
-          const { file: optFile } = await optimizeImageBeforeUpload(file);
-          fileToUpload = optFile;
-        } catch {
-          fileToUpload = file;
-        }
+      // Ensure proper image MIME type if missing or empty
+      if (!fileToUpload.type || !fileToUpload.type.startsWith('image/')) {
+        const ext = fileToUpload.name.split('.').pop()?.toLowerCase() || '';
+        let mime = 'image/jpeg';
+        if (ext === 'png') mime = 'image/png';
+        else if (ext === 'webp') mime = 'image/webp';
+        else if (ext === 'svg') mime = 'image/svg+xml';
+        else if (ext === 'gif') mime = 'image/gif';
+        else if (ext === 'avif') mime = 'image/avif';
+        fileToUpload = new File([fileToUpload], fileToUpload.name, { type: mime });
       }
 
+      // 1. If Supabase is active, try Supabase Storage first
       if (isSupabaseConfigured) {
-        const cloudRes = await uploadToSupabaseStorage(fileToUpload, bucket);
-        if (cloudRes.success && cloudRes.url) {
-          return { success: true, url: cloudRes.url };
+        try {
+          const cloudRes = await uploadToSupabaseStorage(fileToUpload, bucket);
+          if (cloudRes.success && cloudRes.url) {
+            return { success: true, url: cloudRes.url };
+          }
+          console.warn(`[uploadMedia] Supabase Storage upload for bucket '${bucket}' unsuccessful (${cloudRes.message}), seamlessly falling back to local server storage...`);
+        } catch (supabaseErr) {
+          console.warn('[uploadMedia] Supabase Storage error, seamlessly falling back to server:', supabaseErr);
         }
-        // Do NOT silently fall back to local disk if Supabase is active
-        return {
-          success: false,
-          message: cloudRes.message || `Upload to Supabase Storage bucket '${bucket}' failed. Check RLS policies or bucket status.`,
-        };
       }
 
-      // Offline / Local Development Fallback
-      const formData = new FormData();
-      formData.append('file', fileToUpload);
-      const res = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData,
-      });
-      const data = await res.json();
-      if (res.ok && data.success) {
-        return { success: true, url: data.url };
+      // 2. Seamless Local Server Storage fallback (preserves exact KB and high resolution)
+      try {
+        const formData = new FormData();
+        formData.append('file', fileToUpload);
+        const res = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData,
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success && data.url) {
+            return { success: true, url: data.url };
+          }
+        }
+      } catch (serverErr) {
+        console.warn('[uploadMedia] Local server upload error:', serverErr);
       }
-      return { success: false, message: data.message || 'Upload failed' };
+
+      // 3. Robust client-side Base64 Data URL fallback so photo upload NEVER fails
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          resolve({ success: true, url: reader.result as string });
+        };
+        reader.onerror = () => {
+          resolve({ success: false, message: 'Could not read image file.' });
+        };
+        reader.readAsDataURL(fileToUpload);
+      });
     } catch (err: any) {
       console.error('[UploadMedia Error]:', err);
       return { success: false, message: err?.message || 'Upload failed' };
