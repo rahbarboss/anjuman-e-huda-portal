@@ -1438,20 +1438,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         fileToUpload = new File([fileToUpload], fileToUpload.name, { type: mime });
       }
 
-      // 1. If Supabase is active, try Supabase Storage first
-      if (isSupabaseConfigured) {
-        try {
-          const cloudRes = await uploadToSupabaseStorage(fileToUpload, bucket);
-          if (cloudRes.success && cloudRes.url) {
-            return { success: true, url: cloudRes.url };
-          }
-          console.warn(`[uploadMedia] Supabase Storage upload for bucket '${bucket}' unsuccessful (${cloudRes.message}), seamlessly falling back to local server storage...`);
-        } catch (supabaseErr) {
-          console.warn('[uploadMedia] Supabase Storage error, seamlessly falling back to server:', supabaseErr);
-        }
-      }
-
-      // 2. Seamless Local Server Storage fallback (preserves exact KB and high resolution)
+      // 1. Primary Reliable Server Storage (Saves directly to public/uploads/ with HEIC auto-conversion)
+      // This is the original smooth and dependable method requested by the user.
       try {
         const formData = new FormData();
         formData.append('file', fileToUpload);
@@ -1462,14 +1450,18 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (res.ok) {
           const data = await res.json();
           if (data.success && data.url) {
+            // Optional: Background sync to Supabase Storage if configured and available
+            if (isSupabaseConfigured) {
+              uploadToSupabaseStorage(fileToUpload, bucket).catch(() => {});
+            }
             return { success: true, url: data.url };
           }
         }
       } catch (serverErr) {
-        console.warn('[uploadMedia] Local server upload error:', serverErr);
+        console.warn('[uploadMedia] Server upload error, attempting fallbacks:', serverErr);
       }
 
-      // 3. Robust client-side Base64 Data URL fallback so photo upload NEVER fails
+      // 2. Client-side Base64 Data URL fallback so photo upload NEVER fails or breaks
       return new Promise((resolve) => {
         const reader = new FileReader();
         reader.onload = () => {

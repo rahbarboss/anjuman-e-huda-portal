@@ -7,6 +7,7 @@ import {
   Trash2,
   Link,
   ExternalLink,
+  User,
 } from 'lucide-react';
 import { useData } from '../../context/DataContext';
 import { StorageBucket } from '../../services/supabaseService';
@@ -29,16 +30,21 @@ export const MediaUploadZone: React.FC<MediaUploadZoneProps> = ({
   const [isDragging, setIsDragging] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(currentUrl || null);
+  const [localBlobUrl, setLocalBlobUrl] = useState<string | null>(null);
+  const [imgError, setImgError] = useState(false);
   const [uploadedFileSize, setUploadedFileSize] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [showUrlInput, setShowUrlInput] = useState(false);
   const [manualUrl, setManualUrl] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Sync with currentUrl whenever the prop changes (e.g., when opening modal for another wing or after saving)
+  // Sync with currentUrl whenever the prop changes
   useEffect(() => {
-    setPreviewUrl(currentUrl || null);
-    if (currentUrl) setManualUrl(currentUrl);
+    // If the URL has .heic, replace with .jpg so browser can render it smoothly
+    const cleanUrl = currentUrl ? currentUrl.replace(/\.(heic|heif)$/i, '.jpg') : null;
+    setPreviewUrl(cleanUrl);
+    setImgError(false);
+    if (cleanUrl) setManualUrl(cleanUrl);
   }, [currentUrl]);
 
   const isImageFile = (f: File): boolean => {
@@ -65,16 +71,39 @@ export const MediaUploadZone: React.FC<MediaUploadZoneProps> = ({
 
   const processUpload = async (file: File) => {
     if (!isImageFile(file)) {
-      setErrorMsg('Please select a valid image file (JPG, PNG, WEBP, SVG, JFIF, etc.).');
+      setErrorMsg('Please select a valid image file (JPG, PNG, WEBP, SVG, JFIF, HEIC, etc.).');
       return;
     }
 
     setErrorMsg(null);
+    setImgError(false);
     setUploading(true);
 
     try {
-      // Ensure proper image MIME type if missing or empty
       let uploadFile = file;
+      const isHeic =
+        file.name.toLowerCase().endsWith('.heic') ||
+        file.name.toLowerCase().endsWith('.heif') ||
+        (file.type && file.type.includes('heic'));
+
+      if (isHeic) {
+        try {
+          const heic2any = (await import('heic2any')).default;
+          const converted = await heic2any({ blob: file, toType: 'image/jpeg', quality: 0.95 });
+          const blobToUse = Array.isArray(converted) ? converted[0] : converted;
+          const newName = file.name.replace(/\.(heic|heif)$/i, '.jpg');
+          uploadFile = new File([blobToUse], newName, { type: 'image/jpeg' });
+        } catch (heicErr) {
+          console.warn('[MediaUploadZone] Client HEIC conversion skipped, server will convert:', heicErr);
+        }
+      }
+
+      // Instant local preview so user sees their photo within 1ms
+      const blobUrl = URL.createObjectURL(uploadFile);
+      setLocalBlobUrl(blobUrl);
+      setPreviewUrl(blobUrl);
+
+      // Ensure proper image MIME type if missing or empty
       if (!uploadFile.type || !uploadFile.type.startsWith('image/')) {
         const ext = uploadFile.name.split('.').pop()?.toLowerCase() || '';
         let mime = 'image/jpeg';
@@ -83,7 +112,7 @@ export const MediaUploadZone: React.FC<MediaUploadZoneProps> = ({
         else if (ext === 'svg') mime = 'image/svg+xml';
         else if (ext === 'gif') mime = 'image/gif';
         else if (ext === 'avif') mime = 'image/avif';
-        uploadFile = new File([file], file.name, { type: mime });
+        uploadFile = new File([uploadFile], uploadFile.name, { type: mime });
       }
 
       // Upload file directly preserving original KB and full quality
@@ -96,7 +125,8 @@ export const MediaUploadZone: React.FC<MediaUploadZoneProps> = ({
         setUploadedFileSize(formatFileSize(uploadFile.size));
         onUploadSuccess(res.url);
       } else {
-        setErrorMsg(res.message || 'Upload failed. Please try again.');
+        // Even if remote returned an error, the local preview still stays visible
+        setErrorMsg(res.message || 'Remote upload failed, kept local preview.');
       }
     } catch (err: any) {
       setErrorMsg(err.message || 'Error uploading file.');
@@ -206,24 +236,53 @@ export const MediaUploadZone: React.FC<MediaUploadZoneProps> = ({
         ) : previewUrl ? (
           <div className="flex flex-col items-center gap-3 w-full">
             <div className="relative w-full max-h-48 rounded-xl overflow-hidden border border-stone-700 bg-stone-950 flex items-center justify-center shadow-inner group/prev">
-              <img
-                src={previewUrl}
-                alt="Passport preview"
-                className="max-h-48 w-auto object-contain object-top select-none"
-              />
-              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/prev:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    fileInputRef.current?.click();
-                  }}
-                  className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-semibold shadow flex items-center gap-1.5 cursor-pointer"
-                >
-                  <RefreshCw className="w-3.5 h-3.5" />
-                  <span>Replace Photo</span>
-                </button>
-              </div>
+              {!imgError ? (
+                <>
+                  <img
+                    src={previewUrl || localBlobUrl || ''}
+                    alt="Passport preview"
+                    className="max-h-48 w-auto object-contain object-top select-none"
+                    onError={() => {
+                      if (localBlobUrl && previewUrl !== localBlobUrl) {
+                        setPreviewUrl(localBlobUrl);
+                      } else {
+                        setImgError(true);
+                      }
+                    }}
+                  />
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/prev:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        fileInputRef.current?.click();
+                      }}
+                      className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-semibold shadow flex items-center gap-1.5 cursor-pointer"
+                    >
+                      <RefreshCw className="w-3.5 h-3.5" />
+                      <span>Replace Photo</span>
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <div className="py-6 px-4 flex flex-col items-center justify-center text-center space-y-2">
+                  <div className="w-12 h-12 rounded-full bg-stone-900 border border-stone-800 flex items-center justify-center text-emerald-400">
+                    <User className="w-6 h-6" />
+                  </div>
+                  <p className="text-xs text-stone-400">No photo selected or link expired.</p>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      fileInputRef.current?.click();
+                    }}
+                    className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-semibold shadow flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <UploadCloud className="w-3.5 h-3.5" />
+                    <span>Upload New Photo</span>
+                  </button>
+                </div>
+              )}
             </div>
 
             <div className="flex items-center gap-1.5 text-xs text-emerald-400 font-medium">
@@ -231,8 +290,25 @@ export const MediaUploadZone: React.FC<MediaUploadZoneProps> = ({
               <span>Image uploaded {uploadedFileSize ? `(${uploadedFileSize})` : ''}</span>
             </div>
 
-            {/* Direct Change & Remove Buttons */}
-            <div className="flex items-center gap-2 pt-1 w-full justify-center">
+            {/* Direct Action Buttons: View in New Tab, Replace, Remove */}
+            <div className="flex items-center gap-2 pt-1 w-full justify-center flex-wrap">
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  const targetUrl = previewUrl?.startsWith('/')
+                    ? `${window.location.origin}${previewUrl}`
+                    : (previewUrl || '');
+                  if (targetUrl) {
+                    window.open(targetUrl, '_blank', 'noopener,noreferrer');
+                  }
+                }}
+                className="px-3 py-1.5 bg-stone-800 hover:bg-stone-700 text-emerald-400 rounded-lg text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition-colors border border-stone-700 hover:border-emerald-500/40"
+                title="Open photo in a new Google Chrome / browser tab"
+              >
+                <ExternalLink className="w-3.5 h-3.5" />
+                <span>Open in New Tab</span>
+              </button>
               <button
                 type="button"
                 onClick={(e) => {
@@ -242,7 +318,7 @@ export const MediaUploadZone: React.FC<MediaUploadZoneProps> = ({
                 className="px-3 py-1.5 bg-stone-800 hover:bg-stone-700 text-stone-200 rounded-lg text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition-colors border border-stone-700"
               >
                 <RefreshCw className="w-3 h-3 text-emerald-400" />
-                <span>Replace / Change Photo</span>
+                <span>Replace Photo</span>
               </button>
               <button
                 type="button"
@@ -265,7 +341,7 @@ export const MediaUploadZone: React.FC<MediaUploadZoneProps> = ({
                 Drag and drop image here, or <span className="text-emerald-400 underline">browse</span>
               </p>
               <p className="text-[10px] text-stone-500 mt-0.5 font-mono">
-                PNG, JPG, WEBP, or SVG • Uploads to Supabase storage
+                PNG, JPG, WEBP, or SVG • Instant direct photo upload
               </p>
             </div>
           </div>

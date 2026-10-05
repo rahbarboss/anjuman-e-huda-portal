@@ -339,87 +339,56 @@
       "status": "Active",
       "currentTenure": "2026-27",
       "chairman": {
-        "name": "Sayyid Muhammad Hashir",
+        "name": "Shaikh Sanaullah",
         "contact": "president@anjuman.edu",
         "photo": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80"
       },
-      "chairmanPhoto": "/uploads/test.jpg",
+      "chairmanPhoto": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80",
       "manager": {
-        "name": "Sayyid Muhammad Hashir",
+        "name": "Shaikh Sanaullah",
         "contact": "president@anjuman.edu",
         "photo": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80"
       },
       "convener": {
-        "name": "Ahmad Abdullah Misbahi",
+        "name": "Muhammed Rayyan",
         "contact": "gensec@anjuman.edu",
         "photo": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80"
       },
       "convenerPhoto": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80",
-      "history": [
-        {
-          "tenure": "2026-27",
-          "chairman": "Sayyid Muhammad Hashir",
-          "chairmanPhoto": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80",
-          "convener": "Ahmad Abdullah Misbahi",
-          "convenerPhoto": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80",
-          "keyMilestone": "Establishment of Central Secretariat Digital Union Portal & Constitution"
-        },
-        {
-          "tenure": "2025-26",
-          "chairman": "Maulana Zeeshan Akhtar",
-          "convener": "Hafiz Bilal Farooqi",
-          "keyMilestone": "Grand Centenary Golden Jubilee Conclave & Academic Delegation"
-        },
-        {
-          "tenure": "2024-25",
-          "chairman": "Maulana Tanveer Alam",
-          "convener": "Muhammad Rashid Nomani",
-          "keyMilestone": "Campus-wide Student Welfare & Literacy Endowment Fund Inauguration"
-        }
-      ]
+      "history": []
     },
     {
       "id": "wing-arabic",
-      "name": "Arabic Club (Al-Nadi Al-Arabi)",
-      "shortName": "Arabic Club",
-      "description": "Premier collegiate forum for classical rhetoric, modern Arabic literature, international declamation symposiums, and student journals.",
+      "name": "ARABIC WING",
+      "shortName": "ARABIC WING",
+      "description": "Premier forum for classical rhetoric, modern Arabic literature, international declamation symposiums, and linguistic research.",
       "iconName": "BookOpen",
       "status": "Active",
       "currentTenure": "2026-27",
       "chairman": {
-        "name": "Sayyid Munawwar Ali",
-        "contact": "arabic.club@anjuman.edu",
-        "photo": "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=400&q=80"
+        "name": "MD AHRAR ALAM",
+        "contact": "ahrar.arabic@anjuman.edu",
+        "photo": ""
       },
+      "chairmanPhoto": "",
       "manager": {
-        "name": "Sayyid Munawwar Ali",
-        "contact": "arabic.club@anjuman.edu",
-        "photo": "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=400&q=80"
+        "name": "MD AHRAR ALAM",
+        "contact": "ahrar.arabic@anjuman.edu",
+        "photo": ""
       },
       "convener": {
-        "name": "Tariq Al-Qasimi",
-        "contact": "tariq.arabic@anjuman.edu"
+        "name": "SABIR ALAM",
+        "contact": "sabir.arabic@anjuman.edu",
+        "photo": "/uploads/sabir_alam.jpg"
       },
-      "assistant": {
-        "name": "Ahmad Bilal",
-        "contact": "bilal.arabic@anjuman.edu"
-      },
+      "convenerPhoto": "/uploads/sabir_alam.jpg",
       "history": [
         {
           "tenure": "2026-27",
-          "chairman": "Sayyid Munawwar Ali",
-          "manager": "Sayyid Munawwar Ali",
-          "convener": "Tariq Al-Qasimi",
-          "assistant": "Ahmad Bilal",
-          "keyMilestone": "Organized national Arabic oratory declamation attended by 32 universities."
-        },
-        {
-          "tenure": "2025-26",
-          "chairman": "Hafiz Farhan Al-Huda",
-          "manager": "Hafiz Farhan Al-Huda",
-          "convener": "Kashif Jameel",
-          "assistant": "Muawiya Hasan",
-          "keyMilestone": "Published bilingual Arabic anthology \"Nafahat Al-Huda\" volume IV."
+          "chairman": "MD AHRAR ALAM",
+          "manager": "MD AHRAR ALAM",
+          "convener": "SABIR ALAM",
+          "keyMilestone": "Organized national Arabic oratory declamation attended by scholars across universities."
         }
       ]
     },
@@ -583,8 +552,8 @@
     },
     {
       "id": "wing-4",
-      "name": "IT, Media & Digital Broadcast Wing",
-      "shortName": "IMW",
+      "name": "IT CLUB",
+      "shortName": "IT CLUB",
       "description": "Managing live event webcasts, union portal development, cybersecurity workshops, graphic branding, and video documentary production.",
       "iconName": "Laptop",
       "status": "Active",
@@ -595,8 +564,9 @@
         "photo": "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=400&q=80"
       },
       "convener": {
-        "name": "Sameer Hashmi",
-        "contact": "broadcast@anjuman.edu"
+        "name": "ZEESHAN SHAIKH",
+        "contact": "convener@anjuman.edu",
+        "photo": "/uploads/1791216942320-605886525-IMG_8942.jpg"
       },
       "assistant": {
         "name": "Waleed Mustafa",
@@ -624,7 +594,8 @@
         "name": "Zohran Sheikh",
         "contact": "media@anjuman.edu",
         "photo": "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=400&q=80"
-      }
+      },
+      "convenerPhoto": "/uploads/1791216942320-605886525-IMG_8942.jpg"
     },
     {
       "id": "wing-5",
@@ -750,6 +721,76 @@
           "convener": "Tariq Jameel",
           "assistant": "Umair Siddiqui",
           "keyMilestone": "Digitized comprehensive question-answer Islamic Information database."
+        }
+      ]
+    },
+    {
+      "id": "wing-urdu",
+      "name": "URDU WING",
+      "shortName": "URDU WING",
+      "description": "Preserving and promoting the richness of classical and modern Urdu literature, poetic symposiums (Mushaira), and quarterly publications.",
+      "iconName": "BookOpen",
+      "status": "Active",
+      "currentTenure": "2026-27",
+      "chairman": {
+        "name": "Maulana Shakeel Ahmad",
+        "contact": "urdu.chairman@anjuman.edu",
+        "photo": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80"
+      },
+      "chairmanPhoto": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80",
+      "manager": {
+        "name": "Maulana Shakeel Ahmad",
+        "contact": "urdu.chairman@anjuman.edu",
+        "photo": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80"
+      },
+      "convener": {
+        "name": "Mohammad Kaif",
+        "contact": "urdu.convener@anjuman.edu",
+        "photo": ""
+      },
+      "convenerPhoto": "",
+      "history": [
+        {
+          "tenure": "2026-27",
+          "chairman": "Maulana Shakeel Ahmad",
+          "manager": "Maulana Shakeel Ahmad",
+          "convener": "Mohammad Kaif",
+          "keyMilestone": "Published bilingual literary journal \"Nawa-e-Huda\" and hosted All-India Mushaira."
+        }
+      ]
+    },
+    {
+      "id": "wing-english",
+      "name": "ENGLISH WING",
+      "shortName": "ENGLISH WING",
+      "description": "Empowering student scholars with global communication fluency, parliamentary debate, academic essay writing, and public speaking mastery.",
+      "iconName": "GraduationCap",
+      "status": "Active",
+      "currentTenure": "2026-27",
+      "chairman": {
+        "name": "Prof. Salman Faris",
+        "contact": "english.chairman@anjuman.edu",
+        "photo": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80"
+      },
+      "chairmanPhoto": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80",
+      "manager": {
+        "name": "Prof. Salman Faris",
+        "contact": "english.chairman@anjuman.edu",
+        "photo": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80"
+      },
+      "convener": {
+        "name": "Daniyal Akhtar",
+        "contact": "english.convener@anjuman.edu",
+        "photo": ""
+      },
+      "convenerPhoto": "",
+      "history": [
+        {
+          "tenure": "2026-27",
+          "chairman": "Prof. Salman Faris",
+          "manager": "Prof. Salman Faris",
+          "convener": "Daniyal Akhtar",
+          "keyMilestone": "Won 1st Prize in National Parliamentary Debating League 2026."
         }
       ]
     }

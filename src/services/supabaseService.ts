@@ -42,19 +42,42 @@ export async function uploadToSupabaseStorage(
   }
 
   try {
-    const fileExt = file.name.split('.').pop() || 'png';
+    let uploadFile = file;
+    let fileExt = (file.name.split('.').pop() || 'png').toLowerCase();
+    if (fileExt === 'heic' || fileExt === 'heif') {
+      fileExt = 'jpg';
+    }
     const cleanFileName = file.name
       .replace(/\.[^/.]+$/, '')
       .replace(/[^a-zA-Z0-9]/g, '_')
       .toLowerCase();
     const filePath = `${Date.now()}_${cleanFileName}.${fileExt}`;
 
-    const { error: uploadError } = await supabase.storage
+    let { error: uploadError } = await supabase.storage
       .from(bucket)
-      .upload(filePath, file, {
+      .upload(filePath, uploadFile, {
         cacheControl: '3600',
         upsert: true,
       });
+
+    // If bucket not found, attempt to auto-create public bucket and retry
+    if (
+      uploadError &&
+      (uploadError.message?.toLowerCase().includes('bucket not found') ||
+        uploadError.message?.toLowerCase().includes('nosuchbucket') ||
+        (uploadError as any).statusCode === '404')
+    ) {
+      try {
+        await supabase.storage.createBucket(bucket, { public: true });
+        const retry = await supabase.storage.from(bucket).upload(filePath, uploadFile, {
+          cacheControl: '3600',
+          upsert: true,
+        });
+        uploadError = retry.error;
+      } catch (createErr) {
+        console.warn(`[Supabase Storage] Auto-create bucket '${bucket}' error:`, createErr);
+      }
+    }
 
     if (uploadError) {
       console.error(`[Supabase Storage / ${bucket}] Upload failed:`, uploadError.message, uploadError);

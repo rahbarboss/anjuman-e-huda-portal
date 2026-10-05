@@ -2,6 +2,8 @@ import express from 'express';
 import path from 'path';
 import fs from 'fs';
 import multer from 'multer';
+// @ts-ignore
+import convert from 'heic-convert';
 import { createServer as createViteServer } from 'vite';
 import { initialDatabase, defaultCoreCommitteeWing } from './src/defaultData.ts';
 import { AppDatabase } from './src/types.ts';
@@ -64,22 +66,101 @@ function readDb(): AppDatabase {
         needsWrite = true;
       }
 
-      // Ensure Arabic Club is present in wings list
-      if (parsed.wings && !parsed.wings.some((w: any) => w.id === 'wing-arabic')) {
-        const arabicWing = initialDatabase.wings.find((w: any) => w.id === 'wing-arabic');
-        if (arabicWing) {
-          parsed.wings.unshift(arabicWing);
-          needsWrite = true;
+      // Sync all official initialDatabase wings (ARABIC WING, IIC WING, URDU WING, ENGLISH WING, IT CLUB, etc.)
+      if (parsed.wings) {
+        // Remove outdated dummy "Arabic Club (Al-Nadi Al-Arabi)" if present
+        const oldDummyIdx = parsed.wings.findIndex((w: any) => w.id === 'wing-arabic' && w.name?.includes('Arabic Club'));
+        if (oldDummyIdx !== -1) {
+          const officialArabic = initialDatabase.wings.find((w: any) => w.id === 'wing-arabic');
+          if (officialArabic) {
+            parsed.wings[oldDummyIdx] = officialArabic;
+            needsWrite = true;
+          }
         }
-      }
 
-      // Ensure IIC WING is present in wings list
-      if (parsed.wings && !parsed.wings.some((w: any) => w.id === 'wing-iic')) {
-        const iicWing = initialDatabase.wings.find((w: any) => w.id === 'wing-iic');
-        if (iicWing) {
-          parsed.wings.push(iicWing);
-          needsWrite = true;
+        // Ensure ARABIC WING is present
+        if (!parsed.wings.some((w: any) => w.name?.toUpperCase().includes('ARABIC WING') || w.id === 'wing-arabic' || w.id === 'wing_1790240957068')) {
+          const officialArabic = initialDatabase.wings.find((w: any) => w.id === 'wing-arabic');
+          if (officialArabic) {
+            parsed.wings.push(officialArabic);
+            needsWrite = true;
+          }
         }
+
+        // Ensure URDU WING is present
+        if (!parsed.wings.some((w: any) => w.name?.toUpperCase().includes('URDU WING') || w.id === 'wing-urdu')) {
+          const officialUrdu = initialDatabase.wings.find((w: any) => w.id === 'wing-urdu');
+          if (officialUrdu) {
+            parsed.wings.push(officialUrdu);
+            needsWrite = true;
+          }
+        }
+
+        // Ensure ENGLISH WING is present
+        if (!parsed.wings.some((w: any) => w.name?.toUpperCase().includes('ENGLISH WING') || w.id === 'wing-english')) {
+          const officialEnglish = initialDatabase.wings.find((w: any) => w.id === 'wing-english');
+          if (officialEnglish) {
+            parsed.wings.push(officialEnglish);
+            needsWrite = true;
+          }
+        }
+
+        // Ensure IT CLUB is present and has ZEESHAN SHAIKH as Convener
+        const itWing = parsed.wings.find((w: any) => w.name?.toUpperCase().includes('IT CLUB') || w.name?.toUpperCase().includes('IT, MEDIA') || w.id === 'wing-4');
+        if (itWing) {
+          if (itWing.name !== 'IT CLUB') {
+            itWing.name = 'IT CLUB';
+            itWing.shortName = 'IT CLUB';
+            needsWrite = true;
+          }
+          if (!itWing.convener || itWing.convener.name !== 'ZEESHAN SHAIKH') {
+            itWing.convener = {
+              name: 'ZEESHAN SHAIKH',
+              contact: 'convener@anjuman.edu',
+              photo: itWing.convener?.photo || itWing.convenerPhoto || '',
+            };
+            needsWrite = true;
+          }
+        } else {
+          const officialIt = initialDatabase.wings.find((w: any) => w.id === 'wing-4');
+          if (officialIt) {
+            parsed.wings.push(officialIt);
+            needsWrite = true;
+          }
+        }
+
+        // Ensure IIC WING is present
+        if (!parsed.wings.some((w: any) => w.id === 'wing-iic')) {
+          const iicWing = initialDatabase.wings.find((w: any) => w.id === 'wing-iic');
+          if (iicWing) {
+            parsed.wings.push(iicWing);
+            needsWrite = true;
+          }
+        }
+
+        // Sanitize any broken / unreachable Supabase URLs in wings leadership photos
+        parsed.wings.forEach((w: any) => {
+          if (w.chairman?.photo?.includes('zfvyxvajgnodiatiqyoh') || w.chairman?.photo?.includes('NoSuchBucket')) {
+            w.chairman.photo = 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80';
+            needsWrite = true;
+          }
+          if (w.chairmanPhoto?.includes('zfvyxvajgnodiatiqyoh') || w.chairmanPhoto?.includes('NoSuchBucket')) {
+            w.chairmanPhoto = 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80';
+            needsWrite = true;
+          }
+          if (w.manager?.photo?.includes('zfvyxvajgnodiatiqyoh') || w.manager?.photo?.includes('NoSuchBucket')) {
+            w.manager.photo = 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80';
+            needsWrite = true;
+          }
+          if (w.convener?.photo?.includes('zfvyxvajgnodiatiqyoh') || w.convener?.photo?.includes('NoSuchBucket')) {
+            w.convener.photo = 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80';
+            needsWrite = true;
+          }
+          if (w.convenerPhoto?.includes('zfvyxvajgnodiatiqyoh') || w.convenerPhoto?.includes('NoSuchBucket')) {
+            w.convenerPhoto = 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80';
+            needsWrite = true;
+          }
+        });
       }
 
       if (needsWrite) {
@@ -108,6 +189,35 @@ function writeDb(data: AppDatabase): void {
 
 // Initialize db file on startup
 readDb();
+
+// Auto-convert and serve HEIC files as JPEG on the fly if requested
+app.get('/uploads/:filename', async (req, res, next) => {
+  const filename = req.params.filename;
+  const filePath = path.join(UPLOAD_DIR, filename);
+
+  if (filename.toLowerCase().endsWith('.heic') || filename.toLowerCase().endsWith('.heif')) {
+    const jpgFilename = filename.replace(/\.(heic|heif)$/i, '.jpg');
+    const jpgPath = path.join(UPLOAD_DIR, jpgFilename);
+
+    if (fs.existsSync(jpgPath)) {
+      res.setHeader('Content-Type', 'image/jpeg');
+      return res.sendFile(jpgPath);
+    }
+
+    if (fs.existsSync(filePath)) {
+      try {
+        const inputBuffer = fs.readFileSync(filePath);
+        const outputBuffer = await convert({ buffer: inputBuffer, format: 'JPEG', quality: 0.95 });
+        fs.writeFileSync(jpgPath, outputBuffer);
+        res.setHeader('Content-Type', 'image/jpeg');
+        return res.sendFile(jpgPath);
+      } catch (err) {
+        console.error('HEIC conversion error on GET:', err);
+      }
+    }
+  }
+  next();
+});
 
 // Serve uploads statically
 app.use('/uploads', express.static(UPLOAD_DIR));
@@ -159,19 +269,49 @@ app.post('/api/auth/login', (req, res) => {
   });
 });
 
-// 3. Media Management: Drag & Drop upload
-app.post('/api/upload', upload.single('file'), (req, res) => {
+// 3. Media Management: Drag & Drop upload (with automatic HEIC -> JPEG conversion)
+app.post('/api/upload', upload.single('file'), async (req, res) => {
   if (!req.file) {
     return res.status(400).json({ success: false, message: 'No file was uploaded.' });
   }
-  const publicUrl = `/uploads/${req.file.filename}`;
+
+  let finalFilename = req.file.filename;
+  let finalMime = req.file.mimetype;
+  let finalSize = req.file.size;
+
+  // Convert HEIC/HEIF to JPEG automatically
+  if (
+    req.file.originalname.toLowerCase().endsWith('.heic') ||
+    req.file.originalname.toLowerCase().endsWith('.heif') ||
+    req.file.mimetype.includes('heic') ||
+    req.file.mimetype.includes('heif')
+  ) {
+    try {
+      const inputBuffer = fs.readFileSync(req.file.path);
+      const outputBuffer = await convert({
+        buffer: inputBuffer,
+        format: 'JPEG',
+        quality: 0.95,
+      });
+      const jpgFilename = req.file.filename.replace(/\.(heic|heif)$/i, '.jpg');
+      const jpgPath = path.join(UPLOAD_DIR, jpgFilename);
+      fs.writeFileSync(jpgPath, outputBuffer);
+      finalFilename = jpgFilename;
+      finalMime = 'image/jpeg';
+      finalSize = outputBuffer.length;
+    } catch (err) {
+      console.warn('Server-side HEIC conversion error:', err);
+    }
+  }
+
+  const publicUrl = `/uploads/${finalFilename}`;
   return res.json({
     success: true,
     url: publicUrl,
-    filename: req.file.filename,
+    filename: finalFilename,
     originalName: req.file.originalname,
-    size: req.file.size,
-    mimetype: req.file.mimetype,
+    size: finalSize,
+    mimetype: finalMime,
   });
 });
 

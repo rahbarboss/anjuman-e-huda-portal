@@ -727,22 +727,22 @@ export const AdminDashboard: React.FC = () => {
           chairmanPhoto: newPhotoUrl,
           manager: updatedChairman,
         });
-        showToast(`Chairman photo for "${wing.name}" replaced & saved in Supabase.`);
+        showToast(`Chairman photo for "${wing.name}" updated successfully.`);
       } else {
         const updatedConvener = {
-          name: wing.convener?.name || '',
-          contact: wing.convener?.contact || '',
+          name: typeof wing.convener === 'object' ? wing.convener?.name || '' : (wing.convener || ''),
+          contact: typeof wing.convener === 'object' ? wing.convener?.contact || '' : '',
           photo: newPhotoUrl,
         };
         await updateWing(wing.id, {
           convener: updatedConvener,
           convenerPhoto: newPhotoUrl,
         });
-        showToast(`Convener photo for "${wing.name}" replaced & saved in Supabase.`);
+        showToast(`Convener photo for "${wing.name}" updated successfully.`);
       }
       setChangeLeaderPhotoModal(null);
     } catch (err: any) {
-      showToast(err.message || 'Error updating leader photo in Supabase');
+      showToast(err.message || 'Error updating leader photo');
       setChangeLeaderPhotoModal((prev) => (prev ? { ...prev, isSaving: false } : null));
     }
   };
@@ -3409,7 +3409,7 @@ export const AdminDashboard: React.FC = () => {
                                   <button
                                     type="button"
                                     onClick={() => handleOpenChangeLeaderPhoto(wing, 'convener')}
-                                    title="Click to Change Convener Photo in Supabase"
+                                    title="Click to Change Convener Photo"
                                     className="absolute inset-0 bg-black/75 opacity-0 group-hover/photo:opacity-100 flex flex-col items-center justify-center text-white text-[9px] font-bold transition-opacity cursor-pointer p-1 text-center"
                                   >
                                     <Camera className="w-4 h-4 text-amber-400 mb-0.5" />
@@ -3418,7 +3418,9 @@ export const AdminDashboard: React.FC = () => {
                                 </div>
                                 <div className="min-w-0 flex-1">
                                   <span className="text-[10px] font-mono text-amber-400 font-bold block mb-1">CONVENER</span>
-                                  <span className="font-semibold text-white truncate block text-sm">{wing.convener.name}</span>
+                                  <span className="font-semibold text-white truncate block text-sm">
+                                    {typeof wing.convener === 'object' ? wing.convener?.name : (wing.convener || 'Not assigned')}
+                                  </span>
                                   <span className="text-[11px] text-stone-400 truncate block mt-0.5">
                                     {wing.convener?.contact || 'convener@anjuman.edu'}
                                   </span>
@@ -3427,7 +3429,7 @@ export const AdminDashboard: React.FC = () => {
                                     type="button"
                                     onClick={() => handleOpenChangeLeaderPhoto(wing, 'convener')}
                                     className="mt-2 text-[10px] font-semibold text-amber-400 hover:text-amber-300 bg-amber-950/70 hover:bg-amber-900/80 border border-amber-700/60 px-2 py-0.5 rounded-md flex items-center gap-1 cursor-pointer transition-colors w-fit"
-                                    title="Replace Convener Photo URL in Supabase"
+                                    title="Replace Convener Photo"
                                   >
                                     <Camera className="w-3 h-3 text-amber-400" />
                                     <span>Change Photo</span>
@@ -5075,7 +5077,7 @@ export const AdminDashboard: React.FC = () => {
               {/* Upload Component with instant preview */}
               <div>
                 <label className="block text-xs font-semibold text-stone-300 mb-1.5">
-                  Upload Passport Photo (Auto-saved to Supabase & Database):
+                  Upload Passport Photo:
                 </label>
                 <MediaUploadZone
                   bucket="members"
@@ -5083,7 +5085,7 @@ export const AdminDashboard: React.FC = () => {
                   currentUrl={changeLeaderPhotoModal.newPhotoUrl}
                   onUploadSuccess={(url) => {
                     setChangeLeaderPhotoModal((prev) => (prev ? { ...prev, newPhotoUrl: url } : null));
-                    showToast('Photo uploaded to Supabase Storage!');
+                    showToast('Photo uploaded successfully!');
                   }}
                 />
               </div>
@@ -5108,7 +5110,7 @@ export const AdminDashboard: React.FC = () => {
               <div className="p-2.5 rounded-xl bg-emerald-950/40 border border-emerald-800/40 text-[11px] text-emerald-300 flex items-start gap-2">
                 <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-400 mt-0.5" />
                 <span>
-                  Replacing this photo will automatically update the URL in Supabase database & storage, and update both the website wings section and leadership archives.
+                  Replacing this photo will instantly update both the website wings section and leadership archives.
                 </span>
               </div>
 
@@ -5130,12 +5132,12 @@ export const AdminDashboard: React.FC = () => {
                   {changeLeaderPhotoModal.isSaving ? (
                     <>
                       <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                      <span>Updating Supabase...</span>
+                      <span>Saving Photo...</span>
                     </>
                   ) : (
                     <>
                       <Save className="w-3.5 h-3.5" />
-                      <span>Save & Replace in Supabase</span>
+                      <span>Save & Replace Photo</span>
                     </>
                   )}
                 </button>

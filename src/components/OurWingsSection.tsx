@@ -520,7 +520,16 @@ export const OurWingsSection: React.FC = () => {
                                   alt={chairmanName}
                                   className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-300"
                                   loading="lazy"
+                                  onError={(e) => {
+                                    e.currentTarget.style.display = 'none';
+                                    const fb = e.currentTarget.parentElement?.querySelector('.photo-fallback');
+                                    if (fb) (fb as HTMLElement).style.display = 'flex';
+                                  }}
                                 />
+                                <div className="photo-fallback hidden w-full h-full flex-col items-center justify-center bg-gradient-to-b from-stone-900 to-emerald-950/50 text-stone-500 p-2 text-center">
+                                  <User className="w-8 h-8 text-emerald-400/60 mb-1" />
+                                  <span className="text-[9px] font-mono uppercase text-emerald-500/80 font-bold">No Photo</span>
+                                </div>
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-center pb-1.5 pointer-events-none">
                                   <span className="text-[9px] font-mono text-emerald-300 font-bold bg-black/80 px-1.5 py-0.5 rounded backdrop-blur-xs">
                                     Enlarge
@@ -583,7 +592,16 @@ export const OurWingsSection: React.FC = () => {
                                   alt={convenerName}
                                   className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-300"
                                   loading="lazy"
+                                  onError={(e) => {
+                                    e.currentTarget.style.display = 'none';
+                                    const fb = e.currentTarget.parentElement?.querySelector('.photo-fallback');
+                                    if (fb) (fb as HTMLElement).style.display = 'flex';
+                                  }}
                                 />
+                                <div className="photo-fallback hidden w-full h-full flex-col items-center justify-center bg-gradient-to-b from-stone-900 to-amber-950/50 text-stone-500 p-2 text-center">
+                                  <UserCheck className="w-8 h-8 text-amber-400/60 mb-1" />
+                                  <span className="text-[9px] font-mono uppercase text-amber-500/80 font-bold">No Photo</span>
+                                </div>
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-center pb-1.5 pointer-events-none">
                                   <span className="text-[9px] font-mono text-amber-300 font-bold bg-black/80 px-1.5 py-0.5 rounded backdrop-blur-xs">
                                     Enlarge
