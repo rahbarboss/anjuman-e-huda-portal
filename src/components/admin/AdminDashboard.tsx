@@ -3374,7 +3374,10 @@ export const AdminDashboard: React.FC = () => {
                                 </div>
                                 <div className="min-w-0 flex-1">
                                   <span className="text-[10px] font-mono text-emerald-400 font-bold block mb-1">CHAIRMAN</span>
-                                  <span className="font-semibold text-white truncate block text-sm">
+                                  <span
+                                    className="font-semibold text-white break-words line-clamp-2 block text-xs sm:text-[13px] leading-tight"
+                                    title={wing.chairman?.name || wing.manager?.name || 'Not assigned'}
+                                  >
                                     {wing.chairman?.name || wing.manager?.name || 'Not assigned'}
                                   </span>
                                   <span className="text-[11px] text-stone-400 truncate block mt-0.5">
@@ -3418,7 +3421,10 @@ export const AdminDashboard: React.FC = () => {
                                 </div>
                                 <div className="min-w-0 flex-1">
                                   <span className="text-[10px] font-mono text-amber-400 font-bold block mb-1">CONVENER</span>
-                                  <span className="font-semibold text-white truncate block text-sm">
+                                  <span
+                                    className="font-semibold text-white break-words line-clamp-2 block text-xs sm:text-[13px] leading-tight"
+                                    title={typeof wing.convener === 'object' ? wing.convener?.name : (wing.convener || 'Not assigned')}
+                                  >
                                     {typeof wing.convener === 'object' ? wing.convener?.name : (wing.convener || 'Not assigned')}
                                   </span>
                                   <span className="text-[11px] text-stone-400 truncate block mt-0.5">

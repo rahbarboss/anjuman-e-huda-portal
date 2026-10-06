@@ -279,7 +279,7 @@ export const OurWingsSection: React.FC = () => {
                               <Crown className="w-3 h-3 text-amber-400" />
                               President
                             </span>
-                            <h4 className="text-xs sm:text-sm font-bold text-white leading-tight truncate" title={presidentName}>
+                            <h4 className="text-xs sm:text-[13px] font-bold text-white leading-tight break-words line-clamp-2" title={presidentName}>
                               {presidentName}
                             </h4>
                             <p className="text-[10px] text-stone-400 font-mono mt-0.5 truncate">
@@ -313,7 +313,7 @@ export const OurWingsSection: React.FC = () => {
                               <UserCheck className="w-3 h-3 text-stone-400" />
                               Gen Secretary
                             </span>
-                            <h4 className="text-xs sm:text-sm font-bold text-white leading-tight truncate" title={genSecName}>
+                            <h4 className="text-xs sm:text-[13px] font-bold text-white leading-tight break-words line-clamp-2" title={genSecName}>
                               {genSecName}
                             </h4>
                             <p className="text-[10px] text-stone-400 font-mono mt-0.5 truncate">
@@ -506,11 +506,11 @@ export const OurWingsSection: React.FC = () => {
                         : (wing.chairman?.photo || wing.chairmanPhoto || wing.manager?.photo || '');
 
                       return (
-                        <div className="p-3.5 sm:p-4 rounded-2xl bg-stone-950/95 border border-stone-800/90 hover:border-emerald-500/50 flex items-center gap-3.5 sm:gap-4 transition-all duration-300 group shadow-md hover:shadow-emerald-950/20">
-                          {/* Large Portrait Photo Frame - Face clearly visible */}
+                        <div className="p-3 sm:p-3.5 rounded-2xl bg-stone-950/95 border border-stone-800/90 hover:border-emerald-500/50 flex items-center gap-3 sm:gap-3.5 transition-all duration-300 group shadow-md hover:shadow-emerald-950/20">
+                          {/* Portrait Photo Frame - Face clearly visible */}
                           <div
                             onClick={() => chairmanPhoto && setPreviewImage({ url: chairmanPhoto, title: chairmanName, subtitle: `${wing.name} • Chairman` })}
-                            className={`relative w-24 h-32 sm:w-28 sm:h-36 rounded-2xl overflow-hidden bg-stone-900 border-2 border-emerald-500/50 group-hover:border-emerald-400 shadow-xl shadow-black/80 shrink-0 ${chairmanPhoto ? 'cursor-pointer hover:ring-2 hover:ring-emerald-400/50' : ''}`}
+                            className={`relative w-20 h-28 sm:w-22 sm:h-32 rounded-xl overflow-hidden bg-stone-900 border-2 border-emerald-500/50 group-hover:border-emerald-400 shadow-xl shadow-black/80 shrink-0 ${chairmanPhoto ? 'cursor-pointer hover:ring-2 hover:ring-emerald-400/50' : ''}`}
                             title={chairmanPhoto ? "Click to view full photo" : undefined}
                           >
                             {chairmanPhoto ? (
@@ -527,7 +527,7 @@ export const OurWingsSection: React.FC = () => {
                                   }}
                                 />
                                 <div className="photo-fallback hidden w-full h-full flex-col items-center justify-center bg-gradient-to-b from-stone-900 to-emerald-950/50 text-stone-500 p-2 text-center">
-                                  <User className="w-8 h-8 text-emerald-400/60 mb-1" />
+                                  <User className="w-7 h-7 text-emerald-400/60 mb-1" />
                                   <span className="text-[9px] font-mono uppercase text-emerald-500/80 font-bold">No Photo</span>
                                 </div>
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-center pb-1.5 pointer-events-none">
@@ -538,7 +538,7 @@ export const OurWingsSection: React.FC = () => {
                               </>
                             ) : (
                               <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-b from-stone-900 to-emerald-950/50 text-stone-500 p-2 text-center">
-                                <User className="w-8 h-8 text-emerald-400/60 mb-1" />
+                                <User className="w-7 h-7 text-emerald-400/60 mb-1" />
                                 <span className="text-[9px] font-mono uppercase text-emerald-500/80 font-bold">No Photo</span>
                               </div>
                             )}
@@ -552,15 +552,18 @@ export const OurWingsSection: React.FC = () => {
                                 CHAIRMAN
                               </span>
                             </div>
-                            <h4 className="text-sm sm:text-base font-bold text-white leading-snug group-hover:text-emerald-200 transition-colors truncate" title={chairmanName}>
+                            <h4
+                              className="text-xs sm:text-[13px] font-bold text-white leading-tight group-hover:text-emerald-200 transition-colors break-words line-clamp-2"
+                              title={chairmanName}
+                            >
                               {chairmanName}
                             </h4>
-                            <p className="text-[11px] text-stone-400 mt-0.5 truncate font-medium">
+                            <p className="text-[10px] text-stone-400 mt-0.5 truncate font-medium">
                               Portfolio Leader
                             </p>
-                            <div className="mt-2 text-xs text-stone-400 flex items-center gap-1.5 truncate">
-                              <Mail className="w-3.5 h-3.5 text-emerald-500/70 shrink-0" />
-                              <span className="truncate text-[11px] sm:text-xs">{chairmanContact}</span>
+                            <div className="mt-1.5 text-[10px] sm:text-[11px] text-stone-400 flex items-center gap-1.5 truncate">
+                              <Mail className="w-3 h-3 text-emerald-500/70 shrink-0" />
+                              <span className="truncate text-[10px] sm:text-[11px]">{chairmanContact}</span>
                             </div>
                           </div>
                         </div>
@@ -578,11 +581,11 @@ export const OurWingsSection: React.FC = () => {
                         : (wing.convener?.photo || wing.convenerPhoto || '');
 
                       return (
-                        <div className="p-3.5 sm:p-4 rounded-2xl bg-stone-950/95 border border-stone-800/90 hover:border-amber-500/50 flex items-center gap-3.5 sm:gap-4 transition-all duration-300 group shadow-md hover:shadow-amber-950/20">
-                          {/* Large Portrait Photo Frame - Face clearly visible */}
+                        <div className="p-3 sm:p-3.5 rounded-2xl bg-stone-950/95 border border-stone-800/90 hover:border-amber-500/50 flex items-center gap-3 sm:gap-3.5 transition-all duration-300 group shadow-md hover:shadow-amber-950/20">
+                          {/* Portrait Photo Frame - Face clearly visible */}
                           <div
                             onClick={() => convenerPhoto && setPreviewImage({ url: convenerPhoto, title: convenerName, subtitle: `${wing.name} • Convener` })}
-                            className={`relative w-24 h-32 sm:w-28 sm:h-36 rounded-2xl overflow-hidden bg-stone-900 border-2 border-amber-500/50 group-hover:border-amber-400 shadow-xl shadow-black/80 shrink-0 ${convenerPhoto ? 'cursor-pointer hover:ring-2 hover:ring-amber-400/50' : ''}`}
+                            className={`relative w-20 h-28 sm:w-22 sm:h-32 rounded-xl overflow-hidden bg-stone-900 border-2 border-amber-500/50 group-hover:border-amber-400 shadow-xl shadow-black/80 shrink-0 ${convenerPhoto ? 'cursor-pointer hover:ring-2 hover:ring-amber-400/50' : ''}`}
                             title={convenerPhoto ? "Click to view full photo" : undefined}
                           >
                             {convenerPhoto ? (
@@ -599,7 +602,7 @@ export const OurWingsSection: React.FC = () => {
                                   }}
                                 />
                                 <div className="photo-fallback hidden w-full h-full flex-col items-center justify-center bg-gradient-to-b from-stone-900 to-amber-950/50 text-stone-500 p-2 text-center">
-                                  <UserCheck className="w-8 h-8 text-amber-400/60 mb-1" />
+                                  <UserCheck className="w-7 h-7 text-amber-400/60 mb-1" />
                                   <span className="text-[9px] font-mono uppercase text-amber-500/80 font-bold">No Photo</span>
                                 </div>
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-center pb-1.5 pointer-events-none">
@@ -610,7 +613,7 @@ export const OurWingsSection: React.FC = () => {
                               </>
                             ) : (
                               <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-b from-stone-900 to-amber-950/50 text-stone-500 p-2 text-center">
-                                <UserCheck className="w-8 h-8 text-amber-400/60 mb-1" />
+                                <UserCheck className="w-7 h-7 text-amber-400/60 mb-1" />
                                 <span className="text-[9px] font-mono uppercase text-amber-500/80 font-bold">No Photo</span>
                               </div>
                             )}
@@ -624,15 +627,18 @@ export const OurWingsSection: React.FC = () => {
                                 CONVENER
                               </span>
                             </div>
-                            <h4 className="text-sm sm:text-base font-bold text-white leading-snug group-hover:text-amber-200 transition-colors truncate" title={convenerName}>
+                            <h4
+                              className="text-xs sm:text-[13px] font-bold text-white leading-tight group-hover:text-amber-200 transition-colors break-words line-clamp-2"
+                              title={convenerName}
+                            >
                               {convenerName}
                             </h4>
-                            <p className="text-[11px] text-stone-400 mt-0.5 truncate font-medium">
+                            <p className="text-[10px] text-stone-400 mt-0.5 truncate font-medium">
                               Operational Head
                             </p>
-                            <div className="mt-2 text-xs text-stone-400 flex items-center gap-1.5 truncate">
-                              <Mail className="w-3.5 h-3.5 text-amber-500/70 shrink-0" />
-                              <span className="truncate text-[11px] sm:text-xs">{convenerContact}</span>
+                            <div className="mt-1.5 text-[10px] sm:text-[11px] text-stone-400 flex items-center gap-1.5 truncate">
+                              <Mail className="w-3 h-3 text-amber-500/70 shrink-0" />
+                              <span className="truncate text-[10px] sm:text-[11px]">{convenerContact}</span>
                             </div>
                           </div>
                         </div>
