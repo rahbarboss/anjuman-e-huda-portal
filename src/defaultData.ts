@@ -54,12 +54,12 @@ export const initialDatabase: AppDatabase = {
   homepage: {
     heroTitle: "ANJUMAN-E-HUDA",
     heroSubtitle:
-      "Dedicated to intellectual rigor, moral stewardship, student empowerment, and visionary community leadership at the heart of our campus.",
+      "United in Knowledge, Guided by Islamic Values, and Driven by Leadership, Creativity, and Service to Society.",
     heroBadge: "NIICS STUDENTS' UNION",
     heroBgUrl:
       "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=2000&q=80",
-    ctaMissionLabel: "Discover Mission",
-    ctaProgramsLabel: "Recent Programs",
+    ctaMissionLabel: "Union Charters & Mission",
+    ctaProgramsLabel: "Central Initiatives Calendar",
     aboutText:
       "ANJUMAN-E-HUDA is the premier student governing union committed to fostering academic excellence, moral leadership, social harmony, and creative enrichment across all departments. Founded on the principle of Ta'lim (intellectual and spiritual illumination), the union serves as the unified voice and catalyst for student welfare and progress.",
     vision:
@@ -1333,7 +1333,7 @@ export const initialDatabase: AppDatabase = {
     cards: [
       {
         id: 'stat-scholars',
-        value: 15,
+        value: 50,
         suffix: '+',
         label: 'Active Scholars & Members',
         badge: 'CAMPUS WIDE',
@@ -1343,7 +1343,7 @@ export const initialDatabase: AppDatabase = {
       },
       {
         id: 'stat-achievements',
-        value: 142,
+        value: 500,
         suffix: '+',
         label: 'Recognized Achievements',
         badge: 'STATE & NATIONAL',
@@ -1353,7 +1353,7 @@ export const initialDatabase: AppDatabase = {
       },
       {
         id: 'stat-programs',
-        value: 310,
+        value: 550,
         suffix: '+',
         label: 'Programs Conducted',
         badge: '7 DYNAMIC WINGS',
@@ -1363,7 +1363,7 @@ export const initialDatabase: AppDatabase = {
       },
       {
         id: 'stat-legacy',
-        value: 32,
+        value: 20,
         suffix: ' Years',
         label: 'Unbroken Student Legacy',
         badge: 'ESTD. 1994',

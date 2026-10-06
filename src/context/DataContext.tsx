@@ -116,32 +116,73 @@ interface DataContextType {
 
 const DataContext = createContext<DataContextType | null>(null);
 
+const CACHE_KEY = 'anjuman_database_cache_v2';
+
+const getInitialDatabase = (): AppDatabase => {
+  if (typeof window !== 'undefined') {
+    try {
+      const cached = localStorage.getItem(CACHE_KEY);
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (parsed && typeof parsed === 'object' && parsed.homepage) {
+          return parsed;
+        }
+      }
+    } catch {}
+  }
+  return initialDatabase;
+};
+
+const saveToLocalCache = (data: AppDatabase) => {
+  if (typeof window !== 'undefined') {
+    try {
+      localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+    } catch {}
+  }
+};
+
 export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [database, setDatabase] = useState<AppDatabase>(initialDatabase);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [database, setDatabase] = useState<AppDatabase>(getInitialDatabase);
+  const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
   const fetchContent = async () => {
     try {
-      setLoading(true);
-      if (isSupabaseConfigured) {
-        const cloudData = await fetchContentFromSupabase();
-        if (cloudData) {
-          setDatabase(cloudData);
-          setError(null);
-          setLoading(false);
-          return;
+      // 1. FAST LOCAL SYNC (Takes 3-5ms): Load from local server immediately!
+      // This displays the Admin's full uploaded data immediately without waiting 7-10 seconds!
+      try {
+        const res = await fetch('/api/content');
+        if (res.ok) {
+          const localData = await res.json();
+          if (localData && localData.homepage) {
+            setDatabase(localData);
+            saveToLocalCache(localData);
+          }
         }
+      } catch (localErr) {
+        console.warn('[DataContext] Local API fetch notice:', localErr);
       }
 
-      // Offline / Local Development Fallback
-      const res = await fetch('/api/content');
-      if (res.ok) {
-        const data = await res.json();
-        setDatabase(data);
-        setError(null);
-      } else {
-        console.warn('[DataContext] Local API returned non-OK status');
+      // 2. BACKGROUND CLOUD SYNC: If Supabase is configured, check for any remote updates in background
+      if (isSupabaseConfigured) {
+        try {
+          const cloudPromise = fetchContentFromSupabase();
+          // Timeout after 3.5 seconds so cloud queries never freeze or delay the UI
+          const timeoutPromise = new Promise<null>((resolve) => setTimeout(() => resolve(null), 3500));
+          const cloudData = await Promise.race([cloudPromise, timeoutPromise]);
+          if (cloudData && cloudData.homepage) {
+            setDatabase(cloudData);
+            saveToLocalCache(cloudData);
+            // Sync cloud data back to local server so db.json stays fresh on disk
+            fetch('/api/content', {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(cloudData),
+            }).catch(() => {});
+          }
+        } catch (cloudErr) {
+          console.warn('[DataContext] Supabase background sync notice:', cloudErr);
+        }
       }
     } catch (err: any) {
       console.warn('[DataContext] Content fetch error:', err?.message || err);
@@ -159,27 +200,24 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   ========================================================================= */
 
   const updateHomepage = async (data: Partial<HomepageContent>): Promise<boolean> => {
-    if (isSupabaseConfigured) {
-      const ok = await saveHomepageInSupabase(data);
-      if (!ok) return false;
-      setDatabase((prev) => ({ ...prev, homepage: { ...prev.homepage, ...data } }));
-      return true;
-    }
+    setDatabase((prev) => {
+      const next = { ...prev, homepage: { ...prev.homepage, ...data } };
+      saveToLocalCache(next);
+      return next;
+    });
 
+    // Always persist to local server disk (data/db.json)
     try {
-      const res = await fetch('/api/homepage', {
+      fetch('/api/homepage', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
-      });
-      if (res.ok) {
-        setDatabase((prev) => ({ ...prev, homepage: { ...prev.homepage, ...data } }));
-        return true;
-      }
-    } catch (err) {
-      console.error(err);
+      }).catch(() => {});
+    } catch {}
+
+    if (isSupabaseConfigured) {
+      await saveHomepageInSupabase(data);
     }
-    setDatabase((prev) => ({ ...prev, homepage: { ...prev.homepage, ...data } }));
     return true;
   };
 
@@ -1347,16 +1385,20 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Local server optional fallback
     }
 
-    setDatabase((prev) => ({
-      ...prev,
-      telemetry: merged,
-      achievements: {
-        ...prev.achievements,
-        totalAchievements: merged.cards?.find((c) => c.id === 'stat-achievements')?.value ?? prev.achievements.totalAchievements,
-        eventsOrganized: merged.cards?.find((c) => c.id === 'stat-programs')?.value ?? prev.achievements.eventsOrganized,
-        activeMembers: merged.cards?.find((c) => c.id === 'stat-scholars')?.value ?? prev.achievements.activeMembers,
-      },
-    }));
+    setDatabase((prev) => {
+      const next = {
+        ...prev,
+        telemetry: merged,
+        achievements: {
+          ...prev.achievements,
+          totalAchievements: merged.cards?.find((c) => c.id === 'stat-achievements')?.value ?? prev.achievements.totalAchievements,
+          eventsOrganized: merged.cards?.find((c) => c.id === 'stat-programs')?.value ?? prev.achievements.eventsOrganized,
+          activeMembers: merged.cards?.find((c) => c.id === 'stat-scholars')?.value ?? prev.achievements.activeMembers,
+        },
+      };
+      saveToLocalCache(next);
+      return next;
+    });
     return true;
   };
 

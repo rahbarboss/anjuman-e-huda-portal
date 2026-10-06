@@ -333,6 +333,17 @@ app.post('/api/content', (req, res) => {
   res.json({ success: true, data: merged });
 });
 
+app.put('/api/content', (req, res) => {
+  const incoming = req.body;
+  if (!incoming || typeof incoming !== 'object') {
+    return res.status(400).json({ success: false, message: 'Invalid content payload' });
+  }
+  const current = readDb();
+  const merged = { ...current, ...incoming };
+  writeDb(merged);
+  res.json({ success: true, data: merged });
+});
+
 // 6. Section updates
 app.put('/api/homepage', (req, res) => {
   const db = readDb();
