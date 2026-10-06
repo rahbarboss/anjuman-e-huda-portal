@@ -137,6 +137,32 @@ async function adaptivelyCompress(
     prevBlob = blob;
   }
 
+  // If still above targetMax (100 KB) at minQuality (0.55),
+  // gradually downscale canvas dimensions while strictly maintaining quality >= 0.55
+  if (blob.size > targetMax) {
+    let scale = 0.9;
+    while (blob.size > targetMax && scale >= 0.35) {
+      const scaledCanvas = document.createElement('canvas');
+      scaledCanvas.width = Math.max(100, Math.round(canvas.width * scale));
+      scaledCanvas.height = Math.max(100, Math.round(canvas.height * scale));
+      const sctx = scaledCanvas.getContext('2d');
+      if (!sctx) break;
+      sctx.drawImage(canvas, 0, 0, scaledCanvas.width, scaledCanvas.height);
+
+      const scaledBlob = await new Promise<Blob | null>((resolve) => {
+        scaledCanvas.toBlob((b) => resolve(b), mimeType, minQuality);
+      });
+
+      if (scaledBlob) {
+        blob = scaledBlob;
+        if (blob.size <= targetMax) {
+          break;
+        }
+      }
+      scale -= 0.08;
+    }
+  }
+
   // Quality reached lower limit (0.55)
   return blob;
 }

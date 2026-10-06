@@ -1480,8 +1480,39 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         fileToUpload = new File([fileToUpload], fileToUpload.name, { type: mime });
       }
 
-      // 1. Primary Reliable Server Storage (Saves directly to public/uploads/ with HEIC auto-conversion)
-      // This is the original smooth and dependable method requested by the user.
+      // Optimize image before upload:
+      // - Max width: 1200 px (maintain aspect ratio)
+      // - Convert JPEG to WebP when supported
+      // - Preserve transparency for PNG
+      // - Adaptive compression: start 0.82, reduce gradually until 80–100 KB, never below 0.55
+      // - Skip recompression if already below 100 KB
+      try {
+        const opt = await optimizeImageBeforeUpload(fileToUpload);
+        fileToUpload = opt.file;
+      } catch (optErr) {
+        console.warn('[uploadMedia] Optimizer notice:', optErr);
+      }
+
+      // 1. Primary User Requirement: Save optimized file to Supabase Storage if configured
+      if (isSupabaseConfigured) {
+        try {
+          const cloudRes = await uploadToSupabaseStorage(fileToUpload, bucket);
+          if (cloudRes.success && cloudRes.url) {
+            // Also store a local server backup in the background
+            try {
+              const formData = new FormData();
+              formData.append('file', fileToUpload);
+              fetch('/api/upload', { method: 'POST', body: formData }).catch(() => {});
+            } catch {}
+            return { success: true, url: cloudRes.url };
+          }
+          console.warn(`[uploadMedia] Supabase Storage upload notice:`, cloudRes.message);
+        } catch (supabaseErr) {
+          console.warn('[uploadMedia] Supabase Storage error, falling back to local server storage:', supabaseErr);
+        }
+      }
+
+      // 2. Reliable Server Storage Fallback (Saves directly to public/uploads/ with HEIC auto-conversion)
       try {
         const formData = new FormData();
         formData.append('file', fileToUpload);
@@ -1492,10 +1523,6 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (res.ok) {
           const data = await res.json();
           if (data.success && data.url) {
-            // Optional: Background sync to Supabase Storage if configured and available
-            if (isSupabaseConfigured) {
-              uploadToSupabaseStorage(fileToUpload, bucket).catch(() => {});
-            }
             return { success: true, url: data.url };
           }
         }

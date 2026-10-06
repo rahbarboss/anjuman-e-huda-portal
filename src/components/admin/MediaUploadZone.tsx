@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 import { useData } from '../../context/DataContext';
 import { StorageBucket } from '../../services/supabaseService';
-import { formatFileSize } from '../../utils/imageOptimizer';
+import { formatFileSize, optimizeImageBeforeUpload } from '../../utils/imageOptimizer';
 
 interface MediaUploadZoneProps {
   onUploadSuccess: (url: string) => void;
@@ -98,11 +98,6 @@ export const MediaUploadZone: React.FC<MediaUploadZoneProps> = ({
         }
       }
 
-      // Instant local preview so user sees their photo within 1ms
-      const blobUrl = URL.createObjectURL(uploadFile);
-      setLocalBlobUrl(blobUrl);
-      setPreviewUrl(blobUrl);
-
       // Ensure proper image MIME type if missing or empty
       if (!uploadFile.type || !uploadFile.type.startsWith('image/')) {
         const ext = uploadFile.name.split('.').pop()?.toLowerCase() || '';
@@ -115,14 +110,34 @@ export const MediaUploadZone: React.FC<MediaUploadZoneProps> = ({
         uploadFile = new File([uploadFile], uploadFile.name, { type: mime });
       }
 
-      // Upload file directly preserving original KB and full quality
+      // Optimize image before upload:
+      // - Max width: 1200 px (maintain aspect ratio)
+      // - Convert JPEG to WebP when supported
+      // - Preserve transparency for PNG
+      // - Adaptive compression: start 0.82, reduce gradually until 80–100 KB, never below 0.55
+      // - Skip recompression if already below 100 KB
+      let statsString: string | null = null;
+      try {
+        const opt = await optimizeImageBeforeUpload(uploadFile);
+        uploadFile = opt.file;
+        statsString = opt.stats.formatString;
+      } catch (optErr) {
+        console.warn('[MediaUploadZone] Optimization notice:', optErr);
+      }
+
+      // Instant local preview so user sees their photo within 1ms
+      const blobUrl = URL.createObjectURL(uploadFile);
+      setLocalBlobUrl(blobUrl);
+      setPreviewUrl(blobUrl);
+
+      // Upload file directly (to Supabase Storage bucket, or fallback)
       const res = await uploadMedia(uploadFile, bucket);
 
       if (res.success && res.url) {
         setErrorMsg(null);
         setPreviewUrl(res.url);
         setManualUrl(res.url);
-        setUploadedFileSize(formatFileSize(uploadFile.size));
+        setUploadedFileSize(statsString || formatFileSize(uploadFile.size));
         onUploadSuccess(res.url);
       } else {
         // Even if remote returned an error, the local preview still stays visible
