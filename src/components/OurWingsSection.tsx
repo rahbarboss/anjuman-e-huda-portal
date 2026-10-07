@@ -66,6 +66,10 @@ export const OurWingsSection: React.FC = () => {
 
   const filteredWings = wings.filter((wing) => {
     if (wing.id === 'core-committee') return false;
+    // Strictly exclude legacy dummy wings that were not created/uploaded by admin
+    if (wing.id === 'wing-iic' || (wing.name && wing.name.includes('Islamic Information Centre'))) return false;
+    if (wing.id.startsWith('wing-') && !wing.id.startsWith('wing_')) return false;
+
     const matchesStatus = statusFilter === 'All' || wing.status === statusFilter;
     const chairmanName = wing.chairman?.name || wing.manager?.name || '';
     const convenerName = wing.convener?.name || '';

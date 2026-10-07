@@ -67,76 +67,17 @@ function readDb(): AppDatabase {
         needsWrite = true;
       }
 
-      // Sync all official initialDatabase wings (ARABIC WING, IIC WING, URDU WING, ENGLISH WING, IT CLUB, etc.)
-      if (parsed.wings) {
-        // Remove outdated dummy "Arabic Club (Al-Nadi Al-Arabi)" if present
-        const oldDummyIdx = parsed.wings.findIndex((w: any) => w.id === 'wing-arabic' && w.name?.includes('Arabic Club'));
-        if (oldDummyIdx !== -1) {
-          const officialArabic = initialDatabase.wings.find((w: any) => w.id === 'wing-arabic');
-          if (officialArabic) {
-            parsed.wings[oldDummyIdx] = officialArabic;
-            needsWrite = true;
-          }
-        }
-
-        // Ensure ARABIC WING is present
-        if (!parsed.wings.some((w: any) => w.name?.toUpperCase().includes('ARABIC WING') || w.id === 'wing-arabic' || w.id === 'wing_1790240957068')) {
-          const officialArabic = initialDatabase.wings.find((w: any) => w.id === 'wing-arabic');
-          if (officialArabic) {
-            parsed.wings.push(officialArabic);
-            needsWrite = true;
-          }
-        }
-
-        // Ensure URDU WING is present
-        if (!parsed.wings.some((w: any) => w.name?.toUpperCase().includes('URDU WING') || w.id === 'wing-urdu')) {
-          const officialUrdu = initialDatabase.wings.find((w: any) => w.id === 'wing-urdu');
-          if (officialUrdu) {
-            parsed.wings.push(officialUrdu);
-            needsWrite = true;
-          }
-        }
-
-        // Ensure ENGLISH WING is present
-        if (!parsed.wings.some((w: any) => w.name?.toUpperCase().includes('ENGLISH WING') || w.id === 'wing-english')) {
-          const officialEnglish = initialDatabase.wings.find((w: any) => w.id === 'wing-english');
-          if (officialEnglish) {
-            parsed.wings.push(officialEnglish);
-            needsWrite = true;
-          }
-        }
-
-        // Ensure IT CLUB is present and has ZEESHAN SHAIKH as Convener
-        const itWing = parsed.wings.find((w: any) => w.name?.toUpperCase().includes('IT CLUB') || w.name?.toUpperCase().includes('IT, MEDIA') || w.id === 'wing-4');
-        if (itWing) {
-          if (itWing.name !== 'IT CLUB') {
-            itWing.name = 'IT CLUB';
-            itWing.shortName = 'IT CLUB';
-            needsWrite = true;
-          }
-          if (!itWing.convener || itWing.convener.name !== 'ZEESHAN SHAIKH') {
-            itWing.convener = {
-              name: 'ZEESHAN SHAIKH',
-              contact: 'convener@anjuman.edu',
-              photo: itWing.convener?.photo || itWing.convenerPhoto || '',
-            };
-            needsWrite = true;
-          }
-        } else {
-          const officialIt = initialDatabase.wings.find((w: any) => w.id === 'wing-4');
-          if (officialIt) {
-            parsed.wings.push(officialIt);
-            needsWrite = true;
-          }
-        }
-
-        // Ensure IIC WING is present
-        if (!parsed.wings.some((w: any) => w.id === 'wing-iic')) {
-          const iicWing = initialDatabase.wings.find((w: any) => w.id === 'wing-iic');
-          if (iicWing) {
-            parsed.wings.push(iicWing);
-            needsWrite = true;
-          }
+      // Purge any legacy dummy wings (specifically dummy wing-iic or mock wings with Unsplash photos)
+      if (parsed.wings && Array.isArray(parsed.wings)) {
+        const initialCount = parsed.wings.length;
+        parsed.wings = parsed.wings.filter(
+          (w: any) =>
+            w.id !== 'wing-iic' &&
+            !(w.name && w.name.includes('Islamic Information Centre')) &&
+            !(w.id?.startsWith('wing-') && w.id !== 'core-committee' && !w.id.startsWith('wing_'))
+        );
+        if (parsed.wings.length !== initialCount) {
+          needsWrite = true;
         }
       }
 

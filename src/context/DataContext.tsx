@@ -116,7 +116,16 @@ interface DataContextType {
 
 const DataContext = createContext<DataContextType | null>(null);
 
-const CACHE_KEY = 'anjuman_database_cache_v3';
+const CACHE_KEY = 'anjuman_database_cache_v4';
+
+const sanitizeWings = (wings: Wing[] = []): Wing[] => {
+  return wings.filter(
+    (w) =>
+      w.id !== 'wing-iic' &&
+      !(w.name && w.name.includes('Islamic Information Centre')) &&
+      !(w.id?.startsWith('wing-') && w.id !== 'core-committee' && !w.id.startsWith('wing_'))
+  );
+};
 
 const getInitialDatabase = (): AppDatabase => {
   if (typeof window !== 'undefined') {
@@ -126,6 +135,9 @@ const getInitialDatabase = (): AppDatabase => {
         const parsed = JSON.parse(cached);
         // Only use cache if it has real admin data (e.g. at least 15 programs)
         if (parsed && typeof parsed === 'object' && parsed.homepage && Array.isArray(parsed.programs) && parsed.programs.length >= 15) {
+          if (Array.isArray(parsed.wings)) {
+            parsed.wings = sanitizeWings(parsed.wings);
+          }
           return parsed;
         }
       }
@@ -137,7 +149,11 @@ const getInitialDatabase = (): AppDatabase => {
 const saveToLocalCache = (data: AppDatabase) => {
   if (typeof window !== 'undefined') {
     try {
-      localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+      const cleanData = {
+        ...data,
+        wings: sanitizeWings(data.wings),
+      };
+      localStorage.setItem(CACHE_KEY, JSON.stringify(cleanData));
     } catch {}
   }
 };
@@ -156,6 +172,9 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (res.ok) {
           const localData = await res.json();
           if (localData && localData.homepage) {
+            if (Array.isArray(localData.wings)) {
+              localData.wings = sanitizeWings(localData.wings);
+            }
             setDatabase(localData);
             saveToLocalCache(localData);
           }
@@ -172,6 +191,9 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
           const timeoutPromise = new Promise<null>((resolve) => setTimeout(() => resolve(null), 3500));
           const cloudData = await Promise.race([cloudPromise, timeoutPromise]);
           if (cloudData && cloudData.homepage) {
+            if (Array.isArray(cloudData.wings)) {
+              cloudData.wings = sanitizeWings(cloudData.wings);
+            }
             setDatabase(cloudData);
             saveToLocalCache(cloudData);
             // Sync cloud data back to local server so db.json stays fresh on disk

@@ -694,51 +694,6 @@
       },
       "convenerPhoto": "/uploads/wing_wing_1790241129444_convener.jpg",
       "history": []
-    },
-    {
-      "id": "wing-iic",
-      "name": "IIC WING (Islamic Information Centre)",
-      "shortName": "IIC WING",
-      "description": "Central coordination hub for Islamic Information, off-campus orientation, digital awareness archives, and inter-collegiate student development.",
-      "iconName": "Sparkles",
-      "status": "Active",
-      "currentTenure": "2026-27",
-      "chairman": {
-        "name": "Maulana Tanveerul Islam",
-        "contact": "iic.chairman@anjuman.edu",
-        "photo": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80"
-      },
-      "manager": {
-        "name": "Maulana Tanveerul Islam",
-        "contact": "iic.chairman@anjuman.edu",
-        "photo": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80"
-      },
-      "convener": {
-        "name": "Ahmad Raza Qadri",
-        "contact": "iic.convener@anjuman.edu"
-      },
-      "assistant": {
-        "name": "Sayyid Bilal",
-        "contact": "iic.office@anjuman.edu"
-      },
-      "history": [
-        {
-          "tenure": "2026-27",
-          "chairman": "Maulana Tanveerul Islam",
-          "manager": "Maulana Tanveerul Islam",
-          "convener": "Ahmad Raza Qadri",
-          "assistant": "Sayyid Bilal",
-          "keyMilestone": "Executed 12 inter-campus Islamic Information and youth orientation programs."
-        },
-        {
-          "tenure": "2025-26",
-          "chairman": "Mufti Shahid Akhtar",
-          "manager": "Mufti Shahid Akhtar",
-          "convener": "Tariq Jameel",
-          "assistant": "Umair Siddiqui",
-          "keyMilestone": "Digitized comprehensive question-answer Islamic Information database."
-        }
-      ]
     }
   ],
   "achievements": {

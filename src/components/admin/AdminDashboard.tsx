@@ -847,7 +847,7 @@ export const AdminDashboard: React.FC = () => {
     setEditingWingProgram(null);
     const defaultWing =
       database.wings.find((w) => w.id === preselectedWingId) ||
-      database.wings[0] || { id: 'wing-1', name: "Da'wah & Moral Guidance Wing", currentTenure: '2026-27' };
+      database.wings[0] || { id: 'wing_1790240873124', name: 'IIC WING', currentTenure: '2026-27' };
     const today = new Date().toISOString().split('T')[0];
     const monthName = new Date().toLocaleString('en-US', { month: 'long' });
 
@@ -3319,7 +3319,7 @@ export const AdminDashboard: React.FC = () => {
                       );
                     })()}
 
-                    {database.wings.filter((w) => w.id !== 'core-committee').map((wing, idx) => {
+                    {database.wings.filter((w) => w.id !== 'core-committee' && w.id !== 'wing-iic' && !(w.name && w.name.includes('Islamic Information Centre')) && !(w.id?.startsWith('wing-') && !w.id.startsWith('wing_'))).map((wing, idx) => {
                       const countForThisWing = allWPs.filter(
                         (wp) => wp.wingId === wing.id || wp.wingName?.toLowerCase() === wing.name.toLowerCase()
                       ).length;

@@ -10,44 +10,28 @@ export const defaultCoreCommitteeWing: Wing = {
   status: 'Active',
   currentTenure: '2026-27',
   chairman: {
-    name: 'Sayyid Muhammad Hashir',
+    name: 'Shaikh Sanaullah',
     contact: 'president@anjuman.edu',
-    photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80',
+    photo:
+      'https://zfvyxvajgnodiatiqyoh.supabase.co/storage/v1/object/public/members/1791215862250_1790513168625_whatsapp_image_2026_09_27_at_5_42_03_pm.jpeg',
   },
-  chairmanPhoto: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80',
+  chairmanPhoto:
+    'https://zfvyxvajgnodiatiqyoh.supabase.co/storage/v1/object/public/members/1791215862250_1790513168625_whatsapp_image_2026_09_27_at_5_42_03_pm.jpeg',
   manager: {
-    name: 'Sayyid Muhammad Hashir',
+    name: 'Shaikh Sanaullah',
     contact: 'president@anjuman.edu',
-    photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80',
+    photo:
+      'https://zfvyxvajgnodiatiqyoh.supabase.co/storage/v1/object/public/members/1791215862250_1790513168625_whatsapp_image_2026_09_27_at_5_42_03_pm.jpeg',
   },
   convener: {
-    name: 'Ahmad Abdullah Misbahi',
+    name: 'Muhammed Rayyan',
     contact: 'gensec@anjuman.edu',
-    photo: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80',
+    photo:
+      'https://zfvyxvajgnodiatiqyoh.supabase.co/storage/v1/object/public/members/1791215888399_1790513240766_whatsapp_image_2026_09_27_at_5_42_49_pm.webp',
   },
-  convenerPhoto: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80',
-  history: [
-    {
-      tenure: '2026-27',
-      chairman: 'Sayyid Muhammad Hashir',
-      chairmanPhoto: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80',
-      convener: 'Ahmad Abdullah Misbahi',
-      convenerPhoto: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80',
-      keyMilestone: 'Establishment of Central Secretariat Digital Union Portal & Constitution',
-    },
-    {
-      tenure: '2025-26',
-      chairman: 'Maulana Zeeshan Akhtar',
-      convener: 'Hafiz Bilal Farooqi',
-      keyMilestone: 'Grand Centenary Golden Jubilee Conclave & Academic Delegation',
-    },
-    {
-      tenure: '2024-25',
-      chairman: 'Maulana Tanveer Alam',
-      convener: 'Muhammad Rashid Nomani',
-      keyMilestone: 'Campus-wide Student Welfare & Literacy Endowment Fund Inauguration',
-    },
-  ],
+  convenerPhoto:
+    'https://zfvyxvajgnodiatiqyoh.supabase.co/storage/v1/object/public/members/1791215888399_1790513240766_whatsapp_image_2026_09_27_at_5_42_49_pm.webp',
+  history: [],
 };
 
 export const initialDatabase: AppDatabase = {
@@ -744,455 +728,181 @@ export const initialDatabase: AppDatabase = {
   wings: [
     defaultCoreCommitteeWing,
     {
-      id: 'wing-arabic',
-      name: 'ARABIC WING',
-      shortName: 'ARABIC WING',
-      description:
-        'Premier forum for classical rhetoric, modern Arabic literature, international declamation symposiums, and linguistic research.',
-      iconName: 'BookOpen',
-      status: 'Active',
-      currentTenure: '2026-27',
-      chairman: {
-        name: 'MD AHRAR ALAM',
-        contact: 'ahrar.arabic@anjuman.edu',
-        photo: '',
-      },
-      manager: {
-        name: 'MD AHRAR ALAM',
-        contact: 'ahrar.arabic@anjuman.edu',
-        photo: '',
-      },
-      convener: {
-        name: 'SABIR ALAM',
-        contact: 'sabir.arabic@anjuman.edu',
-        photo: '/uploads/sabir_alam.jpg',
-      },
-      chairmanPhoto: '',
-      convenerPhoto: '/uploads/sabir_alam.jpg',
-      assistant: {
-        name: 'Ahmad Bilal',
-        contact: 'bilal.arabic@anjuman.edu',
-      },
-      history: [
-        {
-          tenure: '2026-27',
-          chairman: 'MD AHRAR ALAM',
-          manager: 'MD AHRAR ALAM',
-          convener: 'SABIR ALAM',
-          assistant: 'Ahmad Bilal',
-          keyMilestone: 'Organized national Arabic oratory declamation attended by scholars across universities.',
-        },
-      ],
+          "id": "wing_1790240957068",
+          "name": "ARABIC WING",
+          "shortName": "ARABIC WING",
+          "description": "",
+          "iconName": "BookOpen",
+          "status": "Active",
+          "currentTenure": "2026-27",
+          "chairman": {
+                "name": "MD AHRAR ALAM",
+                "contact": "",
+                "photo": ""
+          },
+          "chairmanPhoto": "",
+          "convener": {
+                "name": "SABIR ALAM",
+                "contact": "",
+                "photo": ""
+          },
+          "convenerPhoto": "",
+          "history": []
     },
     {
-      id: 'wing-urdu',
-      name: 'URDU WING',
-      shortName: 'URDU WING',
-      description:
-        'Preserving and promoting the richness of classical and modern Urdu literature, poetic symposiums (Mushaira), and quarterly publications.',
-      iconName: 'BookOpen',
-      status: 'Active',
-      currentTenure: '2026-27',
-      chairman: {
-        name: 'Maulana Shakeel Ahmad',
-        contact: 'urdu.chairman@anjuman.edu',
-        photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80',
-      },
-      manager: {
-        name: 'Maulana Shakeel Ahmad',
-        contact: 'urdu.chairman@anjuman.edu',
-        photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80',
-      },
-      convener: {
-        name: 'Mohammad Kaif',
-        contact: 'urdu.convener@anjuman.edu',
-        photo: '',
-      },
-      assistant: {
-        name: 'Farhan Raza',
-        contact: 'farhan.urdu@anjuman.edu',
-      },
-      history: [
-        {
-          tenure: '2026-27',
-          chairman: 'Maulana Shakeel Ahmad',
-          manager: 'Maulana Shakeel Ahmad',
-          convener: 'Mohammad Kaif',
-          assistant: 'Farhan Raza',
-          keyMilestone: 'Published bilingual literary journal "Nawa-e-Huda" and hosted All-India Mushaira.',
-        },
-      ],
+          "id": "wing_1790240920819",
+          "name": "ENGLISH WING",
+          "shortName": "ENGLISH WING",
+          "description": "",
+          "iconName": "Pen",
+          "status": "Active",
+          "currentTenure": "2026-27",
+          "chairman": {
+                "name": "NAWEED RAZA",
+                "contact": "",
+                "photo": ""
+          },
+          "chairmanPhoto": "",
+          "convener": {
+                "name": "SUFIYAN AHMED RAZA ",
+                "contact": "",
+                "photo": "/uploads/wing_wing_1790240920819_convener.jpg"
+          },
+          "convenerPhoto": "/uploads/wing_wing_1790240920819_convener.jpg",
+          "history": []
     },
     {
-      id: 'wing-english',
-      name: 'ENGLISH WING',
-      shortName: 'ENGLISH WING',
-      description:
-        'Empowering student scholars with global communication fluency, parliamentary debate, academic essay writing, and public speaking mastery.',
-      iconName: 'GraduationCap',
-      status: 'Active',
-      currentTenure: '2026-27',
-      chairman: {
-        name: 'Prof. Salman Faris',
-        contact: 'english.chairman@anjuman.edu',
-        photo: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80',
-      },
-      manager: {
-        name: 'Prof. Salman Faris',
-        contact: 'english.chairman@anjuman.edu',
-        photo: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80',
-      },
-      convener: {
-        name: 'Daniyal Akhtar',
-        contact: 'english.convener@anjuman.edu',
-        photo: '',
-      },
-      assistant: {
-        name: 'Zubair Qasmi',
-        contact: 'zubair.eng@anjuman.edu',
-      },
-      history: [
-        {
-          tenure: '2026-27',
-          chairman: 'Prof. Salman Faris',
-          manager: 'Prof. Salman Faris',
-          convener: 'Daniyal Akhtar',
-          assistant: 'Zubair Qasmi',
-          keyMilestone: 'Won 1st Prize in National Parliamentary Debating League 2026.',
-        },
-      ],
+          "id": "wing_1790241070300",
+          "name": "FIDA CLUB",
+          "shortName": "FIQH REALATED ",
+          "description": "",
+          "iconName": "BookOpen",
+          "status": "Active",
+          "currentTenure": "2026-27",
+          "chairman": {
+                "name": "TARIQUE HUSSAIN",
+                "contact": "",
+                "photo": ""
+          },
+          "chairmanPhoto": "",
+          "convener": {
+                "name": "MD FAISAL ",
+                "contact": "",
+                "photo": "/uploads/wing_wing_1790241070300_convener.jpg"
+          },
+          "convenerPhoto": "/uploads/wing_wing_1790241070300_convener.jpg",
+          "history": []
     },
     {
-      id: 'wing-1',
-      name: "Da'wah & Moral Guidance Wing",
-      shortName: 'DMW',
-      description:
-        'Dedicated to spiritual elevation, weekly Halaqas, ethics workshops, Friday congregation oversight, and interfaith understanding.',
-      iconName: 'Sparkles',
-      status: 'Active',
-      currentTenure: '2026-27',
-      chairman: {
-        name: 'Hafiz Umair Farooqi',
-        contact: 'umair.dmw@anjuman.edu',
-        photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80',
-      },
-      manager: {
-        name: 'Hafiz Umair Farooqi',
-        contact: 'umair.dmw@anjuman.edu',
-        photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80',
-      },
-      convener: {
-        name: 'Zubair Al-Ameen',
-        contact: 'zubair.dmw@anjuman.edu',
-      },
-      assistant: {
-        name: 'Saad bin Khalid',
-        contact: 'saad.dmw@anjuman.edu',
-      },
-      history: [
-        {
-          tenure: '2026-27',
-          chairman: 'Hafiz Umair Farooqi',
-          manager: 'Hafiz Umair Farooqi',
-          convener: 'Zubair Al-Ameen',
-          assistant: 'Saad bin Khalid',
-          keyMilestone: 'Launched campus-wide Spiritual Mentorship Circle reaching 800+ students.',
-        },
-        {
-          tenure: '2025-26',
-          chairman: 'Maulana Danish Wani',
-          manager: 'Maulana Danish Wani',
-          convener: 'Taha Masood',
-          assistant: 'Ammar Yasir',
-          keyMilestone: 'Organized Ramadan Iftar feeding for 14,000 on-campus scholars.',
-        },
-        {
-          tenure: '2024-25',
-          chairman: 'Suhail Quraishi',
-          manager: 'Suhail Quraishi',
-          convener: 'Noman Siddiqui',
-          assistant: 'Areeb Khan',
-          keyMilestone: 'Renovated student prayer halls and installed sound acoustics.',
-        },
-      ],
+          "id": "wing_1791249403584",
+          "name": "GK WING",
+          "shortName": "GK WING",
+          "description": "",
+          "iconName": "BookOpen",
+          "status": "Active",
+          "currentTenure": "2026-27",
+          "chairman": {
+                "name": "G.FAIZAN",
+                "contact": "",
+                "photo": "/uploads/wing_wing_1791249403584_chairman.jpg"
+          },
+          "chairmanPhoto": "/uploads/wing_wing_1791249403584_chairman.jpg",
+          "convener": {
+                "name": "REHAN AHMED",
+                "contact": "",
+                "photo": ""
+          },
+          "convenerPhoto": "",
+          "history": []
     },
     {
-      id: 'wing-2',
-      name: 'Literature, Oratory & Arts Wing',
-      shortName: 'LAW',
-      description:
-        'Custodians of bilingual journalism, creative expression, parliamentary debate clubs, calligraphy circles, and annual wall-magazines.',
-      iconName: 'BookOpen',
-      status: 'Active',
-      currentTenure: '2026-27',
-      chairman: {
-        name: 'Rayyan Shibli',
-        contact: 'rayyan.lit@anjuman.edu',
-        photo: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80',
-      },
-      manager: {
-        name: 'Rayyan Shibli',
-        contact: 'rayyan.lit@anjuman.edu',
-        photo: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80',
-      },
-      convener: {
-        name: 'Hamza Kausar',
-        contact: 'hamza.lit@anjuman.edu',
-      },
-      assistant: {
-        name: 'Danish Alam',
-        contact: 'danish.lit@anjuman.edu',
-      },
-      history: [
-        {
-          tenure: '2026-27',
-          chairman: 'Rayyan Shibli',
-          manager: 'Rayyan Shibli',
-          convener: 'Hamza Kausar',
-          assistant: 'Danish Alam',
-          keyMilestone: 'Published quarterly peer-reviewed student literary journal "Nawa-e-Huda".',
-        },
-        {
-          tenure: '2025-26',
-          chairman: 'Asim Manzoor',
-          manager: 'Asim Manzoor',
-          convener: 'Faizan Elahi',
-          assistant: 'Shoaib Akhtar',
-          keyMilestone: 'Won 1st prize at National Parliamentary Debate Conclave.',
-        },
-        {
-          tenure: '2024-25',
-          chairman: 'Tariq Jameel Nadwi',
-          manager: 'Tariq Jameel Nadwi',
-          convener: 'Haris Kamal',
-          assistant: 'Zakir Husain',
-          keyMilestone: 'Hosted international Urdu & Arabic Ghazal recitation evening.',
-        },
-      ],
+          "id": "wing_1790240873124",
+          "name": "IIC WING",
+          "shortName": "IIC WING",
+          "description": "ISLAMIC INFORMATION CLUB",
+          "iconName": "BookOpen",
+          "status": "Active",
+          "currentTenure": "2026-27",
+          "chairman": {
+                "name": "SARFARAZ AHMAD",
+                "contact": "",
+                "photo": ""
+          },
+          "chairmanPhoto": "",
+          "convener": {
+                "name": "MD RAHBAR ISLAM",
+                "contact": "",
+                "photo": "https://zfvyxvajgnodiatiqyoh.supabase.co/storage/v1/object/public/members/1790645132423_img_20260927_wa0063.webp"
+          },
+          "convenerPhoto": "https://zfvyxvajgnodiatiqyoh.supabase.co/storage/v1/object/public/members/1790645132423_img_20260927_wa0063.webp",
+          "history": []
     },
     {
-      id: 'wing-3',
-      name: 'Social Service & Disaster Relief Wing',
-      shortName: 'SSW',
-      description:
-        'The philanthropic vanguard driving emergency flood relief, free community medical camps, orphan sponsorship, and winter warmth drives.',
-      iconName: 'HeartHandshake',
-      status: 'Active',
-      currentTenure: '2026-27',
-      chairman: {
-        name: 'Aasim Barkati',
-        contact: 'aasim.relief@anjuman.edu',
-        photo: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=400&q=80',
-      },
-      manager: {
-        name: 'Aasim Barkati',
-        contact: 'aasim.relief@anjuman.edu',
-        photo: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=400&q=80',
-      },
-      convener: {
-        name: 'Mudassir Latif',
-        contact: 'mudassir.relief@anjuman.edu',
-      },
-      assistant: {
-        name: 'Kamran Zia',
-        contact: 'kamran.relief@anjuman.edu',
-      },
-      history: [
-        {
-          tenure: '2026-27',
-          chairman: 'Aasim Barkati',
-          manager: 'Aasim Barkati',
-          convener: 'Mudassir Latif',
-          assistant: 'Kamran Zia',
-          keyMilestone: 'Distributed 2,500 flood relief food kits across eastern wetlands.',
-        },
-        {
-          tenure: '2025-26',
-          chairman: 'Mushtaq Ahmad',
-          manager: 'Mushtaq Ahmad',
-          convener: 'Iqbal Javed',
-          assistant: 'Sharif Raza',
-          keyMilestone: 'Set up 10 clean drinking water filtration kiosks in nearby villages.',
-        },
-      ],
+          "id": "wing_1790241247861",
+          "name": "IT CLUB",
+          "shortName": "IT CLUB",
+          "description": "",
+          "iconName": "BookOpen",
+          "status": "Active",
+          "currentTenure": "2026-27",
+          "chairman": {
+                "name": "SHAHID RAZA",
+                "contact": "",
+                "photo": ""
+          },
+          "chairmanPhoto": "",
+          "convener": {
+                "name": "ZEESHAN SHAIKH",
+                "contact": "",
+                "photo": "/uploads/wing_wing_1790241247861_convener.jpg"
+          },
+          "convenerPhoto": "/uploads/wing_wing_1790241247861_convener.jpg",
+          "history": []
     },
     {
-      id: 'wing-4',
-      name: 'IT CLUB',
-      shortName: 'IT CLUB',
-      description:
-        'Managing live event webcasts, union portal development, cybersecurity workshops, graphic branding, and video documentary production.',
-      iconName: 'Laptop',
-      status: 'Active',
-      currentTenure: '2026-27',
-      chairman: {
-        name: 'Zohran Sheikh',
-        contact: 'media@anjuman.edu',
-        photo: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=400&q=80',
-      },
-      manager: {
-        name: 'Zohran Sheikh',
-        contact: 'media@anjuman.edu',
-        photo: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=400&q=80',
-      },
-      convener: {
-        name: 'ZEESHAN SHAIKH',
-        contact: 'convener@anjuman.edu',
-        photo: '',
-      },
-      assistant: {
-        name: 'Waleed Mustafa',
-        contact: 'dev@anjuman.edu',
-      },
-      history: [
-        {
-          tenure: '2026-27',
-          chairman: 'Zohran Sheikh',
-          manager: 'Zohran Sheikh',
-          convener: 'ZEESHAN SHAIKH',
-          assistant: 'Waleed Mustafa',
-          keyMilestone: 'Launched new high-speed Union Portal with dynamic real-time database.',
-        },
-        {
-          tenure: '2025-26',
-          chairman: 'Fahad Rizvi',
-          manager: 'Fahad Rizvi',
-          convener: 'Naveed Zafar',
-          assistant: 'Adeel Khan',
-          keyMilestone: 'Reached 100K YouTube subscribers on official union media channel.',
-        },
-      ],
+          "id": "wing_1790240993892",
+          "name": "SCIENCE & MATH WING",
+          "shortName": "SCIENCE & MATH WING",
+          "description": "",
+          "iconName": "BookOpen",
+          "status": "Active",
+          "currentTenure": "2026-27",
+          "chairman": {
+                "name": "SHAIKH UZAIR ",
+                "contact": "",
+                "photo": ""
+          },
+          "chairmanPhoto": "",
+          "convener": {
+                "name": "AJMAL KHAN",
+                "contact": "",
+                "photo": "https://zfvyxvajgnodiatiqyoh.supabase.co/storage/v1/object/public/members/1791076600793_me.webp"
+          },
+          "convenerPhoto": "https://zfvyxvajgnodiatiqyoh.supabase.co/storage/v1/object/public/members/1791076600793_me.webp",
+          "history": []
     },
     {
-      id: 'wing-5',
-      name: 'Sports & Athletic Fitness Wing',
-      shortName: 'SFW',
-      description:
-        'Fostering physical discipline, inter-collegiate tournaments in football, cricket, table tennis, track athletics, and martial arts.',
-      iconName: 'Trophy',
-      status: 'Active',
-      currentTenure: '2026-27',
-      chairman: {
-        name: 'Capt. Arshad Malik',
-        contact: 'sports@anjuman.edu',
-        photo: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=400&q=80',
-      },
-      manager: {
-        name: 'Capt. Arshad Malik',
-        contact: 'sports@anjuman.edu',
-        photo: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=400&q=80',
-      },
-      convener: {
-        name: 'Junaid Pathan',
-        contact: 'athletics@anjuman.edu',
-      },
-      assistant: {
-        name: 'Omer Basheer',
-        contact: 'fitness@anjuman.edu',
-      },
-      history: [
-        {
-          tenure: '2026-27',
-          chairman: 'Capt. Arshad Malik',
-          manager: 'Capt. Arshad Malik',
-          convener: 'Junaid Pathan',
-          assistant: 'Omer Basheer',
-          keyMilestone: 'Upgraded stadium turf lighting and launched Inter-Wing Football Cup.',
-        },
-        {
-          tenure: '2025-26',
-          chairman: 'Sarmad Bukhari',
-          manager: 'Sarmad Bukhari',
-          convener: 'Shahrukh Khan',
-          assistant: 'Imran Baig',
-          keyMilestone: 'Won State University Cricket Championship.',
-        },
-      ],
-    },
-    {
-      id: 'wing-6',
-      name: 'Academic Research & Career Guidance Wing',
-      shortName: 'ACW',
-      description:
-        'Organizing civil service coaching, fellowship application mentorship, language labs, and international graduate study seminars.',
-      iconName: 'GraduationCap',
-      status: 'Active',
-      currentTenure: '2026-27',
-      chairman: {
-        name: 'Dr. (Cand.) Burhanuddin',
-        contact: 'research@anjuman.edu',
-        photo: 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=400&q=80',
-      },
-      manager: {
-        name: 'Dr. (Cand.) Burhanuddin',
-        contact: 'research@anjuman.edu',
-        photo: 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=400&q=80',
-      },
-      convener: {
-        name: 'Mohsin Shafi',
-        contact: 'careers@anjuman.edu',
-      },
-      assistant: {
-        name: 'Yasir Hameed',
-        contact: 'fellowships@anjuman.edu',
-      },
-      history: [
-        {
-          tenure: '2026-27',
-          chairman: 'Dr. (Cand.) Burhanuddin',
-          manager: 'Dr. (Cand.) Burhanuddin',
-          convener: 'Mohsin Shafi',
-          assistant: 'Yasir Hameed',
-          keyMilestone: 'Mentored 38 scholars securing national postgraduate fellowships.',
-        },
-      ],
-    },
-    {
-      id: 'wing-iic',
-      name: 'IIC WING (Islamic Information Centre)',
-      shortName: 'IIC WING',
-      description:
-        'Central coordination hub for Islamic Information, off-campus orientation, digital awareness archives, and inter-collegiate student development.',
-      iconName: 'Sparkles',
-      status: 'Active',
-      currentTenure: '2026-27',
-      chairman: {
-        name: 'Maulana Tanveerul Islam',
-        contact: 'iic.chairman@anjuman.edu',
-        photo: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
-      },
-      manager: {
-        name: 'Maulana Tanveerul Islam',
-        contact: 'iic.chairman@anjuman.edu',
-        photo: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
-      },
-      convener: {
-        name: 'Ahmad Raza Qadri',
-        contact: 'iic.convener@anjuman.edu',
-      },
-      assistant: {
-        name: 'Sayyid Bilal',
-        contact: 'iic.office@anjuman.edu',
-      },
-      history: [
-        {
-          tenure: '2026-27',
-          chairman: 'Maulana Tanveerul Islam',
-          manager: 'Maulana Tanveerul Islam',
-          convener: 'Ahmad Raza Qadri',
-          assistant: 'Sayyid Bilal',
-          keyMilestone: 'Executed 12 inter-campus Islamic Information and youth orientation programs.',
-        },
-        {
-          tenure: '2025-26',
-          chairman: 'Mufti Shahid Akhtar',
-          manager: 'Mufti Shahid Akhtar',
-          convener: 'Tariq Jameel',
-          assistant: 'Umair Siddiqui',
-          keyMilestone: 'Digitized comprehensive question-answer Islamic Information database.',
-        },
-      ],
-    },
+          "id": "wing_1790241129444",
+          "name": "URDU WING",
+          "shortName": "URDU WING",
+          "description": "",
+          "iconName": "BookOpen",
+          "status": "Active",
+          "currentTenure": "2026-27",
+          "chairman": {
+                "name": "NAHID SHAIKH",
+                "contact": "",
+                "photo": ""
+          },
+          "chairmanPhoto": "",
+          "convener": {
+                "name": "MUHAMMED RAZA",
+                "contact": "",
+                "photo": "/uploads/wing_wing_1790241129444_convener.jpg"
+          },
+          "convenerPhoto": "/uploads/wing_wing_1790241129444_convener.jpg",
+          "history": []
+    }
   ],
   wingPrograms: [
     {
@@ -1340,7 +1050,7 @@ export const initialDatabase: AppDatabase = {
     },
     {
       id: 'wp-iic-bulbul',
-      wingId: 'wing-iic',
+      wingId: 'wing_1790240873124',
       wingName: 'IIC WING',
       title: 'BULBUL-E-HUDA',
       targetClass: 'U1 TO U5',
