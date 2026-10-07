@@ -87,19 +87,19 @@ export const OurWingsSection: React.FC = () => {
   };
 
   return (
-    <section id="wings" className="py-20 bg-stone-950 text-stone-100 border-b border-stone-800">
+    <section id="wings" className="py-20 text-stone-900 border-b border-stone-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
           <div>
-            <span className="text-xs font-semibold tracking-wider uppercase text-emerald-400 font-mono flex items-center gap-1.5">
-              <Users className="w-4 h-4 text-emerald-400" />
+            <span className="text-xs font-semibold tracking-wider uppercase text-emerald-700 font-mono flex items-center gap-1.5">
+              <Users className="w-4 h-4 text-emerald-600" />
               Specialized Operational Wings & Apex Executive
             </span>
-            <h2 className="text-3xl sm:text-4xl font-bold font-heading text-white mt-1">
+            <h2 className="text-3xl sm:text-4xl font-bold font-heading text-stone-900 mt-1">
               Our Wings & Core Committee Programs
             </h2>
-            <p className="text-sm text-stone-400 mt-2 max-w-xl">
+            <p className="text-sm text-stone-600 mt-2 max-w-xl">
               ANJUMAN-E-HUDA operates through its Apex Core Committee and specialized student-run wings
               driving academic excellence, oratory clubs, humanitarian disaster relief, sports, and media.
             </p>
@@ -115,20 +115,20 @@ export const OurWingsSection: React.FC = () => {
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Search wings or leaders..."
-                className="w-full bg-stone-900 border border-stone-800 rounded-xl pl-10 pr-3 py-2 text-xs text-white placeholder-stone-500 focus:outline-none focus:border-emerald-500"
+                className="w-full bg-stone-50 border border-stone-200 rounded-xl pl-10 pr-3 py-2 text-xs text-stone-900 placeholder-stone-400 focus:outline-none focus:border-emerald-600"
               />
             </div>
 
             {/* Status Filter */}
-            <div className="flex items-center gap-1.5 bg-stone-900 p-1 rounded-xl border border-stone-800">
+            <div className="flex items-center gap-1.5 bg-stone-100 p-1 rounded-xl border border-stone-200">
               {['All', 'Active', 'Project Phase'].map((status, sIdx) => (
                 <button
                   key={`wing-status-filter-${status}-${sIdx}`}
                   onClick={() => setStatusFilter(status)}
                   className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                     statusFilter === status
-                      ? 'bg-emerald-600 text-white shadow'
-                      : 'text-stone-400 hover:text-stone-200'
+                      ? 'bg-emerald-700 text-white shadow-xs'
+                      : 'text-stone-600 hover:text-stone-900'
                   }`}
                 >
                   {status}
@@ -169,7 +169,7 @@ export const OurWingsSection: React.FC = () => {
             return (
               <div
                 key="wing-entry-core-committee"
-                className="relative bg-gradient-to-b from-stone-900 via-stone-900 to-stone-950 border-2 border-amber-500/60 hover:border-amber-400 rounded-3xl p-6 sm:p-7 shadow-2xl shadow-amber-950/40 flex flex-col justify-between transition-all ring-1 ring-amber-500/25 group/core"
+                className="relative bg-gradient-to-b from-amber-50/50 via-white to-stone-50 border-2 border-amber-300 hover:border-amber-400 rounded-3xl p-6 sm:p-7 shadow-md flex flex-col justify-between transition-all ring-1 ring-amber-200/50 group/core"
               >
                 {/* Visual Golden Subtle Glow */}
                 <div className="absolute top-0 right-0 w-48 h-48 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
@@ -178,19 +178,19 @@ export const OurWingsSection: React.FC = () => {
                   {/* Top Header */}
                   <div className="flex items-start justify-between gap-4 mb-4">
                     <div className="flex items-center gap-3.5">
-                      <div className="w-13 h-13 rounded-2xl bg-amber-500/20 border border-amber-500/50 text-amber-300 flex items-center justify-center shrink-0 shadow-[0_0_20px_rgba(245,158,11,0.3)] group-hover/core:scale-105 transition-transform">
-                        <Crown className="w-7 h-7 text-amber-300" />
+                      <div className="w-13 h-13 rounded-2xl bg-amber-100 border border-amber-300 text-amber-800 flex items-center justify-center shrink-0 shadow-xs group-hover/core:scale-105 transition-transform">
+                        <Crown className="w-7 h-7 text-amber-700" />
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
-                          <span className="text-[11px] font-mono font-extrabold px-2.5 py-0.5 rounded-md bg-amber-400 text-stone-950 uppercase tracking-wider shadow-sm">
+                          <span className="text-[11px] font-mono font-extrabold px-2.5 py-0.5 rounded-md bg-amber-400 text-stone-950 uppercase tracking-wider shadow-xs">
                             APEX EXECUTIVE
                           </span>
-                          <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-800 uppercase">
+                          <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 uppercase">
                             Central Secretariat
                           </span>
                         </div>
-                        <h3 className="text-xl sm:text-2xl font-bold font-heading text-white mt-1 group-hover/core:text-amber-200 transition-colors">
+                        <h3 className="text-xl sm:text-2xl font-bold font-heading text-stone-900 mt-1 group-hover/core:text-amber-800 transition-colors">
                           Core Committee
                         </h3>
                       </div>
@@ -198,13 +198,13 @@ export const OurWingsSection: React.FC = () => {
 
                     {/* Tenure Archive */}
                     <div className="relative shrink-0">
-                      <label className="block text-[9px] font-mono uppercase text-amber-400/90 font-bold mb-1">
+                      <label className="block text-[9px] font-mono uppercase text-amber-800 font-bold mb-1">
                         Executive Tenure
                       </label>
                       <select
                         value={currentYear}
                         onChange={(e) => handleYearChange('core-committee', e.target.value)}
-                        className="bg-stone-950 border border-amber-500/40 text-amber-200 text-xs rounded-xl px-2.5 py-1.5 focus:outline-none focus:border-amber-400 cursor-pointer font-mono font-bold"
+                        className="bg-white border border-amber-300 text-stone-800 text-xs rounded-xl px-2.5 py-1.5 focus:outline-none focus:border-amber-500 cursor-pointer font-mono font-bold shadow-xs"
                       >
                         {availableYears.map((yr) => (
                           <option key={`core-yr-${yr}`} value={yr}>
@@ -215,7 +215,7 @@ export const OurWingsSection: React.FC = () => {
                     </div>
                   </div>
 
-                  <p className="text-xs text-stone-300 leading-relaxed mb-4">
+                  <p className="text-xs text-stone-600 leading-relaxed mb-4">
                     Supreme governing council of ANJUMAN-E-HUDA steering union constitutional affairs,
                     general body convocations, and campus-wide policy directives.
                   </p>
@@ -228,15 +228,15 @@ export const OurWingsSection: React.FC = () => {
                       setModalYearFilter('All');
                       setModalSearchTerm('');
                     }}
-                    className="w-full mb-5 py-2.5 px-4 rounded-xl bg-gradient-to-r from-amber-500/20 via-stone-900 to-amber-500/20 hover:from-amber-500/30 hover:to-amber-500/30 text-amber-200 border border-amber-500/50 text-xs font-bold flex items-center justify-between cursor-pointer shadow-lg transition-all group"
+                    className="w-full mb-5 py-2.5 px-4 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 text-xs font-bold flex items-center justify-between cursor-pointer shadow-xs transition-all group"
                   >
-                    <span className="flex items-center gap-2 text-amber-300 font-mono">
-                      <Crown className="w-4 h-4 text-amber-400" />
+                    <span className="flex items-center gap-2 text-amber-800 font-mono">
+                      <Crown className="w-4 h-4 text-amber-600" />
                       <span>Click to Open Core Committee Full Ledger & Programs</span>
                     </span>
-                    <span className="text-[11px] font-mono text-amber-400 flex items-center gap-1 font-bold">
+                    <span className="text-[11px] font-mono text-amber-700 flex items-center gap-1 font-bold">
                       <span>View Ledger</span>
-                      <ChevronRight className="w-4 h-4 text-amber-400 group-hover:translate-x-1 transition-transform" />
+                      <ChevronRight className="w-4 h-4 text-amber-600 group-hover:translate-x-1 transition-transform" />
                     </span>
                   </button>
 
@@ -259,10 +259,10 @@ export const OurWingsSection: React.FC = () => {
                     return (
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5">
                         {/* 1. Central President */}
-                        <div className="p-3 rounded-2xl bg-stone-950/90 border border-amber-500/40 flex items-center gap-3 shadow-md">
+                        <div className="p-3 rounded-2xl bg-white border border-amber-200 flex items-center gap-3 shadow-xs">
                           <div
                             onClick={() => presidentPhoto && setPreviewImage({ url: presidentPhoto, title: presidentName, subtitle: 'Core Committee • Central President' })}
-                            className={`relative w-16 h-20 sm:w-18 sm:h-24 rounded-xl overflow-hidden bg-stone-900 border-2 border-amber-500/60 shadow-md shrink-0 ${presidentPhoto ? 'cursor-pointer hover:ring-2 hover:ring-amber-400' : ''}`}
+                            className={`relative w-16 h-20 sm:w-18 sm:h-24 rounded-xl overflow-hidden bg-stone-100 border-2 border-amber-400 shadow-xs shrink-0 ${presidentPhoto ? 'cursor-pointer hover:ring-2 hover:ring-amber-400' : ''}`}
                             title={presidentPhoto ? 'Click to view full photo' : undefined}
                           >
                             {presidentPhoto ? (
@@ -272,31 +272,31 @@ export const OurWingsSection: React.FC = () => {
                                 className="w-full h-full object-cover object-top hover:scale-105 transition-transform duration-300"
                               />
                             ) : (
-                              <div className="w-full h-full flex flex-col items-center justify-center bg-stone-900 text-stone-500">
-                                <Crown className="w-5 h-5 text-amber-400/60 mb-0.5" />
-                                <span className="text-[8px] font-mono uppercase text-amber-400">No Photo</span>
+                              <div className="w-full h-full flex flex-col items-center justify-center bg-stone-100 text-stone-400">
+                                <Crown className="w-5 h-5 text-amber-600 mb-0.5" />
+                                <span className="text-[8px] font-mono uppercase text-amber-700">No Photo</span>
                               </div>
                             )}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <span className="text-[9px] font-mono text-amber-400 font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-amber-950/80 border border-amber-500/30 inline-flex items-center gap-1 mb-1">
-                              <Crown className="w-3 h-3 text-amber-400" />
+                            <span className="text-[9px] font-mono text-amber-800 font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-amber-50 border border-amber-200 inline-flex items-center gap-1 mb-1">
+                              <Crown className="w-3 h-3 text-amber-600" />
                               President
                             </span>
-                            <h4 className="text-xs sm:text-[13px] font-bold text-white leading-tight break-words line-clamp-2" title={presidentName}>
+                            <h4 className="text-xs sm:text-[13px] font-bold text-stone-900 leading-tight break-words line-clamp-2" title={presidentName}>
                               {presidentName}
                             </h4>
-                            <p className="text-[10px] text-stone-400 font-mono mt-0.5 truncate">
+                            <p className="text-[10px] text-stone-500 font-mono mt-0.5 truncate">
                               {coreCommitteeWing.chairman?.contact || 'president@anjuman.edu'}
                             </p>
                           </div>
                         </div>
 
                         {/* 2. General Secretary */}
-                        <div className="p-3 rounded-2xl bg-stone-950/90 border border-amber-500/40 flex items-center gap-3 shadow-md">
+                        <div className="p-3 rounded-2xl bg-white border border-amber-200 flex items-center gap-3 shadow-xs">
                           <div
                             onClick={() => genSecPhoto && setPreviewImage({ url: genSecPhoto, title: genSecName, subtitle: 'Core Committee • General Secretary' })}
-                            className={`relative w-16 h-20 sm:w-18 sm:h-24 rounded-xl overflow-hidden bg-stone-900 border-2 border-amber-500/40 shadow-md shrink-0 ${genSecPhoto ? 'cursor-pointer hover:ring-2 hover:ring-amber-400' : ''}`}
+                            className={`relative w-16 h-20 sm:w-18 sm:h-24 rounded-xl overflow-hidden bg-stone-100 border-2 border-amber-300 shadow-xs shrink-0 ${genSecPhoto ? 'cursor-pointer hover:ring-2 hover:ring-amber-400' : ''}`}
                             title={genSecPhoto ? 'Click to view full photo' : undefined}
                           >
                             {genSecPhoto ? (
@@ -306,21 +306,21 @@ export const OurWingsSection: React.FC = () => {
                                 className="w-full h-full object-cover object-top hover:scale-105 transition-transform duration-300"
                               />
                             ) : (
-                              <div className="w-full h-full flex flex-col items-center justify-center bg-stone-900 text-stone-500">
+                              <div className="w-full h-full flex flex-col items-center justify-center bg-stone-100 text-stone-400">
                                 <User className="w-5 h-5 text-stone-400 mb-0.5" />
-                                <span className="text-[8px] font-mono uppercase text-stone-400">No Photo</span>
+                                <span className="text-[8px] font-mono uppercase text-stone-500">No Photo</span>
                               </div>
                             )}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <span className="text-[9px] font-mono text-stone-300 font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-stone-900 border border-stone-800 inline-flex items-center gap-1 mb-1">
-                              <UserCheck className="w-3 h-3 text-stone-400" />
+                            <span className="text-[9px] font-mono text-stone-700 font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-stone-100 border border-stone-200 inline-flex items-center gap-1 mb-1">
+                              <UserCheck className="w-3 h-3 text-stone-500" />
                               Gen Secretary
                             </span>
-                            <h4 className="text-xs sm:text-[13px] font-bold text-white leading-tight break-words line-clamp-2" title={genSecName}>
+                            <h4 className="text-xs sm:text-[13px] font-bold text-stone-900 leading-tight break-words line-clamp-2" title={genSecName}>
                               {genSecName}
                             </h4>
-                            <p className="text-[10px] text-stone-400 font-mono mt-0.5 truncate">
+                            <p className="text-[10px] text-stone-500 font-mono mt-0.5 truncate">
                               {coreCommitteeWing.convener?.contact || 'gensec@anjuman.edu'}
                             </p>
                           </div>
@@ -330,11 +330,11 @@ export const OurWingsSection: React.FC = () => {
                   })()}
 
                   {/* Conducted Programs Column (ONLY Program Name, Date, Category) */}
-                  <div className="p-4 rounded-2xl bg-stone-950/90 border border-amber-500/40 space-y-3">
-                    <div className="flex flex-wrap items-center justify-between gap-2 border-b border-stone-800 pb-2.5">
+                  <div className="p-4 rounded-2xl bg-stone-50 border border-stone-200 space-y-3">
+                    <div className="flex flex-wrap items-center justify-between gap-2 border-b border-stone-200 pb-2.5">
                       <div className="flex items-center gap-2">
-                        <Calendar className="w-4 h-4 text-amber-400" />
-                        <h4 className="text-xs font-bold font-mono uppercase text-amber-200 tracking-wider">
+                        <Calendar className="w-4 h-4 text-amber-600" />
+                        <h4 className="text-xs font-bold font-mono uppercase text-stone-800 tracking-wider">
                           Conducted Programs ({corePrograms.length})
                         </h4>
                       </div>
@@ -345,7 +345,7 @@ export const OurWingsSection: React.FC = () => {
                           setModalYearFilter('All');
                           setModalSearchTerm('');
                         }}
-                        className="text-[11px] font-mono font-bold text-amber-400 hover:text-amber-300 flex items-center gap-1 underline cursor-pointer"
+                        className="text-[11px] font-mono font-bold text-emerald-700 hover:text-emerald-800 flex items-center gap-1 underline cursor-pointer"
                       >
                         <span>Open Full Ledger</span>
                         <ChevronRight className="w-3.5 h-3.5" />
@@ -357,20 +357,20 @@ export const OurWingsSection: React.FC = () => {
                         {displayedCorePrograms.map((prog, pIdx) => (
                           <div
                             key={`core-prog-${prog.id}-${pIdx}`}
-                            className="p-3 rounded-xl bg-stone-900 border border-stone-800 hover:border-amber-500/50 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-2"
+                            className="p-3 rounded-xl bg-white border border-stone-200 hover:border-amber-400 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-2 shadow-2xs"
                           >
                             <div className="min-w-0 flex-1 space-y-1">
-                              <h5 className="text-xs sm:text-sm font-bold text-white leading-snug truncate" title={prog.title}>
+                              <h5 className="text-xs sm:text-sm font-bold text-stone-900 leading-snug truncate" title={prog.title}>
                                 {prog.title}
                               </h5>
                               <div className="flex items-center gap-2">
-                                <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-amber-400 text-stone-950 text-[10px] font-mono font-bold shadow-xs">
+                                <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-amber-50 text-amber-800 border border-amber-200 text-[10px] font-mono font-bold">
                                   Category: {prog.targetClass}
                                 </span>
                               </div>
                             </div>
                             <div className="shrink-0 flex items-center">
-                              <span className="text-[11px] font-mono text-emerald-400 font-bold bg-emerald-950/80 px-2 py-0.5 rounded border border-emerald-800/40">
+                              <span className="text-[11px] font-mono text-emerald-800 font-bold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
                                 Date: {prog.date}
                               </span>
                             </div>
@@ -378,7 +378,7 @@ export const OurWingsSection: React.FC = () => {
                         ))}
                       </div>
                     ) : (
-                      <div className="p-3.5 rounded-xl bg-stone-900/40 border border-stone-800/50 text-center text-xs text-stone-400">
+                      <div className="p-3.5 rounded-xl bg-white border border-stone-200 text-center text-xs text-stone-500">
                         No recorded programs for Core Committee ({currentYear}).
                       </div>
                     )}
@@ -386,13 +386,13 @@ export const OurWingsSection: React.FC = () => {
                 </div>
 
                 {/* Footer status */}
-                <div className="pt-4 mt-6 border-t border-stone-800/80 flex items-center justify-between text-xs text-stone-400">
-                  <span className="flex items-center gap-1 text-[11px] font-mono text-amber-400/90 font-bold">
+                <div className="pt-4 mt-6 border-t border-stone-200 flex items-center justify-between text-xs text-stone-500">
+                  <span className="flex items-center gap-1 text-[11px] font-mono text-amber-800 font-bold">
                     <Calendar className="w-3.5 h-3.5" />
                     Viewing Committee: {currentYear}
                   </span>
-                  <span className="text-xs font-semibold text-amber-400 flex items-center gap-1 font-mono">
-                    <Crown className="w-3.5 h-3.5" />
+                  <span className="text-xs font-semibold text-amber-800 flex items-center gap-1 font-mono">
+                    <Crown className="w-3.5 h-3.5 text-amber-600" />
                     Supreme Jurisdiction
                   </span>
                 </div>
@@ -418,43 +418,43 @@ export const OurWingsSection: React.FC = () => {
             return (
               <div
                 key={`wing-entry-${wing.id}-${wingIdx}`}
-                className="bg-stone-900 border border-stone-800 hover:border-emerald-500/40 rounded-2xl p-6 shadow-xl flex flex-col justify-between transition-all"
+                className="bg-white border border-stone-200 hover:border-emerald-500 rounded-2xl p-6 shadow-xs hover:shadow-md flex flex-col justify-between transition-all"
               >
                 <div>
                   {/* Top Wing Identity & Dropdown feature to select previous years */}
                   <div className="flex items-start justify-between gap-4 mb-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-xl bg-emerald-950/80 border border-emerald-500/40 text-emerald-400 flex items-center justify-center shrink-0">
+                      <div className="w-12 h-12 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 flex items-center justify-center shrink-0">
                         <Icon className="w-6 h-6" />
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
-                          <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-stone-950 text-amber-400 border border-stone-800">
+                          <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-stone-100 text-amber-800 border border-stone-200">
                             {wing.shortName}
                           </span>
                           <span
                             className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase ${
                               wing.status === 'Active'
-                                ? 'bg-emerald-950 text-emerald-400 border border-emerald-800'
-                                : 'bg-stone-800 text-stone-300'
+                                ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                                : 'bg-stone-100 text-stone-600'
                             }`}
                           >
                             {wing.status}
                           </span>
                         </div>
-                        <h3 className="text-lg font-bold font-heading text-white mt-1">{wing.name}</h3>
+                        <h3 className="text-lg font-bold font-heading text-stone-900 mt-1">{wing.name}</h3>
                       </div>
                     </div>
 
                     {/* Dropdown feature to select previous years to view past wing leaders and dates */}
                     <div className="relative shrink-0">
-                      <label className="block text-[9px] font-mono uppercase text-stone-400 mb-1">
+                      <label className="block text-[9px] font-mono uppercase text-stone-500 mb-1">
                         Tenure Archive
                       </label>
                       <select
                         value={currentYear}
                         onChange={(e) => handleYearChange(wing.id, e.target.value)}
-                        className="bg-stone-950 border border-stone-700 text-stone-200 text-xs rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-emerald-500 cursor-pointer"
+                        className="bg-stone-50 border border-stone-200 text-stone-800 text-xs rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-emerald-600 cursor-pointer"
                       >
                         {availableYears.map((yr, yrIdx) => (
                           <option key={`wing-${wing.id}-yr-${yr}-${yrIdx}`} value={yr}>
@@ -465,7 +465,7 @@ export const OurWingsSection: React.FC = () => {
                     </div>
                   </div>
 
-                  <p className="text-xs text-stone-300 leading-relaxed mb-3">{wing.description}</p>
+                  <p className="text-xs text-stone-600 leading-relaxed mb-3">{wing.description}</p>
 
                   {/* Prominent Button to open Wing & Programs Ledger */}
                   <button
@@ -475,22 +475,22 @@ export const OurWingsSection: React.FC = () => {
                       setModalYearFilter('All');
                       setModalSearchTerm('');
                     }}
-                    className="w-full mb-5 py-2 px-3 rounded-xl bg-gradient-to-r from-emerald-950/90 via-stone-900 to-amber-950/90 hover:from-emerald-900 hover:to-amber-900 text-stone-200 border border-emerald-500/40 text-xs font-semibold flex items-center justify-between cursor-pointer shadow-md transition-all group"
+                    className="w-full mb-5 py-2 px-3 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-900 border border-emerald-200 text-xs font-semibold flex items-center justify-between cursor-pointer shadow-2xs transition-all group"
                   >
-                    <span className="flex items-center gap-2 text-emerald-300">
-                      <Calendar className="w-3.5 h-3.5 text-emerald-400" />
+                    <span className="flex items-center gap-2 text-emerald-800">
+                      <Calendar className="w-3.5 h-3.5 text-emerald-600" />
                       <span>Click to Open Wing, Leaders & Conducted Programs</span>
                     </span>
-                    <span className="text-[11px] font-mono text-amber-300 flex items-center gap-1">
+                    <span className="text-[11px] font-mono text-amber-800 flex items-center gap-1">
                       <span>View Ledger</span>
-                      <ChevronRight className="w-3.5 h-3.5 text-amber-400 group-hover:translate-x-1 transition-transform" />
+                      <ChevronRight className="w-3.5 h-3.5 text-amber-600 group-hover:translate-x-1 transition-transform" />
                     </span>
                   </button>
 
                   {/* Historical Banner if past year selected */}
                   {isHistorical && historicalEntry?.keyMilestone && (
-                    <div className="mb-5 p-3 rounded-xl bg-amber-950/40 border border-amber-500/30 text-xs text-amber-200 flex items-start gap-2">
-                      <History className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+                    <div className="mb-5 p-3 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900 flex items-start gap-2">
+                      <History className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
                       <span>
                         <strong>Milestone ({currentYear}):</strong> {historicalEntry.keyMilestone}
                       </span>
@@ -510,11 +510,11 @@ export const OurWingsSection: React.FC = () => {
                         : (wing.chairman?.photo || wing.chairmanPhoto || wing.manager?.photo || '');
 
                       return (
-                        <div className="p-3 sm:p-3.5 rounded-2xl bg-stone-950/95 border border-stone-800/90 hover:border-emerald-500/50 flex items-center gap-3 sm:gap-3.5 transition-all duration-300 group shadow-md hover:shadow-emerald-950/20">
+                        <div className="p-3 sm:p-3.5 rounded-2xl bg-stone-50 border border-stone-200 hover:border-emerald-400 flex items-center gap-3 sm:gap-3.5 transition-all duration-300 group shadow-2xs">
                           {/* Portrait Photo Frame - Face clearly visible */}
                           <div
                             onClick={() => chairmanPhoto && setPreviewImage({ url: chairmanPhoto, title: chairmanName, subtitle: `${wing.name} • Chairman` })}
-                            className={`relative w-20 h-28 sm:w-22 sm:h-32 rounded-xl overflow-hidden bg-stone-900 border-2 border-emerald-500/50 group-hover:border-emerald-400 shadow-xl shadow-black/80 shrink-0 ${chairmanPhoto ? 'cursor-pointer hover:ring-2 hover:ring-emerald-400/50' : ''}`}
+                            className={`relative w-20 h-28 sm:w-22 sm:h-32 rounded-xl overflow-hidden bg-stone-100 border-2 border-emerald-400 group-hover:border-emerald-500 shadow-xs shrink-0 ${chairmanPhoto ? 'cursor-pointer hover:ring-2 hover:ring-emerald-400/50' : ''}`}
                             title={chairmanPhoto ? "Click to view full photo" : undefined}
                           >
                             {chairmanPhoto ? (
@@ -530,20 +530,20 @@ export const OurWingsSection: React.FC = () => {
                                     if (fb) (fb as HTMLElement).style.display = 'flex';
                                   }}
                                 />
-                                <div className="photo-fallback hidden w-full h-full flex-col items-center justify-center bg-gradient-to-b from-stone-900 to-emerald-950/50 text-stone-500 p-2 text-center">
-                                  <User className="w-7 h-7 text-emerald-400/60 mb-1" />
-                                  <span className="text-[9px] font-mono uppercase text-emerald-500/80 font-bold">No Photo</span>
+                                <div className="photo-fallback hidden w-full h-full flex-col items-center justify-center bg-stone-100 text-stone-400 p-2 text-center">
+                                  <User className="w-7 h-7 text-emerald-600 mb-1" />
+                                  <span className="text-[9px] font-mono uppercase text-emerald-700 font-bold">No Photo</span>
                                 </div>
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-center pb-1.5 pointer-events-none">
-                                  <span className="text-[9px] font-mono text-emerald-300 font-bold bg-black/80 px-1.5 py-0.5 rounded backdrop-blur-xs">
+                                <div className="absolute inset-0 bg-gradient-to-t from-stone-900/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-center pb-1.5 pointer-events-none">
+                                  <span className="text-[9px] font-mono text-white font-bold bg-stone-900/80 px-1.5 py-0.5 rounded backdrop-blur-xs">
                                     Enlarge
                                   </span>
                                 </div>
                               </>
                             ) : (
-                              <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-b from-stone-900 to-emerald-950/50 text-stone-500 p-2 text-center">
-                                <User className="w-7 h-7 text-emerald-400/60 mb-1" />
-                                <span className="text-[9px] font-mono uppercase text-emerald-500/80 font-bold">No Photo</span>
+                              <div className="w-full h-full flex flex-col items-center justify-center bg-stone-100 text-stone-400 p-2 text-center">
+                                <User className="w-7 h-7 text-emerald-600 mb-1" />
+                                <span className="text-[9px] font-mono uppercase text-emerald-700 font-bold">No Photo</span>
                               </div>
                             )}
                           </div>
@@ -551,22 +551,22 @@ export const OurWingsSection: React.FC = () => {
                           {/* Info Column */}
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center justify-between mb-1">
-                              <span className="text-[10px] font-mono text-emerald-400 font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-emerald-950/90 border border-emerald-500/30 inline-flex items-center gap-1 shadow-sm">
-                                <Crown className="w-3.5 h-3.5 text-emerald-400" />
+                              <span className="text-[10px] font-mono text-emerald-800 font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-emerald-50 border border-emerald-200 inline-flex items-center gap-1 shadow-2xs">
+                                <Crown className="w-3.5 h-3.5 text-emerald-600" />
                                 CHAIRMAN
                               </span>
                             </div>
                             <h4
-                              className="text-xs sm:text-[13px] font-bold text-white leading-tight group-hover:text-emerald-200 transition-colors break-words line-clamp-2"
+                              className="text-xs sm:text-[13px] font-bold text-stone-900 leading-tight group-hover:text-emerald-700 transition-colors break-words line-clamp-2"
                               title={chairmanName}
                             >
                               {chairmanName}
                             </h4>
-                            <p className="text-[10px] text-stone-400 mt-0.5 truncate font-medium">
+                            <p className="text-[10px] text-stone-500 mt-0.5 truncate font-medium">
                               Portfolio Leader
                             </p>
-                            <div className="mt-1.5 text-[10px] sm:text-[11px] text-stone-400 flex items-center gap-1.5 truncate">
-                              <Mail className="w-3 h-3 text-emerald-500/70 shrink-0" />
+                            <div className="mt-1.5 text-[10px] sm:text-[11px] text-stone-500 flex items-center gap-1.5 truncate">
+                              <Mail className="w-3 h-3 text-emerald-600 shrink-0" />
                               <span className="truncate text-[10px] sm:text-[11px]">{chairmanContact}</span>
                             </div>
                           </div>
@@ -585,11 +585,11 @@ export const OurWingsSection: React.FC = () => {
                         : (wing.convener?.photo || wing.convenerPhoto || '');
 
                       return (
-                        <div className="p-3 sm:p-3.5 rounded-2xl bg-stone-950/95 border border-stone-800/90 hover:border-amber-500/50 flex items-center gap-3 sm:gap-3.5 transition-all duration-300 group shadow-md hover:shadow-amber-950/20">
+                        <div className="p-3 sm:p-3.5 rounded-2xl bg-stone-50 border border-stone-200 hover:border-amber-400 flex items-center gap-3 sm:gap-3.5 transition-all duration-300 group shadow-2xs">
                           {/* Portrait Photo Frame - Face clearly visible */}
                           <div
                             onClick={() => convenerPhoto && setPreviewImage({ url: convenerPhoto, title: convenerName, subtitle: `${wing.name} • Convener` })}
-                            className={`relative w-20 h-28 sm:w-22 sm:h-32 rounded-xl overflow-hidden bg-stone-900 border-2 border-amber-500/50 group-hover:border-amber-400 shadow-xl shadow-black/80 shrink-0 ${convenerPhoto ? 'cursor-pointer hover:ring-2 hover:ring-amber-400/50' : ''}`}
+                            className={`relative w-20 h-28 sm:w-22 sm:h-32 rounded-xl overflow-hidden bg-stone-100 border-2 border-amber-300 group-hover:border-amber-400 shadow-xs shrink-0 ${convenerPhoto ? 'cursor-pointer hover:ring-2 hover:ring-amber-400/50' : ''}`}
                             title={convenerPhoto ? "Click to view full photo" : undefined}
                           >
                             {convenerPhoto ? (
@@ -605,20 +605,20 @@ export const OurWingsSection: React.FC = () => {
                                     if (fb) (fb as HTMLElement).style.display = 'flex';
                                   }}
                                 />
-                                <div className="photo-fallback hidden w-full h-full flex-col items-center justify-center bg-gradient-to-b from-stone-900 to-amber-950/50 text-stone-500 p-2 text-center">
-                                  <UserCheck className="w-7 h-7 text-amber-400/60 mb-1" />
-                                  <span className="text-[9px] font-mono uppercase text-amber-500/80 font-bold">No Photo</span>
+                                <div className="photo-fallback hidden w-full h-full flex-col items-center justify-center bg-stone-100 text-stone-400 p-2 text-center">
+                                  <UserCheck className="w-7 h-7 text-amber-600 mb-1" />
+                                  <span className="text-[9px] font-mono uppercase text-amber-700 font-bold">No Photo</span>
                                 </div>
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-center pb-1.5 pointer-events-none">
-                                  <span className="text-[9px] font-mono text-amber-300 font-bold bg-black/80 px-1.5 py-0.5 rounded backdrop-blur-xs">
+                                <div className="absolute inset-0 bg-gradient-to-t from-stone-900/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-center pb-1.5 pointer-events-none">
+                                  <span className="text-[9px] font-mono text-white font-bold bg-stone-900/80 px-1.5 py-0.5 rounded backdrop-blur-xs">
                                     Enlarge
                                   </span>
                                 </div>
                               </>
                             ) : (
-                              <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-b from-stone-900 to-amber-950/50 text-stone-500 p-2 text-center">
-                                <UserCheck className="w-7 h-7 text-amber-400/60 mb-1" />
-                                <span className="text-[9px] font-mono uppercase text-amber-500/80 font-bold">No Photo</span>
+                              <div className="w-full h-full flex flex-col items-center justify-center bg-stone-100 text-stone-400 p-2 text-center">
+                                <UserCheck className="w-7 h-7 text-amber-600 mb-1" />
+                                <span className="text-[9px] font-mono uppercase text-amber-700 font-bold">No Photo</span>
                               </div>
                             )}
                           </div>
@@ -626,22 +626,22 @@ export const OurWingsSection: React.FC = () => {
                           {/* Info Column */}
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center justify-between mb-1">
-                              <span className="text-[10px] font-mono text-amber-400 font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-amber-950/90 border border-amber-500/30 inline-flex items-center gap-1 shadow-sm">
-                                <UserCheck className="w-3.5 h-3.5 text-amber-400" />
+                              <span className="text-[10px] font-mono text-amber-800 font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-amber-50 border border-amber-200 inline-flex items-center gap-1 shadow-2xs">
+                                <UserCheck className="w-3.5 h-3.5 text-amber-600" />
                                 CONVENER
                               </span>
                             </div>
                             <h4
-                              className="text-xs sm:text-[13px] font-bold text-white leading-tight group-hover:text-amber-200 transition-colors break-words line-clamp-2"
+                              className="text-xs sm:text-[13px] font-bold text-stone-900 leading-tight group-hover:text-amber-800 transition-colors break-words line-clamp-2"
                               title={convenerName}
                             >
                               {convenerName}
                             </h4>
-                            <p className="text-[10px] text-stone-400 mt-0.5 truncate font-medium">
+                            <p className="text-[10px] text-stone-500 mt-0.5 truncate font-medium">
                               Operational Head
                             </p>
-                            <div className="mt-1.5 text-[10px] sm:text-[11px] text-stone-400 flex items-center gap-1.5 truncate">
-                              <Mail className="w-3 h-3 text-amber-500/70 shrink-0" />
+                            <div className="mt-1.5 text-[10px] sm:text-[11px] text-stone-500 flex items-center gap-1.5 truncate">
+                              <Mail className="w-3 h-3 text-amber-600 shrink-0" />
                               <span className="truncate text-[10px] sm:text-[11px]">{convenerContact}</span>
                             </div>
                           </div>
@@ -665,11 +665,11 @@ export const OurWingsSection: React.FC = () => {
                     const displayedPrograms = programsForTenure.length > 0 ? programsForTenure : programsForWing;
 
                     return (
-                      <div className="mt-5 p-4 rounded-2xl bg-stone-950/80 border border-stone-800/90 space-y-3">
-                        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-stone-800/80 pb-2.5">
+                      <div className="mt-5 p-4 rounded-2xl bg-stone-50 border border-stone-200 space-y-3">
+                        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-stone-200 pb-2.5">
                           <div className="flex items-center gap-2">
-                            <Calendar className="w-4 h-4 text-emerald-400" />
-                            <h4 className="text-xs font-bold font-mono uppercase text-stone-200 tracking-wider">
+                            <Calendar className="w-4 h-4 text-emerald-600" />
+                            <h4 className="text-xs font-bold font-mono uppercase text-stone-800 tracking-wider">
                               Conducted Programs ({programsForWing.length})
                             </h4>
                           </div>
@@ -680,7 +680,7 @@ export const OurWingsSection: React.FC = () => {
                               setModalYearFilter('All');
                               setModalSearchTerm('');
                             }}
-                            className="text-[11px] font-mono font-semibold text-emerald-400 hover:text-emerald-300 flex items-center gap-1 underline cursor-pointer"
+                            className="text-[11px] font-mono font-semibold text-emerald-700 hover:text-emerald-800 flex items-center gap-1 underline cursor-pointer"
                           >
                             <span>Open Full Ledger</span>
                             <ChevronRight className="w-3.5 h-3.5" />
@@ -693,21 +693,21 @@ export const OurWingsSection: React.FC = () => {
                             {displayedPrograms.map((prog, pIdx) => (
                               <div
                                 key={`wing-prog-${prog.id}-${pIdx}`}
-                                className="p-3 rounded-xl bg-stone-900 border border-stone-800 hover:border-emerald-500/40 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-2"
+                                className="p-3 rounded-xl bg-white border border-stone-200 hover:border-emerald-400 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-2 shadow-2xs"
                               >
                                 <div className="min-w-0 flex-1 space-y-1">
-                                  <h5 className="text-xs sm:text-sm font-bold text-white leading-snug truncate" title={prog.title}>
+                                  <h5 className="text-xs sm:text-sm font-bold text-stone-900 leading-snug truncate" title={prog.title}>
                                     {prog.title}
                                   </h5>
                                   <div className="flex items-center gap-2">
-                                    <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-amber-400 text-stone-950 text-[10px] font-mono font-bold shadow-xs">
+                                    <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-amber-50 text-amber-800 border border-amber-200 text-[10px] font-mono font-bold">
                                       Category: {prog.targetClass}
                                     </span>
                                   </div>
                                 </div>
 
                                 <div className="shrink-0 flex items-center">
-                                  <span className="text-[11px] font-mono text-emerald-400 font-bold bg-emerald-950/80 px-2 py-0.5 rounded border border-emerald-800/40">
+                                  <span className="text-[11px] font-mono text-emerald-800 font-bold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
                                     Date: {prog.date}
                                   </span>
                                 </div>
@@ -715,7 +715,7 @@ export const OurWingsSection: React.FC = () => {
                             ))}
                           </div>
                         ) : (
-                          <div className="p-3.5 rounded-xl bg-stone-900/40 border border-stone-800/50 text-center text-xs text-stone-400">
+                          <div className="p-3.5 rounded-xl bg-white border border-stone-200 text-center text-xs text-stone-500">
                             No recorded programs for this wing ({currentYear}).
                           </div>
                         )}
@@ -725,12 +725,12 @@ export const OurWingsSection: React.FC = () => {
                 </div>
 
                 {/* Footer status */}
-                <div className="pt-4 mt-6 border-t border-stone-800 flex items-center justify-between text-xs text-stone-400">
+                <div className="pt-4 mt-6 border-t border-stone-200 flex items-center justify-between text-xs text-stone-500">
                   <span className="flex items-center gap-1 text-[11px] font-mono text-stone-500">
                     <Calendar className="w-3.5 h-3.5" />
                     Viewing Committee: {currentYear}
                   </span>
-                  <span className="text-xs font-medium text-emerald-400 flex items-center gap-1">
+                  <span className="text-xs font-medium text-emerald-700 flex items-center gap-1">
                     <CheckCircle2 className="w-3.5 h-3.5" />
                     Council Ratified
                   </span>
@@ -741,7 +741,7 @@ export const OurWingsSection: React.FC = () => {
         </div>
 
         {filteredWings.length === 0 && (
-          <div className="text-center py-16 bg-stone-900 rounded-2xl border border-stone-800 text-stone-400">
+          <div className="text-center py-16 bg-stone-50 rounded-2xl border border-stone-200 text-stone-500">
             No wings found matching your search term.
           </div>
         )}
@@ -750,21 +750,21 @@ export const OurWingsSection: React.FC = () => {
       {/* Photo Enlarge Lightbox Modal */}
       {previewImage && (
         <div
-          className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200"
+          className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200"
           onClick={() => setPreviewImage(null)}
         >
           <div
-            className="bg-stone-900 border border-stone-800 rounded-3xl p-5 sm:p-6 max-w-sm sm:max-w-md w-full shadow-2xl relative"
+            className="bg-white border border-stone-200 rounded-3xl p-5 sm:p-6 max-w-sm sm:max-w-md w-full shadow-2xl relative"
             onClick={(e) => e.stopPropagation()}
           >
             <button
               onClick={() => setPreviewImage(null)}
-              className="absolute top-4 right-4 p-2 rounded-full bg-stone-800/90 hover:bg-stone-700 text-stone-300 hover:text-white transition-colors"
+              className="absolute top-4 right-4 p-2 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-500 hover:text-stone-900 transition-colors"
               aria-label="Close photo preview"
             >
               <X className="w-5 h-5" />
             </button>
-            <div className="rounded-2xl overflow-hidden bg-stone-950 border border-stone-800 mb-4 max-h-[60vh] flex items-center justify-center shadow-inner">
+            <div className="rounded-2xl overflow-hidden bg-stone-100 border border-stone-200 mb-4 max-h-[60vh] flex items-center justify-center shadow-inner">
               <img
                 src={previewImage.url}
                 alt={previewImage.title}
@@ -772,10 +772,10 @@ export const OurWingsSection: React.FC = () => {
               />
             </div>
             <div className="text-center">
-              <span className="text-xs font-mono text-emerald-400 font-bold uppercase tracking-wider block mb-1">
+              <span className="text-xs font-mono text-emerald-700 font-bold uppercase tracking-wider block mb-1">
                 {previewImage.subtitle}
               </span>
-              <h3 className="text-xl font-bold text-white font-heading">
+              <h3 className="text-xl font-bold text-stone-900 font-heading">
                 {previewImage.title}
               </h3>
             </div>
@@ -824,29 +824,29 @@ export const OurWingsSection: React.FC = () => {
 
         return (
           <div
-            className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 animate-in fade-in duration-200"
+            className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-5 animate-in fade-in duration-200"
             onClick={() => setActiveWingModal(null)}
           >
             <div
-              className="bg-stone-900 border border-stone-800 rounded-3xl p-5 sm:p-7 max-w-5xl w-full shadow-2xl relative max-h-[92vh] flex flex-col justify-between"
+              className="bg-white border border-stone-200 rounded-3xl p-5 sm:p-7 max-w-5xl w-full shadow-2xl relative max-h-[92vh] flex flex-col justify-between text-stone-900"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Modal Header */}
-              <div className="flex items-start justify-between gap-4 pb-4 border-b border-stone-800 shrink-0">
+              <div className="flex items-start justify-between gap-4 pb-4 border-b border-stone-200 shrink-0">
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-12 h-12 rounded-2xl bg-emerald-950 border border-emerald-500/40 text-emerald-400 flex items-center justify-center shrink-0 shadow-md">
+                  <div className="w-12 h-12 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 flex items-center justify-center shrink-0 shadow-xs">
                     <WingIcon className="w-6 h-6" />
                   </div>
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-stone-950 text-amber-400 border border-stone-800">
+                      <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-stone-100 text-amber-800 border border-stone-200">
                         {activeWingModal.shortName}
                       </span>
-                      <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800 uppercase">
+                      <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-200 uppercase">
                         {activeWingModal.status}
                       </span>
                     </div>
-                    <h3 className="text-lg sm:text-2xl font-bold font-heading text-white truncate mt-1">
+                    <h3 className="text-lg sm:text-2xl font-bold font-heading text-stone-900 truncate mt-1">
                       {activeWingModal.name}
                     </h3>
                   </div>
@@ -855,7 +855,7 @@ export const OurWingsSection: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setActiveWingModal(null)}
-                  className="p-2 rounded-full bg-stone-800 hover:bg-stone-700 text-stone-300 hover:text-white transition-colors cursor-pointer shrink-0"
+                  className="p-2 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-500 hover:text-stone-900 transition-colors cursor-pointer shrink-0"
                   aria-label="Close modal"
                 >
                   <X className="w-5 h-5" />
@@ -863,11 +863,11 @@ export const OurWingsSection: React.FC = () => {
               </div>
 
               {/* Year Filter Bar & Search */}
-              <div className="py-4 border-b border-stone-800/80 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 shrink-0">
+              <div className="py-4 border-b border-stone-200 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 shrink-0">
                 {/* Year Selection Tabs - All Years is default and shows all programs! */}
                 <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-thin">
-                  <span className="text-xs font-mono text-stone-400 uppercase font-bold mr-1 shrink-0 flex items-center gap-1">
-                    <Calendar className="w-3.5 h-3.5 text-emerald-400" />
+                  <span className="text-xs font-mono text-stone-500 uppercase font-bold mr-1 shrink-0 flex items-center gap-1">
+                    <Calendar className="w-3.5 h-3.5 text-emerald-600" />
                     Year:
                   </span>
                   <button
@@ -875,8 +875,8 @@ export const OurWingsSection: React.FC = () => {
                     onClick={() => setModalYearFilter('All')}
                     className={`px-3.5 py-1.5 rounded-xl text-xs font-mono font-bold transition-all cursor-pointer whitespace-nowrap ${
                       modalYearFilter === 'All'
-                        ? 'bg-emerald-600 text-white shadow-md shadow-emerald-900/50'
-                        : 'bg-stone-950 text-stone-400 hover:text-stone-200 border border-stone-800'
+                        ? 'bg-emerald-700 text-white shadow-xs'
+                        : 'bg-stone-100 text-stone-700 hover:bg-stone-200 border border-stone-200'
                     }`}
                   >
                     All Years ({wingPrograms.length})
@@ -890,8 +890,8 @@ export const OurWingsSection: React.FC = () => {
                         onClick={() => setModalYearFilter(yr)}
                         className={`px-3.5 py-1.5 rounded-xl text-xs font-mono font-bold transition-all cursor-pointer whitespace-nowrap ${
                           modalYearFilter === yr
-                            ? 'bg-emerald-600 text-white shadow-md shadow-emerald-900/50'
-                            : 'bg-stone-950 text-stone-400 hover:text-stone-200 border border-stone-800'
+                            ? 'bg-emerald-700 text-white shadow-xs'
+                            : 'bg-stone-100 text-stone-700 hover:bg-stone-200 border border-stone-200'
                         }`}
                       >
                         {yr} {countForYear > 0 ? `(${countForYear})` : ''}
@@ -908,7 +908,7 @@ export const OurWingsSection: React.FC = () => {
                     value={modalSearchTerm}
                     onChange={(e) => setModalSearchTerm(e.target.value)}
                     placeholder="Search program or category..."
-                    className="w-full bg-stone-950 border border-stone-800 rounded-xl pl-9 pr-3 py-1.5 text-xs text-white placeholder-stone-500 focus:outline-none focus:border-emerald-500 font-mono"
+                    className="w-full bg-stone-50 border border-stone-200 rounded-xl pl-9 pr-3 py-1.5 text-xs text-stone-900 placeholder-stone-400 focus:outline-none focus:border-emerald-600 font-mono"
                   />
                 </div>
               </div>
@@ -921,32 +921,32 @@ export const OurWingsSection: React.FC = () => {
                     {filteredModalPrograms.map((prog, pIdx) => (
                       <div
                         key={`ledger-prog-col-${prog.id}-${pIdx}`}
-                        className="p-5 rounded-2xl bg-stone-950 border border-stone-800 hover:border-emerald-500/60 shadow-lg hover:shadow-emerald-950/30 transition-all flex flex-col justify-between group hover:-translate-y-1 min-h-[170px]"
+                        className="p-5 rounded-2xl bg-stone-50 border border-stone-200 hover:border-emerald-500 shadow-xs hover:shadow-md transition-all flex flex-col justify-between group hover:-translate-y-1 min-h-[170px]"
                       >
                         {/* 1. Program Name */}
                         <div>
                           <span className="text-[10px] font-mono text-stone-500 uppercase tracking-wider block mb-1">
                             Program #{pIdx + 1}
                           </span>
-                          <h4 className="text-base font-bold font-heading text-white group-hover:text-emerald-300 transition-colors leading-snug">
+                          <h4 className="text-base font-bold font-heading text-stone-900 group-hover:text-emerald-800 transition-colors leading-snug">
                             {prog.title}
                           </h4>
                         </div>
 
                         {/* 2. Category & 3. Date */}
-                        <div className="space-y-2 pt-4 border-t border-stone-800/80 mt-4">
+                        <div className="space-y-2 pt-4 border-t border-stone-200 mt-4">
                           {/* Category (Class) */}
                           <div className="flex items-center gap-2">
-                            <span className="text-[10px] font-mono text-stone-400 font-semibold uppercase">Category:</span>
-                            <span className="text-xs font-mono font-bold text-amber-300 bg-amber-950/80 px-2.5 py-0.5 rounded-md border border-amber-800/50 truncate">
+                            <span className="text-[10px] font-mono text-stone-500 font-semibold uppercase">Category:</span>
+                            <span className="text-xs font-mono font-bold text-amber-800 bg-amber-50 px-2.5 py-0.5 rounded-md border border-amber-200 truncate">
                               {prog.targetClass}
                             </span>
                           </div>
 
                           {/* Date */}
                           <div className="flex items-center gap-2">
-                            <span className="text-[10px] font-mono text-stone-400 font-semibold uppercase">Date:</span>
-                            <span className="text-xs font-mono font-bold text-emerald-400 bg-emerald-950/80 px-2.5 py-0.5 rounded-md border border-emerald-800/50">
+                            <span className="text-[10px] font-mono text-stone-500 font-semibold uppercase">Date:</span>
+                            <span className="text-xs font-mono font-bold text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded-md border border-emerald-200">
                               {prog.date}
                             </span>
                           </div>
@@ -955,9 +955,9 @@ export const OurWingsSection: React.FC = () => {
                     ))}
                   </div>
                 ) : (
-                  <div className="py-16 text-center bg-stone-950/50 rounded-2xl border border-stone-800 text-stone-400 space-y-3">
-                    <Calendar className="w-10 h-10 text-stone-600 mx-auto" />
-                    <p className="text-base font-semibold text-stone-200">
+                  <div className="py-16 text-center bg-stone-50 rounded-2xl border border-stone-200 text-stone-500 space-y-3">
+                    <Calendar className="w-10 h-10 text-stone-400 mx-auto" />
+                    <p className="text-base font-semibold text-stone-800">
                       No programs found for {activeWingModal.name}
                       {modalYearFilter !== 'All' ? ` in ${modalYearFilter}` : ''}.
                     </p>
@@ -967,7 +967,7 @@ export const OurWingsSection: React.FC = () => {
                         setModalYearFilter('All');
                         setModalSearchTerm('');
                       }}
-                      className="px-4 py-2 bg-emerald-700 hover:bg-emerald-600 text-white rounded-xl text-xs font-semibold cursor-pointer shadow transition-colors"
+                      className="px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-semibold cursor-pointer shadow transition-colors"
                     >
                       Show All Programs
                     </button>
@@ -976,12 +976,12 @@ export const OurWingsSection: React.FC = () => {
               </div>
 
               {/* Modal Footer */}
-              <div className="pt-3 border-t border-stone-800 flex items-center justify-between text-xs text-stone-400 shrink-0">
-                <span className="font-mono text-[11px] text-stone-400">
+              <div className="pt-3 border-t border-stone-200 flex items-center justify-between text-xs text-stone-500 shrink-0">
+                <span className="font-mono text-[11px] text-stone-500">
                   Showing <strong>{filteredModalPrograms.length}</strong> of <strong>{wingPrograms.length}</strong> programs
                   {modalYearFilter !== 'All' ? ` (${modalYearFilter})` : ' (All Years)'}
                 </span>
-                <span className="text-emerald-400 text-xs font-medium flex items-center gap-1 font-mono">
+                <span className="text-emerald-700 text-xs font-medium flex items-center gap-1 font-mono">
                   <CheckCircle2 className="w-3.5 h-3.5" />
                   Preserved for Succession
                 </span>

@@ -37,7 +37,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenNotifications }) => {
   return (
     <header
       id="main-navbar-header"
-      className="sticky top-0 z-40 w-full bg-stone-950/95 backdrop-blur-md border-b border-stone-800/80 transition-all shadow-md"
+      className="sticky top-0 z-40 w-full bg-white/95 backdrop-blur-md border-b border-stone-200 transition-all shadow-xs"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
@@ -50,7 +50,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenNotifications }) => {
               className="group relative flex items-center gap-3 text-left focus:outline-none transition-transform active:scale-95 select-none cursor-pointer"
               title="ANJUMAN-E-HUDA (Click once to go Home, Click 5x for Central Admin)"
             >
-              <div className="relative w-12 h-12 rounded-xl bg-white border border-stone-200/50 p-1 shadow-md shadow-emerald-950/30 flex items-center justify-center overflow-hidden">
+              <div className="relative w-12 h-12 rounded-xl bg-white border border-stone-200 p-1 shadow-sm flex items-center justify-center overflow-hidden">
                 <img
                   src="https://i.postimg.cc/ZKC5Cf1Z/image.png"
                   alt="ANJUMAN-E-HUDA Official Logo"
@@ -60,26 +60,26 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenNotifications }) => {
                 />
                 {/* Stealth click pulse ring */}
                 {logoClickCount > 0 && (
-                  <span className="absolute inset-0 rounded-xl border-2 border-emerald-400 animate-ping opacity-60 pointer-events-none" />
+                  <span className="absolute inset-0 rounded-xl border-2 border-emerald-500 animate-ping opacity-60 pointer-events-none" />
                 )}
               </div>
 
               <div>
                 <div className="flex items-center gap-1.5">
-                  <span className="font-heading font-bold text-lg sm:text-xl tracking-tight text-white group-hover:text-emerald-300 transition-colors">
+                  <span className="font-heading font-bold text-lg sm:text-xl tracking-tight text-stone-900 group-hover:text-emerald-700 transition-colors">
                     ANJUMAN-E-HUDA
                   </span>
                   {/* Subtle click indicator dots */}
                   {logoClickCount > 0 && logoClickCount < 5 && (
                     <div className="flex items-center gap-0.5 ml-1">
                       {Array.from({ length: logoClickCount }).map((_, i) => (
-                        <span key={`logo-click-dot-${i}`} className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                        <span key={`logo-click-dot-${i}`} className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse" />
                       ))}
                     </div>
                   )}
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-[10px] tracking-widest font-semibold uppercase text-stone-400 font-mono">
+                  <span className="text-[10px] tracking-widest font-semibold uppercase text-stone-500 font-mono">
                     NIICS STUDENTS' UNION
                   </span>
                 </div>
@@ -97,8 +97,8 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenNotifications }) => {
                   onClick={() => handleNavClick(link.page)}
                   className={`px-3 py-1.5 text-xs font-semibold rounded-xl transition-all cursor-pointer ${
                     isActive
-                      ? 'bg-emerald-600 text-white shadow-md shadow-emerald-950 font-bold'
-                      : 'text-stone-300 hover:text-white hover:bg-stone-900/90'
+                      ? 'bg-emerald-700 text-white shadow-sm font-bold'
+                      : 'text-stone-700 hover:text-stone-900 hover:bg-stone-100'
                   }`}
                 >
                   {link.label}
@@ -113,12 +113,12 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenNotifications }) => {
             <button
               id="notification-bell-btn"
               onClick={onOpenNotifications}
-              className="relative p-2 text-stone-300 hover:text-white bg-stone-900 hover:bg-stone-800 border border-stone-800 rounded-xl transition-all cursor-pointer"
+              className="relative p-2 text-stone-700 hover:text-stone-900 bg-stone-100 hover:bg-stone-200 border border-stone-200 rounded-xl transition-all cursor-pointer"
               title="Union Notification Center"
             >
-              <Bell className="w-4 h-4 text-amber-400" />
+              <Bell className="w-4 h-4 text-amber-600" />
               {database.announcements.length > 0 && (
-                <span className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-500 text-stone-950 font-bold text-[9px] rounded-full flex items-center justify-center shadow">
+                <span className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-600 text-white font-bold text-[9px] rounded-full flex items-center justify-center shadow-xs">
                   {database.announcements.length}
                 </span>
               )}
@@ -131,8 +131,8 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenNotifications }) => {
                 onClick={() => setActiveView(activeView === 'admin' ? 'site' : 'admin')}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all cursor-pointer ${
                   activeView === 'admin'
-                    ? 'bg-emerald-600 text-white border-emerald-500 shadow-lg shadow-emerald-950'
-                    : 'bg-emerald-950/60 text-emerald-300 border-emerald-600/50 hover:bg-emerald-900/60'
+                    ? 'bg-emerald-700 text-white border-emerald-600 shadow-sm'
+                    : 'bg-emerald-50 text-emerald-800 border-emerald-300 hover:bg-emerald-100'
                 }`}
               >
                 <ShieldCheck className="w-3.5 h-3.5" />
@@ -146,7 +146,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenNotifications }) => {
             <button
               id="mobile-menu-toggle-btn"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden p-2 text-stone-300 hover:text-white bg-stone-900 border border-stone-800 rounded-xl cursor-pointer"
+              className="lg:hidden p-2 text-stone-700 hover:text-stone-900 bg-stone-100 border border-stone-200 rounded-xl cursor-pointer"
               title="Toggle mobile menu"
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -159,9 +159,9 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenNotifications }) => {
       {mobileMenuOpen && (
         <div
           id="mobile-navigation-drawer"
-          className="lg:hidden bg-stone-950 border-b border-stone-800 px-4 pt-3 pb-6 space-y-1.5 animate-fadeIn"
+          className="lg:hidden bg-white border-b border-stone-200 px-4 pt-3 pb-6 space-y-1.5 shadow-lg animate-fadeIn"
         >
-          <div className="grid grid-cols-2 gap-1.5 pb-3 mb-3 border-b border-stone-800/80">
+          <div className="grid grid-cols-2 gap-1.5 pb-3 mb-3 border-b border-stone-200">
             {navLinks.map((link) => {
               const isActive = currentPage === link.page && activeView === 'site';
               return (
@@ -170,8 +170,8 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenNotifications }) => {
                   onClick={() => handleNavClick(link.page)}
                   className={`flex items-center justify-between px-3 py-2.5 text-xs font-semibold rounded-xl text-left transition-all ${
                     isActive
-                      ? 'bg-emerald-600 text-white font-bold'
-                      : 'text-stone-300 hover:text-emerald-400 hover:bg-stone-900'
+                      ? 'bg-emerald-700 text-white font-bold'
+                      : 'text-stone-700 hover:text-emerald-700 hover:bg-stone-50'
                   }`}
                 >
                   <span>{link.label}</span>
@@ -181,11 +181,11 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenNotifications }) => {
             })}
           </div>
 
-          <div className="flex items-center justify-between pt-1 text-xs text-stone-400 px-2">
+          <div className="flex items-center justify-between pt-1 text-xs text-stone-500 px-2">
             <span>Click logo 5x to trigger Admin Login</span>
             <button
               onClick={onOpenNotifications}
-              className="text-amber-400 font-medium hover:underline flex items-center gap-1"
+              className="text-amber-600 font-medium hover:underline flex items-center gap-1"
             >
               <Bell className="w-3.5 h-3.5" />
               Notifications ({database.announcements.length})

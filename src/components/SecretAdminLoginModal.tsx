@@ -60,17 +60,17 @@ export const SecretAdminLoginModal: React.FC = () => {
             exit={{ opacity: 0, scale: 0.95, y: 15 }}
             transition={{ duration: 0.2 }}
             onClick={(e) => e.stopPropagation()}
-            className="relative w-full max-w-md bg-stone-900 border border-stone-700/80 rounded-2xl shadow-2xl overflow-hidden text-stone-100"
+            className="relative w-full max-w-md bg-white border border-stone-200 rounded-2xl shadow-2xl overflow-hidden text-stone-900"
           >
             {/* Header decorative bar */}
-            <div className="h-1.5 w-full bg-gradient-to-r from-emerald-500 via-amber-400 to-emerald-600" />
+            <div className="h-1.5 w-full bg-gradient-to-r from-emerald-600 via-amber-500 to-emerald-600" />
 
             {/* Close button */}
             <button
               id="close-admin-modal-btn"
               type="button"
               onClick={() => setIsLoginModalOpen(false)}
-              className="absolute top-4 right-4 text-stone-400 hover:text-stone-100 p-1.5 rounded-lg hover:bg-stone-800 transition-colors"
+              className="absolute top-4 right-4 text-stone-400 hover:text-stone-700 p-1.5 rounded-lg hover:bg-stone-100 transition-colors"
               title="Close modal"
             >
               <X className="w-5 h-5" />
@@ -78,39 +78,39 @@ export const SecretAdminLoginModal: React.FC = () => {
 
             <div className="p-7">
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-12 h-12 rounded-xl bg-emerald-950/80 border border-emerald-500/40 flex items-center justify-center text-emerald-400 shadow-inner">
+                <div className="w-12 h-12 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-700 shadow-xs">
                   <Lock className="w-6 h-6" />
                 </div>
                 <div>
-                  <span className="text-xs font-semibold tracking-wider uppercase text-emerald-400 font-mono">
+                  <span className="text-xs font-semibold tracking-wider uppercase text-emerald-700 font-mono">
                     Executive Gateway
                   </span>
-                  <h3 className="text-xl font-bold tracking-tight text-white">Central Admin Login</h3>
+                  <h3 className="text-xl font-bold tracking-tight text-stone-900">Central Admin Login</h3>
                 </div>
               </div>
 
-              <p className="text-sm text-stone-300 leading-relaxed mb-6">
+              <p className="text-sm text-stone-600 leading-relaxed mb-6">
                 This is a restricted portal for authorized executive council members of{' '}
-                <strong className="text-emerald-400">ANJUMAN-E-HUDA</strong>. All access requests are logged.
+                <strong className="text-emerald-800">ANJUMAN-E-HUDA</strong>. All access requests are logged.
               </p>
 
               {errorMsg && (
-                <div className="mb-5 p-3.5 bg-red-950/60 border border-red-500/50 rounded-xl flex items-start gap-2.5 text-red-200 text-xs leading-relaxed">
-                  <ShieldAlert className="w-4 h-4 text-red-400 shrink-0 mt-0.5" />
+                <div className="mb-5 p-3.5 bg-red-50 border border-red-200 rounded-xl flex items-start gap-2.5 text-red-800 text-xs leading-relaxed">
+                  <ShieldAlert className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
                   <span>{errorMsg}</span>
                 </div>
               )}
 
               {success && (
-                <div className="mb-5 p-3.5 bg-emerald-950/70 border border-emerald-500/60 rounded-xl flex items-center gap-2.5 text-emerald-200 text-xs font-medium">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                <div className="mb-5 p-3.5 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center gap-2.5 text-emerald-800 text-xs font-medium">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                   <span>Access Granted. Redirecting to Executive Panel...</span>
                 </div>
               )}
 
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <label className="block text-xs font-medium text-stone-300 mb-1.5" htmlFor="admin-username">
+                  <label className="block text-xs font-medium text-stone-700 mb-1.5" htmlFor="admin-username">
                     Username
                   </label>
                   <div className="relative">
@@ -124,13 +124,13 @@ export const SecretAdminLoginModal: React.FC = () => {
                       value={username}
                       onChange={(e) => setUsername(e.target.value)}
                       placeholder="Enter admin username"
-                      className="w-full bg-stone-950/80 border border-stone-700 rounded-xl py-2.5 pl-9 pr-3.5 text-sm text-white placeholder-stone-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+                      className="w-full bg-stone-50 border border-stone-200 rounded-xl py-2.5 pl-9 pr-3.5 text-sm text-stone-900 placeholder-stone-400 focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-stone-300 mb-1.5" htmlFor="admin-password">
+                  <label className="block text-xs font-medium text-stone-700 mb-1.5" htmlFor="admin-password">
                     Password
                   </label>
                   <div className="relative">
@@ -144,12 +144,12 @@ export const SecretAdminLoginModal: React.FC = () => {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="Enter security key"
-                      className="w-full bg-stone-950/80 border border-stone-700 rounded-xl py-2.5 pl-9 pr-10 text-sm text-white placeholder-stone-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+                      className="w-full bg-stone-50 border border-stone-200 rounded-xl py-2.5 pl-9 pr-10 text-sm text-stone-900 placeholder-stone-400 focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600"
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute inset-y-0 right-0 flex items-center pr-3 text-stone-400 hover:text-stone-200"
+                      className="absolute inset-y-0 right-0 flex items-center pr-3 text-stone-400 hover:text-stone-700 cursor-pointer"
                       title={showPassword ? 'Hide password' : 'Show password'}
                     >
                       {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -162,7 +162,7 @@ export const SecretAdminLoginModal: React.FC = () => {
                     id="admin-login-submit-btn"
                     type="submit"
                     disabled={loading || success}
-                    className="w-full py-3 px-4 bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white font-semibold text-sm rounded-xl shadow-lg shadow-emerald-900/40 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                    className="w-full py-3 px-4 bg-emerald-700 hover:bg-emerald-800 active:bg-emerald-900 text-white font-semibold text-sm rounded-xl shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
                   >
                     {loading ? (
                       <span className="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -176,12 +176,12 @@ export const SecretAdminLoginModal: React.FC = () => {
                 </div>
               </form>
 
-              <div className="mt-6 pt-5 border-t border-stone-800 flex items-center justify-between text-xs text-stone-400">
+              <div className="mt-6 pt-5 border-t border-stone-200 flex items-center justify-between text-xs text-stone-500">
                 <span>Administrator Authentication Portal</span>
                 <button
                   type="button"
                   onClick={handleFillDemo}
-                  className="text-emerald-400 hover:text-emerald-300 font-medium underline underline-offset-4 cursor-pointer"
+                  className="text-emerald-700 hover:text-emerald-800 font-medium underline underline-offset-4 cursor-pointer"
                 >
                   Fill Admin User
                 </button>

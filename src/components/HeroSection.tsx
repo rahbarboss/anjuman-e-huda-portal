@@ -16,23 +16,23 @@ export const HeroSection: React.FC = () => {
   };
 
   return (
-    <section id="home" className="relative min-h-[90vh] flex flex-col justify-between overflow-hidden bg-stone-950 text-white">
-      {/* High-quality dark background image with deep gradient overlay */}
-      <div className="absolute inset-0 z-0">
+    <section id="home" className="relative min-h-[85vh] flex flex-col justify-between overflow-hidden bg-dot-pattern text-stone-900 border-b border-stone-200">
+      {/* Subtle architectural campus pattern / soft background overlay */}
+      <div className="absolute inset-0 z-0 opacity-10 pointer-events-none">
         <img
           src={homepage.heroBgUrl || 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=2000&q=80'}
           alt="ANJUMAN-E-HUDA Campus Banner"
-          className="w-full h-full object-cover object-center filter brightness-[0.22] contrast-125 scale-105"
+          className="w-full h-full object-cover object-center filter grayscale contrast-125"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/75 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-r from-stone-950/90 via-transparent to-stone-950/90" />
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-50/80 via-transparent to-transparent" />
       </div>
 
-      {/* Decorative ambient glow */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+      {/* Decorative ambient subtle soft glow */}
+      <div className="absolute top-1/4 left-1/3 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-emerald-100/50 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-1/3 right-1/4 w-80 h-80 bg-amber-100/40 rounded-full blur-3xl pointer-events-none" />
 
       {/* Main Hero Content */}
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16 flex-1 flex flex-col justify-center">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 sm:pt-20 pb-12 flex-1 flex flex-col justify-center">
         <div className="max-w-4xl space-y-6">
           {/* Top Badge & Arabic Motto */}
           <motion.div
@@ -41,12 +41,12 @@ export const HeroSection: React.FC = () => {
             transition={{ duration: 0.5 }}
             className="flex flex-wrap items-center gap-3"
           >
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-950/80 border border-emerald-500/40 text-emerald-400 text-xs font-semibold tracking-wider uppercase font-mono shadow-sm">
-              <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold tracking-wider uppercase font-mono shadow-xs">
+              <Sparkles className="w-3.5 h-3.5 text-amber-600" />
               {homepage.heroBadge || "NIICS STUDENTS' UNION"}
             </span>
 
-            <span className="text-stone-400 text-xs font-serif italic border-l border-stone-800 pl-3 hidden sm:inline-block">
+            <span className="text-amber-800 text-xs font-serif italic border-l border-stone-300 pl-3 hidden sm:inline-block">
               وَقُل رَّبِّ زِدْنِي عِلْمًا • "O Lord, Increase Me in Knowledge"
             </span>
           </motion.div>
@@ -56,7 +56,7 @@ export const HeroSection: React.FC = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="text-4xl sm:text-6xl lg:text-7xl font-bold tracking-tight text-white font-heading leading-tight"
+            className="text-4xl sm:text-6xl lg:text-7xl font-bold tracking-tight text-stone-900 font-heading leading-tight"
           >
             ANJUMAN-E-HUDA
           </motion.h1>
@@ -66,7 +66,7 @@ export const HeroSection: React.FC = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-base sm:text-xl text-stone-300 font-normal leading-relaxed max-w-2xl"
+            className="text-base sm:text-xl text-stone-600 font-normal leading-relaxed max-w-2xl"
           >
             {homepage.heroSubtitle ||
               "Dedicated to intellectual rigor, moral stewardship, student empowerment, and visionary community leadership at the heart of our campus."}
@@ -84,7 +84,7 @@ export const HeroSection: React.FC = () => {
               id="hero-cta-mission"
               type="button"
               onClick={() => navigateTo('about')}
-              className="px-6 py-3.5 bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white font-semibold text-sm rounded-xl shadow-lg shadow-emerald-950/60 transition-all flex items-center gap-2 cursor-pointer hover:shadow-emerald-600/30"
+              className="px-6 py-3.5 bg-emerald-700 hover:bg-emerald-800 active:bg-emerald-900 text-white font-semibold text-sm rounded-xl shadow-md transition-all flex items-center gap-2 cursor-pointer"
             >
               <Compass className="w-4 h-4" />
               <span>{homepage.ctaMissionLabel || "Discover Mission"}</span>
@@ -95,11 +95,11 @@ export const HeroSection: React.FC = () => {
               id="hero-cta-programs"
               type="button"
               onClick={() => navigateTo('programs')}
-              className="px-6 py-3.5 bg-stone-900/90 hover:bg-stone-800 text-stone-100 hover:text-white font-semibold text-sm rounded-xl border border-stone-700/80 transition-all flex items-center gap-2 cursor-pointer"
+              className="px-6 py-3.5 bg-white hover:bg-stone-50 text-stone-800 hover:text-stone-900 font-semibold text-sm rounded-xl border border-stone-300 shadow-xs transition-all flex items-center gap-2 cursor-pointer"
             >
-              <Calendar className="w-4 h-4 text-amber-400" />
+              <Calendar className="w-4 h-4 text-amber-600" />
               <span>{homepage.ctaProgramsLabel || "Recent Programs"}</span>
-              <ArrowRight className="w-4 h-4 text-stone-400" />
+              <ArrowRight className="w-4 h-4 text-stone-500" />
             </button>
           </motion.div>
         </div>

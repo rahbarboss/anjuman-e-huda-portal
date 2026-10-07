@@ -91,9 +91,9 @@ export const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-stone-950 text-stone-300 border-t border-stone-800/80 pt-16 pb-10">
+    <footer className="bg-white/85 backdrop-blur-md text-stone-700 border-t border-stone-200 pt-16 pb-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 pb-12 border-b border-stone-800">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 pb-12 border-b border-stone-200">
           {/* Col 1 & 2: Union Logo & Bio */}
           <div className="lg:col-span-2 space-y-4">
             <button
@@ -101,7 +101,7 @@ export const Footer: React.FC = () => {
               className="flex items-center gap-3 text-left focus:outline-none group select-none cursor-pointer"
               title="ANJUMAN-E-HUDA (Click to go Home, Click 5x for Admin)"
             >
-              <div className="w-13 h-13 rounded-xl bg-white border border-stone-200/50 p-1 shadow-md flex items-center justify-center">
+              <div className="w-13 h-13 rounded-xl bg-white border border-stone-200 p-1 shadow-xs flex items-center justify-center">
                 <img
                   src="https://i.postimg.cc/ZKC5Cf1Z/image.png"
                   alt="ANJUMAN-E-HUDA Official Logo"
@@ -111,22 +111,22 @@ export const Footer: React.FC = () => {
                 />
               </div>
               <div>
-                <span className="font-heading font-bold text-xl text-white tracking-tight group-hover:text-emerald-300 transition-colors">
+                <span className="font-heading font-bold text-xl text-stone-900 tracking-tight group-hover:text-emerald-700 transition-colors">
                   ANJUMAN-E-HUDA
                 </span>
-                <p className="text-[10px] font-mono uppercase tracking-widest text-stone-400">
+                <p className="text-[10px] font-mono uppercase tracking-widest text-stone-500 font-semibold">
                   NIICS STUDENTS' UNION
                 </p>
               </div>
             </button>
 
             {/* Arabic Motto */}
-            <p className="text-amber-400/90 text-sm font-serif italic pt-1">
+            <p className="text-amber-800 text-sm font-serif italic pt-1">
               "وَقُل رَّبِّ زِدْنِي عِلْمًا" • And say: My Lord, increase me in knowledge.
             </p>
 
             {/* Bio */}
-            <p className="text-xs text-stone-400 leading-relaxed max-w-sm">
+            <p className="text-xs text-stone-600 leading-relaxed max-w-sm">
               The supreme collegiate union embodying student representation, moral integrity, academic
               enlightenment (Ta'lim), and transformative public welfare across university faculties.
             </p>
@@ -139,7 +139,7 @@ export const Footer: React.FC = () => {
                   href={item.url}
                   target="_blank"
                   rel="noreferrer"
-                  className={`w-8 h-8 rounded-lg bg-stone-900 border border-stone-800 flex items-center justify-center text-stone-400 transition-colors ${getSocialHoverClass(
+                  className={`w-8 h-8 rounded-lg bg-white border border-stone-200 shadow-xs flex items-center justify-center text-stone-600 hover:text-emerald-700 hover:border-emerald-500 transition-colors ${getSocialHoverClass(
                     item.icon || item.platform
                   )}`}
                   title={item.platform}
@@ -152,7 +152,7 @@ export const Footer: React.FC = () => {
 
           {/* Col 3: Quick Links */}
           <div className="space-y-3">
-            <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-emerald-400">
+            <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-emerald-800">
               Quick Navigation
             </h4>
             <ul className="space-y-2 text-xs">
@@ -160,7 +160,7 @@ export const Footer: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => navigateTo('home')}
-                  className="hover:text-emerald-400 transition-colors cursor-pointer text-left"
+                  className="hover:text-emerald-700 text-stone-600 transition-colors cursor-pointer text-left"
                 >
                   Home Portal
                 </button>
@@ -169,7 +169,7 @@ export const Footer: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => navigateTo('about')}
-                  className="hover:text-emerald-400 transition-colors cursor-pointer text-left"
+                  className="hover:text-emerald-700 text-stone-600 transition-colors cursor-pointer text-left"
                 >
                   About Union & 4 Pillars
                 </button>
@@ -178,7 +178,7 @@ export const Footer: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => navigateTo('updates')}
-                  className="hover:text-emerald-400 transition-colors cursor-pointer text-left"
+                  className="hover:text-emerald-700 text-stone-600 transition-colors cursor-pointer text-left"
                 >
                   Live Updates & Gazettes
                 </button>
@@ -187,7 +187,7 @@ export const Footer: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => navigateTo('leadership')}
-                  className="hover:text-emerald-400 transition-colors cursor-pointer text-left"
+                  className="hover:text-emerald-700 text-stone-600 transition-colors cursor-pointer text-left"
                 >
                   Executive Leadership
                 </button>
@@ -196,7 +196,7 @@ export const Footer: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => navigateTo('highlights')}
-                  className="hover:text-emerald-400 transition-colors cursor-pointer text-left"
+                  className="hover:text-emerald-700 text-stone-600 transition-colors cursor-pointer text-left"
                 >
                   Visual Highlights & Gallery
                 </button>
@@ -205,7 +205,7 @@ export const Footer: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => navigateTo('programs')}
-                  className="hover:text-emerald-400 transition-colors cursor-pointer text-left"
+                  className="hover:text-emerald-700 text-stone-600 transition-colors cursor-pointer text-left"
                 >
                   All Programs & Schedule
                 </button>
@@ -215,10 +215,10 @@ export const Footer: React.FC = () => {
 
           {/* Col 4: Our Off-Campuses (Matching Image 4) */}
           <div className="space-y-3">
-            <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-emerald-400">
+            <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-emerald-800">
               OUR OFF-CAMPUSES
             </h4>
-            <ul className="space-y-2.5 text-xs text-stone-300">
+            <ul className="space-y-2.5 text-xs text-stone-600">
               {[
                 'DH NIICS Chemmad',
                 'DH NIICS Hangal',
@@ -228,8 +228,8 @@ export const Footer: React.FC = () => {
                 'DH NIICS West Bengal',
               ].map((campus, idx) => (
                 <li key={`off-campus-${idx}`} className="flex items-center gap-2.5 group">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 shrink-0 shadow-sm shadow-emerald-400/60 ring-2 ring-emerald-500/20 group-hover:scale-125 transition-transform" />
-                  <span className="text-stone-300 group-hover:text-emerald-300 transition-colors font-medium">
+                  <span className="w-2 h-2 rounded-full bg-emerald-600 shrink-0 shadow-xs ring-2 ring-emerald-500/20 group-hover:scale-125 transition-transform" />
+                  <span className="text-stone-700 group-hover:text-emerald-800 transition-colors font-medium">
                     {campus}
                   </span>
                 </li>
@@ -239,23 +239,23 @@ export const Footer: React.FC = () => {
 
           {/* Col 5: Contact Info */}
           <div className="space-y-3">
-            <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-sky-400">
+            <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-sky-800">
               Secretariat Info
             </h4>
-            <div className="space-y-2.5 text-xs text-stone-400">
+            <div className="space-y-2.5 text-xs text-stone-600">
               <div className="flex items-start gap-2">
-                <MapPin className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
+                <MapPin className="w-3.5 h-3.5 text-emerald-700 shrink-0 mt-0.5" />
                 <span>{contactSettings?.campusAddress || 'Darul Huda Islamic University'}</span>
               </div>
               <div className="flex items-center gap-2">
-                <Phone className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                <Phone className="w-3.5 h-3.5 text-amber-700 shrink-0" />
                 <span>{contactSettings?.helplinePhone || '+91 98765 43210'}</span>
               </div>
               <div className="flex items-center gap-2">
-                <Mail className="w-3.5 h-3.5 text-sky-400 shrink-0" />
+                <Mail className="w-3.5 h-3.5 text-sky-700 shrink-0" />
                 <a
                   href={`mailto:${contactSettings?.officialEmail || 'anjumanehuda@dhiu.in'}`}
-                  className="hover:text-emerald-400 transition-colors"
+                  className="hover:text-emerald-700 text-stone-700 transition-colors font-medium"
                 >
                   {contactSettings?.officialEmail || 'anjumanehuda@dhiu.in'}
                 </a>
@@ -275,14 +275,14 @@ export const Footer: React.FC = () => {
             {isAdminLoggedIn && (
               <button
                 onClick={() => setActiveView('admin')}
-                className="text-emerald-400 hover:underline font-mono cursor-pointer"
+                className="text-emerald-700 hover:underline font-mono cursor-pointer font-semibold"
               >
                 Open Admin Dashboard
               </button>
             )}
             <button
               onClick={scrollToTop}
-              className="flex items-center gap-1.5 text-stone-400 hover:text-emerald-400 transition-colors cursor-pointer"
+              className="flex items-center gap-1.5 text-stone-600 hover:text-emerald-700 transition-colors cursor-pointer font-medium"
             >
               <span>Back to Top</span>
               <ArrowUp className="w-3.5 h-3.5" />

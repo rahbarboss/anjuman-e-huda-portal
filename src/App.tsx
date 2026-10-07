@@ -57,7 +57,7 @@ const MainPortalContent: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-stone-950 text-stone-100 selection:bg-emerald-500 selection:text-stone-950 flex flex-col font-sans">
+    <div className="min-h-screen bg-dot-pattern text-stone-900 selection:bg-emerald-600 selection:text-white flex flex-col font-sans">
       {/* Top Navigation Bar with Page Switching and Logo trigger */}
       <Navbar onOpenNotifications={() => setIsNotificationOpen(true)} />
 

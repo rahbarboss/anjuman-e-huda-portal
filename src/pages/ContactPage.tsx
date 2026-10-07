@@ -53,40 +53,40 @@ export const ContactPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-stone-950 text-stone-100 pb-20">
+    <div className="min-h-screen bg-dot-pattern text-stone-900 pb-20">
       {/* Top Banner / Breadcrumb */}
-      <div className="bg-stone-900 border-b border-stone-800 py-10">
+      <div className="bg-white/70 backdrop-blur-md border-b border-stone-200 py-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-2 text-xs text-stone-400 font-mono mb-3">
+          <div className="flex items-center gap-2 text-xs text-stone-500 font-mono mb-3">
             <button
               onClick={() => navigateTo('home')}
-              className="hover:text-emerald-400 flex items-center gap-1 cursor-pointer transition-colors"
+              className="hover:text-emerald-700 flex items-center gap-1 cursor-pointer transition-colors"
             >
               <Home className="w-3.5 h-3.5" />
               <span>Home</span>
             </button>
             <span>/</span>
-            <span className="text-emerald-400 font-semibold">Contact & Grievances</span>
+            <span className="text-emerald-700 font-semibold">Contact & Grievances</span>
           </div>
 
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-950/80 border border-emerald-500/40 text-emerald-400 text-xs font-semibold tracking-wider uppercase font-mono shadow-sm mb-2">
-                <Mail className="w-3.5 h-3.5 text-amber-400" />
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold tracking-wider uppercase font-mono shadow-xs mb-2">
+                <Mail className="w-3.5 h-3.5 text-amber-600" />
                 CENTRAL SECRETARIAT & 24/7 GRIEVANCE REDRESSAL
               </span>
-              <h1 className="text-3xl sm:text-5xl font-bold font-heading text-white tracking-tight">
+              <h1 className="text-3xl sm:text-5xl font-bold font-heading text-stone-900 tracking-tight">
                 Contact & Student Grievances
               </h1>
-              <p className="text-stone-300 text-sm sm:text-base max-w-2xl mt-2 leading-relaxed">
+              <p className="text-stone-600 text-sm sm:text-base max-w-2xl mt-2 leading-relaxed">
                 Reach out directly to the ANJUMAN-E-HUDA Executive Secretariat, file academic grievances, submit
                 event petitions, or connect with our specialized student wings.
               </p>
             </div>
 
             <div className="flex items-center gap-3">
-              <span className="px-4 py-2 bg-emerald-950/60 border border-emerald-700/50 rounded-xl text-xs font-mono text-emerald-400 flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+              <span className="px-4 py-2 bg-emerald-50 border border-emerald-200 rounded-xl text-xs font-mono text-emerald-800 font-semibold flex items-center gap-1.5 shadow-xs">
+                <span className="w-2 h-2 rounded-full bg-emerald-600 animate-ping" />
                 Secretariat Active
               </span>
             </div>
@@ -99,58 +99,58 @@ export const ContactPage: React.FC = () => {
           {/* Left Column: Official Contact Channels & Campus HQ */}
           <div className="lg:col-span-5 space-y-6">
             {/* Campus Headquarters Box */}
-            <div className="p-6 sm:p-8 rounded-3xl bg-stone-900 border border-stone-800 shadow-2xl space-y-6">
+            <div className="p-6 sm:p-8 rounded-3xl bg-stone-50 border border-stone-200 shadow-xs space-y-6">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-2xl bg-emerald-950/80 border border-emerald-500/40 text-emerald-400 flex items-center justify-center">
+                <div className="w-12 h-12 rounded-2xl bg-white border border-stone-200 text-emerald-700 flex items-center justify-center shadow-xs">
                   <MapPin className="w-6 h-6" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-white">Central Secretariat HQ</h3>
-                  <span className="text-xs text-stone-400 font-mono">Official Campus Headquarters</span>
+                  <h3 className="text-lg font-bold text-stone-900">Central Secretariat HQ</h3>
+                  <span className="text-xs text-stone-500 font-mono">Official Campus Headquarters</span>
                 </div>
               </div>
 
-              <div className="p-4 rounded-xl bg-stone-950 border border-stone-800/80 text-xs sm:text-sm text-stone-300 leading-relaxed font-mono">
+              <div className="p-4 rounded-xl bg-white border border-stone-200 text-xs sm:text-sm text-stone-800 leading-relaxed font-mono shadow-xs">
                 {contactSettings?.campusAddress || 'Darul Huda Islamic University'}
               </div>
 
               <div className="space-y-4 text-xs sm:text-sm">
-                <div className="flex items-start gap-3 text-stone-300">
-                  <Mail className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                <div className="flex items-start gap-3 text-stone-700">
+                  <Mail className="w-4 h-4 text-emerald-700 shrink-0 mt-0.5" />
                   <div>
-                    <span className="block text-[10px] text-stone-400 font-mono uppercase">Official Email</span>
+                    <span className="block text-[10px] text-stone-500 font-mono uppercase">Official Email</span>
                     <a
                       href={`mailto:${contactSettings?.officialEmail || 'anjumanehuda@dhiu.in'}`}
-                      className="text-white hover:text-emerald-400 font-semibold transition-colors"
+                      className="text-stone-900 hover:text-emerald-700 font-semibold transition-colors"
                     >
                       {contactSettings?.officialEmail || 'anjumanehuda@dhiu.in'}
                     </a>
                   </div>
                 </div>
 
-                <div className="flex items-start gap-3 text-stone-300">
-                  <Phone className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                <div className="flex items-start gap-3 text-stone-700">
+                  <Phone className="w-4 h-4 text-emerald-700 shrink-0 mt-0.5" />
                   <div>
-                    <span className="block text-[10px] text-stone-400 font-mono uppercase">Helpline Telephone</span>
+                    <span className="block text-[10px] text-stone-500 font-mono uppercase">Helpline Telephone</span>
                     <a
                       href={`tel:${contactSettings?.helplinePhone || '+91 98765 43210'}`}
-                      className="text-white hover:text-emerald-400 font-semibold font-mono transition-colors"
+                      className="text-stone-900 hover:text-emerald-700 font-semibold font-mono transition-colors"
                     >
                       {contactSettings?.helplinePhone || '+91 98765 43210'}
                     </a>
                     {contactSettings?.secondaryPhone && (
-                      <span className="block text-xs text-stone-400 font-mono mt-0.5">
+                      <span className="block text-xs text-stone-500 font-mono mt-0.5">
                         Secondary: {contactSettings.secondaryPhone}
                       </span>
                     )}
                   </div>
                 </div>
 
-                <div className="flex items-start gap-3 text-stone-300">
-                  <Clock className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                <div className="flex items-start gap-3 text-stone-700">
+                  <Clock className="w-4 h-4 text-emerald-700 shrink-0 mt-0.5" />
                   <div>
-                    <span className="block text-[10px] text-stone-400 font-mono uppercase">Office Hours</span>
-                    <span className="text-white font-medium">
+                    <span className="block text-[10px] text-stone-500 font-mono uppercase">Office Hours</span>
+                    <span className="text-stone-900 font-medium">
                       {contactSettings?.officeHours || 'Monday – Saturday: 08:30 AM – 06:00 PM (IST)'}
                     </span>
                   </div>
@@ -159,12 +159,12 @@ export const ContactPage: React.FC = () => {
             </div>
 
             {/* Emergency & Redressal Commitment */}
-            <div className="p-6 rounded-2xl bg-gradient-to-br from-emerald-950/40 to-stone-900 border border-emerald-500/30 text-xs text-stone-300 space-y-2">
-              <div className="flex items-center gap-2 text-emerald-400 font-bold uppercase tracking-wider font-mono text-[11px]">
-                <ShieldCheck className="w-4 h-4" />
+            <div className="p-6 rounded-2xl bg-emerald-50/70 border border-emerald-200 text-xs text-stone-700 space-y-2 shadow-xs">
+              <div className="flex items-center gap-2 text-emerald-800 font-bold uppercase tracking-wider font-mono text-[11px]">
+                <ShieldCheck className="w-4 h-4 text-emerald-700" />
                 Guaranteed Redressal Protocol
               </div>
-              <p className="leading-relaxed">
+              <p className="leading-relaxed text-stone-600">
                 All student grievances filed via this portal are dispatched under encrypted token protocol directly
                 to the General Secretary and Student Welfare Ombudsman within 24 working hours.
               </p>
@@ -172,33 +172,33 @@ export const ContactPage: React.FC = () => {
           </div>
 
           {/* Right Column: Live Interactive Grievance & Inquiry Form */}
-          <div className="lg:col-span-7 bg-stone-900 border border-stone-800 rounded-3xl p-6 sm:p-10 shadow-2xl">
-            <div className="pb-4 border-b border-stone-800 mb-6">
-              <span className="text-[10px] font-mono uppercase text-emerald-400 font-semibold">
+          <div className="lg:col-span-7 bg-stone-50 border border-stone-200 rounded-3xl p-6 sm:p-10 shadow-xs">
+            <div className="pb-4 border-b border-stone-200 mb-6">
+              <span className="text-[10px] font-mono uppercase text-emerald-800 font-semibold">
                 ONLINE SUBMISSION PORTAL
               </span>
-              <h3 className="text-xl sm:text-2xl font-bold font-heading text-white mt-1">
+              <h3 className="text-xl sm:text-2xl font-bold font-heading text-stone-900 mt-1">
                 File a Grievance or Message
               </h3>
-              <p className="text-xs text-stone-400 mt-1">
+              <p className="text-xs text-stone-600 mt-1">
                 Fill out the required fields below. Your inquiry is recorded in the Central Secretariat's dashboard.
               </p>
             </div>
 
             {isSubmitted ? (
-              <div className="p-8 rounded-2xl bg-emerald-950/50 border border-emerald-500/50 text-center space-y-4 animate-in fade-in">
-                <div className="w-16 h-16 rounded-full bg-emerald-500/20 text-emerald-400 mx-auto flex items-center justify-center">
+              <div className="p-8 rounded-2xl bg-emerald-50 border border-emerald-300 text-center space-y-4 animate-in fade-in">
+                <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-700 mx-auto flex items-center justify-center">
                   <CheckCircle2 className="w-8 h-8" />
                 </div>
-                <h4 className="text-xl font-bold text-white">Grievance Registered Successfully</h4>
-                <p className="text-xs sm:text-sm text-stone-300 max-w-md mx-auto leading-relaxed">
+                <h4 className="text-xl font-bold text-stone-900">Grievance Registered Successfully</h4>
+                <p className="text-xs sm:text-sm text-stone-600 max-w-md mx-auto leading-relaxed">
                   Your message has been assigned a formal tracking token and saved to the Executive Secretariat queue.
                   Our team will review your petition promptly.
                 </p>
                 <button
                   type="button"
                   onClick={() => setIsSubmitted(false)}
-                  className="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs rounded-xl shadow cursor-pointer transition-colors"
+                  className="px-6 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white font-semibold text-xs rounded-xl shadow-xs cursor-pointer transition-colors"
                 >
                   Submit Another Inquiry
                 </button>
@@ -207,7 +207,7 @@ export const ContactPage: React.FC = () => {
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-mono text-stone-300 mb-1.5 uppercase">
+                    <label className="block text-xs font-mono text-stone-700 mb-1.5 uppercase font-medium">
                       Your Full Name *
                     </label>
                     <input
@@ -216,12 +216,12 @@ export const ContactPage: React.FC = () => {
                       value={form.name}
                       onChange={(e) => setForm({ ...form, name: e.target.value })}
                       placeholder="e.g. Tariq Ahmad"
-                      className="w-full px-4 py-3 rounded-xl bg-stone-950 border border-stone-800 text-stone-100 text-xs sm:text-sm focus:outline-none focus:border-emerald-500 transition-colors"
+                      className="w-full px-4 py-3 rounded-xl bg-white border border-stone-300 text-stone-900 text-xs sm:text-sm focus:outline-none focus:border-emerald-600 shadow-xs transition-colors"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-mono text-stone-300 mb-1.5 uppercase">
+                    <label className="block text-xs font-mono text-stone-700 mb-1.5 uppercase font-medium">
                       Official Email *
                     </label>
                     <input
@@ -230,19 +230,19 @@ export const ContactPage: React.FC = () => {
                       value={form.email}
                       onChange={(e) => setForm({ ...form, email: e.target.value })}
                       placeholder="student@univ.edu"
-                      className="w-full px-4 py-3 rounded-xl bg-stone-950 border border-stone-800 text-stone-100 text-xs sm:text-sm focus:outline-none focus:border-emerald-500 transition-colors"
+                      className="w-full px-4 py-3 rounded-xl bg-white border border-stone-300 text-stone-900 text-xs sm:text-sm focus:outline-none focus:border-emerald-600 shadow-xs transition-colors"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-mono text-stone-300 mb-1.5 uppercase">
+                  <label className="block text-xs font-mono text-stone-700 mb-1.5 uppercase font-medium">
                     Inquiry Category
                   </label>
                   <select
                     value={form.category}
                     onChange={(e) => setForm({ ...form, category: e.target.value })}
-                    className="w-full px-4 py-3 rounded-xl bg-stone-950 border border-stone-800 text-stone-100 text-xs sm:text-sm focus:outline-none focus:border-emerald-500 transition-colors cursor-pointer"
+                    className="w-full px-4 py-3 rounded-xl bg-white border border-stone-300 text-stone-900 text-xs sm:text-sm focus:outline-none focus:border-emerald-600 shadow-xs transition-colors cursor-pointer"
                   >
                     <option value="General Inquiry">General Inquiry / Feedback</option>
                     <option value="Academic Grievance">Academic Grievance (Grades / Faculty)</option>
@@ -253,7 +253,7 @@ export const ContactPage: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-mono text-stone-300 mb-1.5 uppercase">
+                  <label className="block text-xs font-mono text-stone-700 mb-1.5 uppercase font-medium">
                     Your Statement / Grievance Details *
                   </label>
                   <textarea
@@ -262,14 +262,14 @@ export const ContactPage: React.FC = () => {
                     value={form.message}
                     onChange={(e) => setForm({ ...form, message: e.target.value })}
                     placeholder="Provide detailed description of your request or issue..."
-                    className="w-full px-4 py-3 rounded-xl bg-stone-950 border border-stone-800 text-stone-100 text-xs sm:text-sm focus:outline-none focus:border-emerald-500 transition-colors resize-none"
+                    className="w-full px-4 py-3 rounded-xl bg-white border border-stone-300 text-stone-900 text-xs sm:text-sm focus:outline-none focus:border-emerald-600 shadow-xs transition-colors resize-none"
                   />
                 </div>
 
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-semibold text-xs sm:text-sm rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer"
+                  className="w-full py-3.5 bg-emerald-700 hover:bg-emerald-800 disabled:opacity-50 text-white font-semibold text-xs sm:text-sm rounded-xl shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <Send className="w-4 h-4" />
                   <span>{submitting ? 'Submitting to Secretariat...' : 'Submit Grievance to Secretariat'}</span>

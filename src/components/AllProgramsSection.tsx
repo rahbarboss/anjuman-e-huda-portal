@@ -105,17 +105,17 @@ export const AllProgramsSection: React.FC = () => {
   ];
 
   return (
-    <section id="programs" className="py-16 bg-stone-900 text-stone-100 border-b border-stone-800">
+    <section id="programs" className="py-16 text-stone-900 border-b border-stone-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="mb-10 text-center sm:text-left">
-          <span className="text-xs font-semibold tracking-wider uppercase text-emerald-400 font-mono">
+          <span className="text-xs font-semibold tracking-wider uppercase text-emerald-800 font-mono">
             Executive Programs & Calendars
           </span>
-          <h2 className="text-3xl sm:text-4xl font-bold font-heading text-white mt-1">
+          <h2 className="text-3xl sm:text-4xl font-bold font-heading text-stone-900 mt-1">
             Program Portfolios & Archives
           </h2>
-          <p className="text-sm text-stone-400 mt-2 max-w-2xl">
+          <p className="text-sm text-stone-600 mt-2 max-w-2xl">
             Explore union conferences, our live interactive calendar, and institutional milestones.
           </p>
         </div>
@@ -130,8 +130,8 @@ export const AllProgramsSection: React.FC = () => {
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
                   activeTab === tab.id
-                    ? 'bg-emerald-600 text-white shadow-md'
-                    : 'bg-stone-950 text-stone-400 border border-stone-800 hover:text-stone-200'
+                    ? 'bg-emerald-700 text-white shadow-xs'
+                    : 'bg-white text-stone-700 border border-stone-200 hover:text-stone-900'
                 }`}
               >
                 <Icon className="w-3.5 h-3.5" />
@@ -143,11 +143,11 @@ export const AllProgramsSection: React.FC = () => {
 
         {/* 2-Column Layout: Sticky Left Sidebar + Main Content Area */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          {/* DARK STICKY LEFT SIDEBAR */}
+          {/* STICKY LEFT SIDEBAR */}
           <aside className="hidden lg:block lg:col-span-3 sticky top-28 space-y-4">
-            <div className="bg-stone-950 border border-stone-800 rounded-2xl p-4 shadow-xl">
-              <div className="px-3 py-2 border-b border-stone-800/80 mb-3">
-                <span className="text-[11px] font-mono uppercase tracking-widest text-stone-400 font-bold">
+            <div className="bg-stone-50 border border-stone-200 rounded-2xl p-4 shadow-xs">
+              <div className="px-3 py-2 border-b border-stone-200 mb-3">
+                <span className="text-[11px] font-mono uppercase tracking-widest text-stone-500 font-bold">
                   PROGRAM NAVIGATION
                 </span>
               </div>
@@ -163,11 +163,11 @@ export const AllProgramsSection: React.FC = () => {
                       onClick={() => setActiveTab(menu.id)}
                       className={`w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-xs font-semibold transition-all cursor-pointer text-left ${
                         isActive
-                          ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-950/80 font-bold'
-                          : 'text-stone-300 hover:bg-stone-900 hover:text-emerald-400'
+                          ? 'bg-emerald-700 text-white shadow-xs font-bold'
+                          : 'text-stone-700 hover:bg-stone-100 hover:text-emerald-800'
                       }`}
                     >
-                      <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-stone-400'}`} />
+                      <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-stone-500'}`} />
                       <span>{menu.label}</span>
                     </button>
                   );
@@ -175,8 +175,8 @@ export const AllProgramsSection: React.FC = () => {
               </div>
 
               {/* Quick Info Box in Sidebar */}
-              <div className="mt-6 pt-4 border-t border-stone-800/80 px-2 text-[11px] text-stone-400">
-                <p className="font-mono text-emerald-400 mb-1">CENTRAL SCHEDULE</p>
+              <div className="mt-6 pt-4 border-t border-stone-200 px-2 text-[11px] text-stone-500">
+                <p className="font-mono text-emerald-800 font-semibold mb-1">CENTRAL SCHEDULE</p>
                 <p className="leading-relaxed">
                   All programs are verified under Union Charter 1994. Timely registrations are mandatory.
                 </p>
@@ -188,14 +188,14 @@ export const AllProgramsSection: React.FC = () => {
           <main className="lg:col-span-9 space-y-6">
             {/* Notice Modal/Banner if user clicked registration */}
             {registrationNotice && (
-              <div className="p-4 rounded-xl bg-emerald-950/90 border border-emerald-500/50 flex items-center justify-between gap-4 text-emerald-200 text-xs">
+              <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-300 flex items-center justify-between gap-4 text-emerald-900 text-xs shadow-xs">
                 <div className="flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <CheckCircle className="w-4 h-4 text-emerald-700 shrink-0" />
                   <span>{registrationNotice}</span>
                 </div>
                 <button
                   onClick={() => setRegistrationNotice(null)}
-                  className="px-2.5 py-1 bg-emerald-800 hover:bg-emerald-700 text-white rounded-md text-[11px] font-semibold cursor-pointer shrink-0"
+                  className="px-2.5 py-1 bg-emerald-700 hover:bg-emerald-800 text-white rounded-md text-[11px] font-semibold cursor-pointer shrink-0"
                 >
                   Dismiss
                 </button>
@@ -206,7 +206,7 @@ export const AllProgramsSection: React.FC = () => {
             {activeTab === 'all-programs' && (
               <div className="space-y-6 animate-fadeIn">
                 {/* Search & Category Filter Toolbar */}
-                <div className="bg-stone-950 border border-stone-800 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="bg-stone-50 border border-stone-200 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xs">
                   <div className="relative w-full sm:w-80">
                     <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400" />
                     <input
@@ -214,7 +214,7 @@ export const AllProgramsSection: React.FC = () => {
                       value={programSearch}
                       onChange={(e) => setProgramSearch(e.target.value)}
                       placeholder="Search events, venues, topics..."
-                      className="w-full bg-stone-900 border border-stone-700 rounded-xl pl-10 pr-3.5 py-2.5 text-xs text-white placeholder-stone-500 focus:outline-none focus:border-emerald-500"
+                      className="w-full bg-white border border-stone-300 rounded-xl pl-10 pr-3.5 py-2.5 text-xs text-stone-900 placeholder-stone-400 focus:outline-none focus:border-emerald-600 shadow-xs"
                     />
                   </div>
 
@@ -225,8 +225,8 @@ export const AllProgramsSection: React.FC = () => {
                         onClick={() => setProgramCategory(cat)}
                         className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors cursor-pointer ${
                           programCategory === cat
-                            ? 'bg-emerald-600 text-white shadow'
-                            : 'bg-stone-900 text-stone-300 hover:bg-stone-800'
+                            ? 'bg-emerald-700 text-white shadow-xs font-semibold'
+                            : 'bg-white text-stone-700 hover:bg-stone-100 border border-stone-200 shadow-xs'
                         }`}
                       >
                         {cat}
@@ -235,28 +235,28 @@ export const AllProgramsSection: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Cards matching the Visual Highlights Gallery aesthetic (Second Image) */}
+                {/* Cards matching the Visual Highlights Gallery aesthetic */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                   {filteredPrograms.map((prog, pIdx) => (
                     <div
                       key={`prog-item-${prog.id || pIdx}`}
                       onClick={() => setSelectedProgramAgenda(prog)}
-                      className="bg-stone-950 border border-stone-800 hover:border-emerald-500/60 rounded-2xl overflow-hidden shadow-xl cursor-pointer group transition-all hover:-translate-y-1 flex flex-col justify-between"
+                      className="bg-white border border-stone-200 hover:border-emerald-500 rounded-2xl overflow-hidden shadow-xs hover:shadow-lg cursor-pointer group transition-all hover:-translate-y-1 flex flex-col justify-between"
                       title="Click to view full uncropped agenda & lightbox"
                     >
                       {/* 4:3 Aspect Ratio Image with Category Badge & Status */}
-                      <div className="relative aspect-[4/3] overflow-hidden bg-stone-900">
+                      <div className="relative aspect-[4/3] overflow-hidden bg-stone-100">
                         <img
                           src={prog.banner}
                           alt={prog.title}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                           loading="lazy"
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-transparent to-transparent opacity-80" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-stone-900/70 via-transparent to-transparent opacity-80" />
 
                         {/* Top Left Category Pill */}
                         <div className="absolute top-3 left-3">
-                          <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-stone-950/80 backdrop-blur-sm text-emerald-400 border border-emerald-500/40">
+                          <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-white/90 backdrop-blur-xs text-emerald-800 border border-stone-200 shadow-xs">
                             {prog.category}
                           </span>
                         </div>
@@ -264,12 +264,12 @@ export const AllProgramsSection: React.FC = () => {
                         {/* Top Right Status Badge */}
                         <div className="absolute top-3 right-3">
                           <span
-                            className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-stone-950/80 backdrop-blur-sm uppercase border ${
+                            className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded backdrop-blur-xs uppercase border shadow-xs ${
                               prog.status === 'Live'
-                                ? 'text-red-400 border-red-500/40 animate-pulse'
+                                ? 'bg-red-100 text-red-800 border-red-300 animate-pulse'
                                 : prog.status === 'Upcoming'
-                                ? 'text-emerald-400 border-emerald-500/40'
-                                : 'text-stone-300 border-stone-700'
+                                ? 'bg-emerald-100 text-emerald-800 border-emerald-300'
+                                : 'bg-white/90 text-stone-700 border-stone-200'
                             }`}
                           >
                             {prog.status}
@@ -278,7 +278,7 @@ export const AllProgramsSection: React.FC = () => {
 
                         {/* Hover Download/Preview Pill */}
                         <div className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <span className="p-1.5 px-2.5 rounded-lg bg-emerald-600 text-white shadow-lg flex items-center gap-1 text-[10px] font-bold">
+                          <span className="p-1.5 px-2.5 rounded-lg bg-emerald-700 text-white shadow-md flex items-center gap-1 text-[10px] font-bold">
                             <ZoomIn className="w-3 h-3" />
                             View Agenda
                           </span>
@@ -288,22 +288,22 @@ export const AllProgramsSection: React.FC = () => {
                       {/* Body Content */}
                       <div className="p-4 flex-1 flex flex-col justify-between">
                         <div>
-                          <div className="flex items-center justify-between text-[11px] font-mono text-stone-400 mb-1">
+                          <div className="flex items-center justify-between text-[11px] font-mono text-stone-500 mb-1">
                             <span>{prog.date}</span>
                             <span>{prog.time}</span>
                           </div>
-                          <h4 className="text-sm font-bold text-white group-hover:text-emerald-300 transition-colors leading-snug line-clamp-2">
+                          <h4 className="text-sm font-bold text-stone-900 group-hover:text-emerald-700 transition-colors leading-snug line-clamp-2">
                             {prog.title}
                           </h4>
-                          <p className="text-xs text-stone-400 line-clamp-2 mt-1.5 leading-relaxed">
+                          <p className="text-xs text-stone-600 line-clamp-2 mt-1.5 leading-relaxed">
                             {prog.description}
                           </p>
                         </div>
 
                         {/* Bottom Card Footer */}
-                        <div className="pt-3 border-t border-stone-900 mt-3 flex items-center justify-between text-[11px] text-stone-500">
+                        <div className="pt-3 border-t border-stone-100 mt-3 flex items-center justify-between text-[11px] text-stone-500">
                           <span className="truncate max-w-[140px] font-mono">{prog.venue || 'Main Campus'}</span>
-                          <span className="text-emerald-400 font-semibold flex items-center gap-1">
+                          <span className="text-emerald-700 font-semibold flex items-center gap-1">
                             Full Lightbox <ChevronRight className="w-3 h-3" />
                           </span>
                         </div>
@@ -313,7 +313,7 @@ export const AllProgramsSection: React.FC = () => {
                 </div>
 
                 {filteredPrograms.length === 0 && (
-                  <div className="text-center py-16 bg-stone-950 rounded-2xl border border-stone-800 text-stone-400">
+                  <div className="text-center py-16 bg-stone-50 rounded-2xl border border-stone-200 text-stone-500">
                     No programs found matching the selected category or search filter.
                   </div>
                 )}
@@ -323,27 +323,27 @@ export const AllProgramsSection: React.FC = () => {
             {/* TAB 2: PROGRAM CALENDER */}
             {activeTab === 'calendar' && (
               <div className="space-y-6 animate-fadeIn">
-                <div className="bg-stone-950 border border-stone-800 rounded-2xl p-6 shadow-xl">
+                <div className="bg-white border border-stone-200 rounded-2xl p-6 shadow-xs">
                   {/* Calendar Navigation Bar */}
-                  <div className="flex items-center justify-between pb-6 border-b border-stone-800 mb-6">
+                  <div className="flex items-center justify-between pb-6 border-b border-stone-200 mb-6">
                     <div>
-                      <span className="text-xs font-mono uppercase text-emerald-400 font-semibold">
+                      <span className="text-xs font-mono uppercase text-emerald-800 font-semibold">
                         INTERACTIVE CALENDAR
                       </span>
-                      <h3 className="text-xl font-bold font-heading text-white">{monthName}</h3>
+                      <h3 className="text-xl font-bold font-heading text-stone-900">{monthName}</h3>
                     </div>
 
                     <div className="flex items-center gap-2">
                       <button
                         onClick={prevMonth}
-                        className="p-2 rounded-lg bg-stone-900 hover:bg-stone-800 text-stone-300 hover:text-white border border-stone-800 transition-colors"
+                        className="p-2 rounded-lg bg-stone-100 hover:bg-stone-200 text-stone-700 hover:text-stone-900 border border-stone-300 transition-colors cursor-pointer"
                         title="Previous month"
                       >
                         <ChevronLeft className="w-4 h-4" />
                       </button>
                       <button
                         onClick={nextMonth}
-                        className="p-2 rounded-lg bg-stone-900 hover:bg-stone-800 text-stone-300 hover:text-white border border-stone-800 transition-colors"
+                        className="p-2 rounded-lg bg-stone-100 hover:bg-stone-200 text-stone-700 hover:text-stone-900 border border-stone-300 transition-colors cursor-pointer"
                         title="Next month"
                       >
                         <ChevronRight className="w-4 h-4" />
@@ -366,7 +366,7 @@ export const AllProgramsSection: React.FC = () => {
                   <div className="grid grid-cols-7 gap-2">
                     {/* Empty cells before month begins */}
                     {Array.from({ length: firstDayIndex }).map((_, i) => (
-                      <div key={`cal-empty-${i}`} className="h-20 bg-stone-900/30 rounded-xl border border-transparent" />
+                      <div key={`cal-empty-${i}`} className="h-20 bg-stone-50 rounded-xl border border-transparent" />
                     ))}
 
                     {/* Day cells */}
@@ -384,30 +384,30 @@ export const AllProgramsSection: React.FC = () => {
                           onClick={() => setSelectedCalendarDate(fullDate)}
                           className={`h-20 p-1.5 rounded-xl border transition-all cursor-pointer flex flex-col justify-between ${
                             isSelected
-                              ? 'bg-emerald-950/80 border-emerald-500 ring-2 ring-emerald-500/40'
+                              ? 'bg-emerald-50 border-emerald-500 ring-2 ring-emerald-500/40'
                               : eventsOnDay.length > 0
-                              ? 'bg-stone-900/90 border-amber-500/40 hover:border-amber-400'
-                              : 'bg-stone-900/40 border-stone-800/80 hover:bg-stone-900'
+                              ? 'bg-amber-50/70 border-amber-300 hover:border-amber-400'
+                              : 'bg-stone-50/70 border-stone-200 hover:bg-stone-100'
                           }`}
                         >
                           <div className="flex items-center justify-between">
-                            <span className={`text-xs font-mono font-bold ${eventsOnDay.length > 0 ? 'text-amber-400' : 'text-stone-300'}`}>
+                            <span className={`text-xs font-mono font-bold ${eventsOnDay.length > 0 ? 'text-amber-800' : 'text-stone-700'}`}>
                               {dayNumber}
                             </span>
                             {eventsOnDay.length > 0 && (
-                              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                              <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse" />
                             )}
                           </div>
 
                           {eventsOnDay.length > 0 ? (
                             <div className="space-y-0.5">
                               {eventsOnDay.slice(0, 1).map((ev, evIdx) => (
-                                <p key={`cal-ev-${dayNumber}-${ev.id || evIdx}`} className="text-[10px] text-emerald-300 font-semibold truncate leading-tight">
+                                <p key={`cal-ev-${dayNumber}-${ev.id || evIdx}`} className="text-[10px] text-emerald-800 font-semibold truncate leading-tight">
                                   {ev.title}
                                 </p>
                               ))}
                               {eventsOnDay.length > 1 && (
-                                <span className="text-[9px] text-stone-400 font-mono">
+                                <span className="text-[9px] text-stone-500 font-mono">
                                   +{eventsOnDay.length - 1} more
                                 </span>
                               )}
@@ -422,16 +422,16 @@ export const AllProgramsSection: React.FC = () => {
                 </div>
 
                 {/* Scheduled Events on Selected Day or Upcoming List */}
-                <div className="bg-stone-950 border border-stone-800 rounded-2xl p-6">
+                <div className="bg-white border border-stone-200 rounded-2xl p-6 shadow-xs">
                   <div className="flex items-center justify-between mb-4">
-                    <h4 className="text-base font-bold text-white flex items-center gap-2">
-                      <CalendarIcon className="w-4 h-4 text-emerald-400" />
+                    <h4 className="text-base font-bold text-stone-900 flex items-center gap-2">
+                      <CalendarIcon className="w-4 h-4 text-emerald-700" />
                       {selectedCalendarDate ? `Programs for ${selectedCalendarDate}` : 'Upcoming Scheduled Dates'}
                     </h4>
                     {selectedCalendarDate && (
                       <button
                         onClick={() => setSelectedCalendarDate(null)}
-                        className="text-xs text-stone-400 hover:text-emerald-400 underline"
+                        className="text-xs text-stone-600 hover:text-emerald-700 underline cursor-pointer"
                       >
                         Show All Dates
                       </button>
@@ -445,20 +445,20 @@ export const AllProgramsSection: React.FC = () => {
                       .map((p, pIdx) => (
                         <div
                           key={`cal-detail-event-${p.id || pIdx}`}
-                          className="p-4 rounded-xl bg-stone-900 border border-stone-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
+                          className="p-4 rounded-xl bg-stone-50 border border-stone-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xs"
                         >
                           <div>
-                            <span className="text-[10px] font-mono text-amber-400 font-bold uppercase tracking-wider">
+                            <span className="text-[10px] font-mono text-amber-800 font-bold uppercase tracking-wider">
                               {p.date} • {p.time}
                             </span>
-                            <h5 className="text-sm font-bold text-white mt-0.5">{p.title}</h5>
-                            <p className="text-xs text-stone-400 flex items-center gap-1 mt-1">
-                              <MapPin className="w-3 h-3 text-emerald-400" />
+                            <h5 className="text-sm font-bold text-stone-900 mt-0.5">{p.title}</h5>
+                            <p className="text-xs text-stone-600 flex items-center gap-1 mt-1">
+                              <MapPin className="w-3 h-3 text-emerald-700" />
                               {p.venue}
                             </p>
                           </div>
 
-                          <span className="px-2.5 py-1 rounded-md text-[10px] font-bold font-mono bg-emerald-950 text-emerald-400 border border-emerald-800">
+                          <span className="px-2.5 py-1 rounded-md text-[10px] font-bold font-mono bg-emerald-100 text-emerald-800 border border-emerald-300">
                             {p.category}
                           </span>
                         </div>
@@ -473,46 +473,46 @@ export const AllProgramsSection: React.FC = () => {
               <div className="space-y-6 animate-fadeIn">
                 {/* Dashboard-style Stat Section */}
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                  <div className="bg-stone-950 border border-stone-800 rounded-2xl p-5 shadow-lg">
-                    <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-400 flex items-center justify-center mb-3">
+                  <div className="bg-white border border-stone-200 rounded-2xl p-5 shadow-xs">
+                    <div className="w-10 h-10 rounded-xl bg-amber-50 border border-amber-200 text-amber-700 flex items-center justify-center mb-3">
                       <Trophy className="w-5 h-5" />
                     </div>
-                    <p className="text-3xl font-bold font-heading text-white">{achievements.totalAchievements}</p>
-                    <p className="text-xs text-stone-400 font-medium mt-1">Total Achievements</p>
+                    <p className="text-3xl font-bold font-heading text-stone-900">{achievements.totalAchievements}</p>
+                    <p className="text-xs text-stone-600 font-medium mt-1">Total Achievements</p>
                   </div>
 
-                  <div className="bg-stone-950 border border-stone-800 rounded-2xl p-5 shadow-lg">
-                    <div className="w-10 h-10 rounded-xl bg-sky-500/10 border border-sky-500/30 text-sky-400 flex items-center justify-center mb-3">
+                  <div className="bg-white border border-stone-200 rounded-2xl p-5 shadow-xs">
+                    <div className="w-10 h-10 rounded-xl bg-sky-50 border border-sky-200 text-sky-700 flex items-center justify-center mb-3">
                       <HeartHandshake className="w-5 h-5" />
                     </div>
-                    <p className="text-3xl font-bold font-heading text-white">
+                    <p className="text-3xl font-bold font-heading text-stone-900">
                       {achievements.totalOutreachInitiatives}
                     </p>
-                    <p className="text-xs text-stone-400 font-medium mt-1">Total Outreach Initiatives</p>
+                    <p className="text-xs text-stone-600 font-medium mt-1">Total Outreach Initiatives</p>
                   </div>
 
-                  <div className="bg-stone-950 border border-stone-800 rounded-2xl p-5 shadow-lg">
-                    <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 flex items-center justify-center mb-3">
+                  <div className="bg-white border border-stone-200 rounded-2xl p-5 shadow-xs">
+                    <div className="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 flex items-center justify-center mb-3">
                       <CalendarIcon className="w-5 h-5" />
                     </div>
-                    <p className="text-3xl font-bold font-heading text-white">{achievements.eventsOrganized}</p>
-                    <p className="text-xs text-stone-400 font-medium mt-1">Events Organized</p>
+                    <p className="text-3xl font-bold font-heading text-stone-900">{achievements.eventsOrganized}</p>
+                    <p className="text-xs text-stone-600 font-medium mt-1">Events Organized</p>
                   </div>
 
-                  <div className="bg-stone-950 border border-stone-800 rounded-2xl p-5 shadow-lg">
-                    <div className="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/30 text-purple-400 flex items-center justify-center mb-3">
+                  <div className="bg-white border border-stone-200 rounded-2xl p-5 shadow-xs">
+                    <div className="w-10 h-10 rounded-xl bg-purple-50 border border-purple-200 text-purple-700 flex items-center justify-center mb-3">
                       <Users className="w-5 h-5" />
                     </div>
-                    <p className="text-3xl font-bold font-heading text-white">
+                    <p className="text-3xl font-bold font-heading text-stone-900">
                       {achievements.activeMembers.toLocaleString()}
                     </p>
-                    <p className="text-xs text-stone-400 font-medium mt-1">Active Union Members</p>
+                    <p className="text-xs text-stone-600 font-medium mt-1">Active Union Members</p>
                   </div>
                 </div>
 
                 {/* Notable Achievements Detailed Cards */}
-                <div className="bg-stone-950 border border-stone-800 rounded-2xl p-6">
-                  <h3 className="text-lg font-bold font-heading text-white mb-4">
+                <div className="bg-white border border-stone-200 rounded-2xl p-6 shadow-xs">
+                  <h3 className="text-lg font-bold font-heading text-stone-900 mb-4">
                     Hall of Accolades & Trophies
                   </h3>
 
@@ -520,28 +520,28 @@ export const AllProgramsSection: React.FC = () => {
                     {achievements.items.map((ach, achIdx) => (
                       <div
                         key={`ach-item-${ach.id || achIdx}`}
-                        className="p-4 rounded-xl bg-stone-900/90 border border-stone-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
+                        className="p-4 rounded-xl bg-stone-50 border border-stone-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xs"
                       >
                         <div className="flex items-start gap-4">
-                          <div className="w-10 h-10 rounded-xl bg-amber-950 border border-amber-500/40 text-amber-400 flex items-center justify-center shrink-0 mt-0.5">
+                          <div className="w-10 h-10 rounded-xl bg-amber-50 border border-amber-200 text-amber-700 flex items-center justify-center shrink-0 mt-0.5">
                             <Trophy className="w-5 h-5" />
                           </div>
                           <div>
                             <div className="flex items-center gap-2 mb-1">
-                              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-stone-950 text-stone-400 border border-stone-800">
+                              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-white text-stone-600 border border-stone-200">
                                 {ach.year}
                               </span>
-                              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800">
+                              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 border border-emerald-300">
                                 {ach.category}
                               </span>
                             </div>
-                            <h4 className="text-base font-bold text-white">{ach.title}</h4>
-                            <p className="text-xs text-stone-300 mt-1 leading-relaxed">{ach.description}</p>
+                            <h4 className="text-base font-bold text-stone-900">{ach.title}</h4>
+                            <p className="text-xs text-stone-600 mt-1 leading-relaxed">{ach.description}</p>
                           </div>
                         </div>
 
                         {ach.badge && (
-                          <span className="shrink-0 px-3 py-1 rounded-full text-xs font-semibold bg-amber-400/10 text-amber-300 border border-amber-500/30">
+                          <span className="shrink-0 px-3 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-900 border border-amber-300">
                             {ach.badge}
                           </span>
                         )}
@@ -559,20 +559,20 @@ export const AllProgramsSection: React.FC = () => {
       {selectedProgramAgenda && (
         <div
           id="all-program-agenda-modal"
-          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-sm"
           onClick={() => setSelectedProgramAgenda(null)}
         >
           <div
-            className="relative w-full max-w-4xl bg-stone-900 rounded-2xl shadow-2xl overflow-hidden border border-stone-700 flex flex-col text-stone-100 max-h-[92vh]"
+            className="relative w-full max-w-4xl bg-white rounded-2xl shadow-2xl overflow-hidden border border-stone-200 flex flex-col text-stone-900 max-h-[92vh]"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
-            <div className="px-5 py-3.5 bg-stone-950 border-b border-stone-800 flex items-center justify-between gap-4">
+            <div className="px-5 py-3.5 bg-stone-50 border-b border-stone-200 flex items-center justify-between gap-4">
               <div className="flex items-center gap-2.5 overflow-hidden">
-                <span className="inline-block text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider bg-emerald-600 text-white shrink-0 font-mono">
+                <span className="inline-block text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider bg-emerald-700 text-white shrink-0 font-mono">
                   {selectedProgramAgenda.category} • {selectedProgramAgenda.status}
                 </span>
-                <h3 className="text-base sm:text-lg font-bold text-white truncate">
+                <h3 className="text-base sm:text-lg font-bold text-stone-900 truncate">
                   {selectedProgramAgenda.title}
                 </h3>
               </div>
@@ -582,7 +582,7 @@ export const AllProgramsSection: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setAgendaLightbox(selectedProgramAgenda.banner)}
-                    className="p-1.5 rounded-lg bg-stone-800 text-stone-300 hover:text-white hover:bg-stone-700 transition-colors cursor-pointer text-xs flex items-center gap-1.5 px-2.5"
+                    className="p-1.5 rounded-lg bg-stone-100 text-stone-700 hover:text-stone-900 hover:bg-stone-200 border border-stone-300 transition-colors cursor-pointer text-xs flex items-center gap-1.5 px-2.5"
                     title="Fullscreen zoom"
                   >
                     <ZoomIn className="w-3.5 h-3.5" />
@@ -592,7 +592,7 @@ export const AllProgramsSection: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setSelectedProgramAgenda(null)}
-                  className="p-1.5 rounded-lg bg-stone-800 text-stone-300 hover:text-white hover:bg-stone-700 transition-colors cursor-pointer"
+                  className="p-1.5 rounded-lg text-stone-400 hover:text-stone-700 hover:bg-stone-100 transition-colors cursor-pointer"
                   title="Close modal"
                 >
                   <X className="w-4 h-4" />
@@ -604,16 +604,16 @@ export const AllProgramsSection: React.FC = () => {
             <div className="p-4 sm:p-6 overflow-y-auto space-y-6">
               {/* Full Agenda Poster / Flyer - Uncropped Full View */}
               {selectedProgramAgenda.banner && (
-                <div className="w-full bg-stone-950 rounded-xl p-3 sm:p-4 border border-stone-800 flex flex-col items-center justify-center">
-                  <div className="w-full flex items-center justify-between pb-2 mb-2 border-b border-stone-800/80 text-[11px] font-mono text-stone-400">
-                    <span className="flex items-center gap-1.5 text-emerald-400 font-medium">
-                      <Sparkles className="w-3.5 h-3.5" />
+                <div className="w-full bg-stone-50 rounded-xl p-3 sm:p-4 border border-stone-200 flex flex-col items-center justify-center">
+                  <div className="w-full flex items-center justify-between pb-2 mb-2 border-b border-stone-200 text-[11px] font-mono text-stone-500">
+                    <span className="flex items-center gap-1.5 text-emerald-800 font-semibold">
+                      <Sparkles className="w-3.5 h-3.5 text-amber-600" />
                       Complete Program Agenda & Notice (Full Uncropped View)
                     </span>
                     <button
                       type="button"
                       onClick={() => setAgendaLightbox(selectedProgramAgenda.banner)}
-                      className="text-stone-400 hover:text-emerald-400 transition-colors flex items-center gap-1 cursor-pointer"
+                      className="text-stone-600 hover:text-emerald-700 transition-colors flex items-center gap-1 cursor-pointer font-medium"
                     >
                       <Maximize2 className="w-3 h-3" />
                       <span>Click to enlarge</span>
@@ -624,41 +624,41 @@ export const AllProgramsSection: React.FC = () => {
                     <img
                       src={selectedProgramAgenda.banner}
                       alt={selectedProgramAgenda.title}
-                      className="w-auto max-w-full max-h-[65vh] object-contain rounded-lg shadow-xl cursor-zoom-in hover:brightness-105 transition-all"
+                      className="w-auto max-w-full max-h-[65vh] object-contain rounded-lg shadow-md cursor-zoom-in hover:brightness-105 transition-all"
                       onClick={() => setAgendaLightbox(selectedProgramAgenda.banner)}
                       title="Click to view full image in high resolution"
                     />
                   </div>
 
-                  <p className="mt-2 text-[10px] text-stone-400 font-mono text-center">
+                  <p className="mt-2 text-[10px] text-stone-500 font-mono text-center">
                     Original dimensions preserved • Click image to zoom or view fullscreen
                   </p>
                 </div>
               )}
 
               {/* Event Metadata */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-4 rounded-xl bg-stone-950 border border-stone-800 text-xs">
-                <div className="flex items-center gap-2.5 text-stone-300">
-                  <CalendarIcon className="w-4 h-4 text-amber-400 shrink-0" />
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-4 rounded-xl bg-stone-50 border border-stone-200 text-xs shadow-xs">
+                <div className="flex items-center gap-2.5 text-stone-700">
+                  <CalendarIcon className="w-4 h-4 text-amber-600 shrink-0" />
                   <div>
                     <span className="block text-[10px] text-stone-500 font-mono uppercase">Event Date</span>
-                    <strong className="font-semibold text-white">{selectedProgramAgenda.date}</strong>
+                    <strong className="font-semibold text-stone-900">{selectedProgramAgenda.date}</strong>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2.5 text-stone-300">
-                  <Clock className="w-4 h-4 text-emerald-400 shrink-0" />
+                <div className="flex items-center gap-2.5 text-stone-700">
+                  <Clock className="w-4 h-4 text-emerald-700 shrink-0" />
                   <div>
                     <span className="block text-[10px] text-stone-500 font-mono uppercase">Time Schedule</span>
-                    <strong className="font-semibold text-white">{selectedProgramAgenda.time}</strong>
+                    <strong className="font-semibold text-stone-900">{selectedProgramAgenda.time}</strong>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2.5 text-stone-300">
-                  <MapPin className="w-4 h-4 text-rose-400 shrink-0" />
+                <div className="flex items-center gap-2.5 text-stone-700">
+                  <MapPin className="w-4 h-4 text-rose-600 shrink-0" />
                   <div>
                     <span className="block text-[10px] text-stone-500 font-mono uppercase">Assembly Venue</span>
-                    <strong className="font-semibold text-white truncate block max-w-[180px]">
+                    <strong className="font-semibold text-stone-900 truncate block max-w-[180px]">
                       {selectedProgramAgenda.venue}
                     </strong>
                   </div>
@@ -667,8 +667,8 @@ export const AllProgramsSection: React.FC = () => {
 
               {/* About */}
               <div>
-                <h4 className="text-sm font-bold text-white mb-2">Program Overview & Context</h4>
-                <p className="text-sm text-stone-300 leading-relaxed font-normal whitespace-pre-line">
+                <h4 className="text-sm font-bold text-stone-900 mb-2">Program Overview & Context</h4>
+                <p className="text-sm text-stone-600 leading-relaxed font-normal whitespace-pre-line">
                   {selectedProgramAgenda.description}
                 </p>
               </div>
@@ -676,14 +676,14 @@ export const AllProgramsSection: React.FC = () => {
               {/* Tags */}
               {selectedProgramAgenda.tags && selectedProgramAgenda.tags.length > 0 && (
                 <div>
-                  <h5 className="text-xs font-semibold text-stone-400 uppercase tracking-wider mb-2">
+                  <h5 className="text-xs font-semibold text-stone-500 uppercase tracking-wider mb-2">
                     Topic Keywords
                   </h5>
                   <div className="flex flex-wrap gap-1.5">
                     {selectedProgramAgenda.tags.map((t, i) => (
                       <span
                         key={`modal-agenda-tag-${t}-${i}`}
-                        className="px-2.5 py-1 rounded-lg bg-stone-950 border border-stone-800 text-xs text-stone-300 font-mono"
+                        className="px-2.5 py-1 rounded-lg bg-stone-100 border border-stone-200 text-xs text-stone-700 font-mono font-medium"
                       >
                         #{t}
                       </span>
@@ -694,11 +694,11 @@ export const AllProgramsSection: React.FC = () => {
             </div>
 
             {/* Footer */}
-            <div className="px-6 py-4 bg-stone-950 border-t border-stone-800 flex flex-wrap items-center justify-between gap-3">
+            <div className="px-6 py-4 bg-stone-50 border-t border-stone-200 flex flex-wrap items-center justify-between gap-3">
               <button
                 type="button"
                 onClick={() => setSelectedProgramAgenda(null)}
-                className="px-4 py-2 bg-stone-800 hover:bg-stone-700 text-stone-200 text-xs font-semibold rounded-xl cursor-pointer transition-colors"
+                className="px-4 py-2 bg-stone-200 hover:bg-stone-300 text-stone-800 text-xs font-semibold rounded-xl cursor-pointer transition-colors"
               >
                 Close Window
               </button>
@@ -709,7 +709,7 @@ export const AllProgramsSection: React.FC = () => {
                   setSelectedProgramAgenda(null);
                   setRegistrationNotice(`Registration & Inquiry open for: "${selectedProgramAgenda.title}". Please visit the Central Secretariat Desk or contact the respective Wing Manager.`);
                 }}
-                className="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded-xl flex items-center gap-1.5 shadow transition-colors cursor-pointer"
+                className="px-5 py-2 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-semibold rounded-xl flex items-center gap-1.5 shadow-xs transition-colors cursor-pointer"
               >
                 <span>Register & Inquire</span>
                 <CheckCircle className="w-3.5 h-3.5" />
