@@ -747,7 +747,7 @@ export const AllProgramsSection: React.FC = () => {
           </div>
 
           <div
-            className="w-full h-full max-w-5xl flex items-center justify-center overflow-auto p-2"
+            className="w-full h-full max-w-[96vw] flex items-center justify-center overflow-auto p-2"
             onClick={(e) => e.stopPropagation()}
           >
             <img

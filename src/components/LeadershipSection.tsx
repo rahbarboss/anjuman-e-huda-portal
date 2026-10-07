@@ -20,6 +20,7 @@ import {
   X,
   FileText,
   Image as ImageIcon,
+  User,
 } from 'lucide-react';
 import { CommitteeArchiveModal } from './CommitteeArchiveModal';
 
@@ -43,7 +44,7 @@ export const LeadershipSection: React.FC = () => {
 
   // Leaders for current selected tenure, strictly sorted by duty / hierarchy order number
   const currentLeaders = [...database.leaders]
-    .filter((l) => l.tenure === selectedTenure)
+    .filter((l) => !l.tenure || l.tenure === selectedTenure || l.tenure.startsWith(selectedTenure.split('-')[0]))
     .sort((a, b) => {
       const orderA = typeof a.order === 'number' && !isNaN(a.order) ? a.order : 999;
       const orderB = typeof b.order === 'number' && !isNaN(b.order) ? b.order : 999;
@@ -59,7 +60,8 @@ export const LeadershipSection: React.FC = () => {
 
   const currentPoster =
     corePosters.find((p) => p.tenure === selectedTenure) ||
-    corePosters.find((p) => p.tenure.startsWith(selectedTenure.split('-')[0]));
+    corePosters.find((p) => p.tenure.startsWith(selectedTenure.split('-')[0])) ||
+    corePosters[0];
 
   // NIICS In-Charge list
   const niicsList =
@@ -401,12 +403,29 @@ export const LeadershipSection: React.FC = () => {
                     >
                       <div>
                         {/* Photo with tenure badge */}
-                        <div className="relative mb-4 overflow-hidden rounded-xl bg-stone-950 aspect-[4/3]">
-                          <img
-                            src={leader.photo}
-                            alt={leader.name}
-                            className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
-                          />
+                        <div className="relative mb-4 overflow-hidden rounded-xl bg-stone-950 aspect-[4/3] flex items-center justify-center">
+                          {leader.photo ? (
+                            <img
+                              src={leader.photo}
+                              alt={leader.name}
+                              className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
+                              onError={(e) => {
+                                // If the photo URL ever fails, fallback cleanly to placeholder
+                                (e.currentTarget as HTMLElement).style.display = 'none';
+                                const parent = (e.currentTarget as HTMLElement).parentElement;
+                                if (parent) {
+                                  const placeholder = parent.querySelector('.photo-fallback');
+                                  if (placeholder) placeholder.classList.remove('hidden');
+                                }
+                              }}
+                            />
+                          ) : null}
+                          <div className={`photo-fallback flex flex-col items-center justify-center text-stone-500 gap-1.5 w-full h-full ${leader.photo ? 'hidden' : ''}`}>
+                            <div className="w-14 h-14 rounded-full bg-stone-800 border border-stone-700 flex items-center justify-center text-emerald-400 font-bold font-mono text-lg shadow-inner">
+                              {leader.name ? leader.name.charAt(0).toUpperCase() : <User className="w-6 h-6 text-stone-400" />}
+                            </div>
+                            <span className="text-[11px] font-mono text-stone-400">{leader.role}</span>
+                          </div>
                           <div className="absolute top-2.5 left-2.5">
                             <span className="bg-amber-400 text-stone-950 text-[10px] font-mono font-extrabold px-2 py-0.5 rounded shadow flex items-center gap-1" title={`Hierarchy Position #${leader.order ?? (idx + 1)}`}>
                               <span>#{leader.order ?? (idx + 1)}</span>
@@ -536,6 +555,20 @@ export const LeadershipSection: React.FC = () => {
               >
                 <ZoomIn className="w-4 h-4" />
               </button>
+              <button
+                onClick={() => setPosterZoomLevel((prev) => (prev === 1 ? 1.5 : 1))}
+                className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg border text-xs font-semibold font-mono transition-colors ${
+                  posterZoomLevel !== 1
+                    ? 'bg-amber-500/20 border-amber-500/60 text-amber-300'
+                    : 'bg-stone-900 border-stone-800 text-stone-300 hover:text-white'
+                }`}
+                title="Toggle Full Size (1:1)"
+              >
+                <Maximize2 className="w-3.5 h-3.5 text-amber-400" />
+                <span className="hidden sm:inline">
+                  {posterZoomLevel !== 1 ? 'Fit Screen' : 'Full Size'}
+                </span>
+              </button>
               <a
                 href={currentPoster.posterUrl}
                 target="_blank"
@@ -567,11 +600,15 @@ export const LeadershipSection: React.FC = () => {
               className="transition-transform duration-200 ease-out origin-center max-w-full"
               style={{ transform: `scale(${posterZoomLevel})` }}
             >
-              <div className="relative shadow-2xl shadow-black rounded-xl overflow-hidden bg-stone-950 border border-stone-800 max-h-[82vh] flex items-center justify-center aspect-[1/1.414]">
+              <div
+                className="relative shadow-2xl shadow-black rounded-xl overflow-hidden bg-stone-950 border border-stone-800 max-h-[85vh] max-w-[95vw] flex items-center justify-center cursor-pointer"
+                onDoubleClick={() => setPosterZoomLevel((prev) => (prev === 1 ? 1.5 : 1))}
+                title="Double-click to toggle Full Size (1:1)"
+              >
                 <img
                   src={currentPoster.posterUrl}
                   alt={currentPoster.title || 'Core Committee Poster'}
-                  className="w-auto h-auto max-h-[82vh] object-contain"
+                  className="w-auto h-auto max-h-[85vh] max-w-[95vw] object-contain"
                 />
               </div>
             </div>

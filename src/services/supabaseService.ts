@@ -197,33 +197,47 @@ export async function fetchContentFromSupabase(): Promise<AppDatabase | null> {
     };
 
     const leaders: Leader[] = (membersRes.data || [])
-      .map((m: any) => ({
-        id: m.id,
-        name: m.name,
-        role: m.role,
-        tenure: m.tenure,
-        photo: m.photo,
-        department: m.department,
-        quote: m.quote,
-        email: m.email,
-        phone: m.phone,
-        order: typeof m.order_index === 'number' ? m.order_index : (typeof m.order === 'number' ? m.order : undefined),
-      }))
+      .map((m: any) => {
+        let photo = m.photo || '';
+        if (m.id === 'mbr_1790513192534') {
+          photo = 'https://zfvyxvajgnodiatiqyoh.supabase.co/storage/v1/object/public/members/1790513168625_whatsapp_image_2026_09_27_at_5_42_03_pm.jpeg';
+        } else if (m.id === 'mbr_1790513273181') {
+          photo = 'https://zfvyxvajgnodiatiqyoh.supabase.co/storage/v1/object/public/members/1790513240766_whatsapp_image_2026_09_27_at_5_42_49_pm.webp';
+        } else if (m.id === 'mbr_1790513359652') {
+          photo = 'https://zfvyxvajgnodiatiqyoh.supabase.co/storage/v1/object/public/members/1790513358092_whatsapp_image_2026_09_27_at_5_41_23_pm.jpeg';
+        } else if (m.id === 'mbr_1790513339531') {
+          photo = 'https://zfvyxvajgnodiatiqyoh.supabase.co/storage/v1/object/public/members/1790513336999_whatsapp_image_2026_09_27_at_5_42_27_pm.webp';
+        } else if (m.id === 'mbr_1790960830424') {
+          photo = 'https://zfvyxvajgnodiatiqyoh.supabase.co/storage/v1/object/public/members/1790960804254_gulshad.webp';
+        }
+        return {
+          id: m.id,
+          name: m.name,
+          role: m.role,
+          tenure: m.tenure || '2026-27',
+          photo,
+          department: m.department,
+          quote: m.quote,
+          email: m.email,
+          phone: m.phone,
+          order: typeof m.order_index === 'number' ? m.order_index : (typeof m.order === 'number' ? m.order : undefined),
+        };
+      })
       .sort((a: Leader, b: Leader) => (a.order ?? 999) - (b.order ?? 999));
 
     const niicsInCharge: NIICSInCharge[] = (niicsRes.data || []).map((n: any) => ({
       id: n.id,
       name: n.name,
       designation: n.designation,
-      tenure: n.tenure,
-      photo: n.photo,
-      department: n.department,
+      tenure: '2026-27',
+      photo: n.photo || 'https://zfvyxvajgnodiatiqyoh.supabase.co/storage/v1/object/public/members/1790959869831_ali_ustad.jpeg',
+      department: n.department || 'Central NIICS In-Charge & Academic Harmonization',
       jurisdiction: n.jurisdiction,
       campuses: n.campuses || [],
       quote: n.quote,
-      email: n.email,
-      phone: n.phone,
-      officeLocation: n.office_location,
+      email: n.email || 'muhammedalihudawi@gmail.com',
+      phone: n.phone || '7070502477',
+      officeLocation: n.office_location || 'DARUL HUDA ISLAMIC UNIVERSITY',
     }));
 
     const programs: Program[] = (eventsRes.data || []).map((e: any) => ({

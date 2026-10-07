@@ -216,6 +216,7 @@ export const LatestProgramsAndAnnouncements: React.FC<Props> = () => {
                 <div
                   key={`front-prog-${prog.id}-${pIdx}`}
                   onClick={() => setActiveLightboxItem(programToHighlightItem(prog))}
+                  title="Click to view full-size poster in HD Lightbox"
                   className="group bg-stone-900/90 rounded-2xl border border-stone-800/90 hover:border-amber-500/50 hover:shadow-2xl hover:shadow-amber-950/20 transition-all duration-300 overflow-hidden flex flex-col cursor-pointer hover:-translate-y-1"
                 >
                   {/* 4:3 Aspect Ratio poster/photo container */}
@@ -275,7 +276,7 @@ export const LatestProgramsAndAnnouncements: React.FC<Props> = () => {
                         Archive #{prog.id}
                       </span>
                       <span className="font-mono text-[11px] text-amber-400 group-hover:text-amber-300 font-semibold flex items-center gap-1">
-                        <span>Full Lightbox</span>
+                        <span>View Full Poster</span>
                         <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
                       </span>
                     </div>

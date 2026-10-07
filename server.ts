@@ -137,30 +137,6 @@ function readDb(): AppDatabase {
             needsWrite = true;
           }
         }
-
-        // Sanitize any broken / unreachable Supabase URLs in wings leadership photos
-        parsed.wings.forEach((w: any) => {
-          if (w.chairman?.photo?.includes('zfvyxvajgnodiatiqyoh') || w.chairman?.photo?.includes('NoSuchBucket')) {
-            w.chairman.photo = 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80';
-            needsWrite = true;
-          }
-          if (w.chairmanPhoto?.includes('zfvyxvajgnodiatiqyoh') || w.chairmanPhoto?.includes('NoSuchBucket')) {
-            w.chairmanPhoto = 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80';
-            needsWrite = true;
-          }
-          if (w.manager?.photo?.includes('zfvyxvajgnodiatiqyoh') || w.manager?.photo?.includes('NoSuchBucket')) {
-            w.manager.photo = 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80';
-            needsWrite = true;
-          }
-          if (w.convener?.photo?.includes('zfvyxvajgnodiatiqyoh') || w.convener?.photo?.includes('NoSuchBucket')) {
-            w.convener.photo = 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80';
-            needsWrite = true;
-          }
-          if (w.convenerPhoto?.includes('zfvyxvajgnodiatiqyoh') || w.convenerPhoto?.includes('NoSuchBucket')) {
-            w.convenerPhoto = 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80';
-            needsWrite = true;
-          }
-        });
       }
 
       if (needsWrite) {
@@ -704,8 +680,29 @@ app.post('/api/reset-seed', (_req, res) => {
   res.json({ success: true, data: initialDatabase });
 });
 
+// Routine to keep local db.json 100% synchronized with Supabase cloud database
+function triggerSupabaseSync() {
+  try {
+    const scriptPath = path.join(process.cwd(), 'scripts', 'syncSupabase.cjs');
+    if (fs.existsSync(scriptPath)) {
+      const { exec } = require('child_process');
+      exec(`node "${scriptPath}"`, (err: any, stdout: string) => {
+        if (err) console.warn('[Supabase Auto-Sync] Warning:', err.message);
+        else if (stdout) console.log(stdout.trim());
+      });
+    }
+  } catch (e) {
+    console.warn('[Supabase Auto-Sync] Error triggering sync:', e);
+  }
+}
+
 // ======================== SERVER & VITE ========================
 async function startServer() {
+  // Sync immediately on server startup so the very first request receives fresh admin data
+  triggerSupabaseSync();
+  // Keep syncing in background every 3 minutes
+  setInterval(triggerSupabaseSync, 180000);
+
   if (process.env.NODE_ENV !== 'production') {
     const vite = await createViteServer({
       server: {

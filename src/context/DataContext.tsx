@@ -116,7 +116,7 @@ interface DataContextType {
 
 const DataContext = createContext<DataContextType | null>(null);
 
-const CACHE_KEY = 'anjuman_database_cache_v2';
+const CACHE_KEY = 'anjuman_database_cache_v3';
 
 const getInitialDatabase = (): AppDatabase => {
   if (typeof window !== 'undefined') {
@@ -124,7 +124,8 @@ const getInitialDatabase = (): AppDatabase => {
       const cached = localStorage.getItem(CACHE_KEY);
       if (cached) {
         const parsed = JSON.parse(cached);
-        if (parsed && typeof parsed === 'object' && parsed.homepage) {
+        // Only use cache if it has real admin data (e.g. at least 15 programs)
+        if (parsed && typeof parsed === 'object' && parsed.homepage && Array.isArray(parsed.programs) && parsed.programs.length >= 15) {
           return parsed;
         }
       }

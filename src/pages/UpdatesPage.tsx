@@ -453,7 +453,7 @@ export const UpdatesPage: React.FC = () => {
           className="fixed inset-0 z-60 flex items-center justify-center p-2 sm:p-4 bg-black/95 backdrop-blur-md"
           onClick={() => setLightboxImage(null)}
         >
-          <div className="relative max-w-5xl max-h-[95vh] flex flex-col items-center">
+          <div className="relative max-w-[96vw] max-h-[95vh] flex flex-col items-center">
             <button
               type="button"
               onClick={() => setLightboxImage(null)}
