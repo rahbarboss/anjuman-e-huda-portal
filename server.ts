@@ -1,6 +1,7 @@
 import express from 'express';
 import path from 'path';
 import fs from 'fs';
+import { exec } from 'child_process';
 import multer from 'multer';
 // @ts-ignore
 import convert from 'heic-convert';
@@ -685,7 +686,6 @@ function triggerSupabaseSync() {
   try {
     const scriptPath = path.join(process.cwd(), 'scripts', 'syncSupabase.cjs');
     if (fs.existsSync(scriptPath)) {
-      const { exec } = require('child_process');
       exec(`node "${scriptPath}"`, (err: any, stdout: string) => {
         if (err) console.warn('[Supabase Auto-Sync] Warning:', err.message);
         else if (stdout) console.log(stdout.trim());
