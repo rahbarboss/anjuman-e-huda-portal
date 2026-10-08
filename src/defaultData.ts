@@ -1420,6 +1420,7 @@ export const initialDatabase: AppDatabase = {
       displayOrder: 3,
     },
   ],
+  banners: [],
 };
 
 export const defaultTelemetrySettings = initialDatabase.telemetry!;

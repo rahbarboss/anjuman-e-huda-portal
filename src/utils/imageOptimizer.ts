@@ -388,3 +388,197 @@ export async function optimizeImageBeforeUpload(file: File): Promise<Optimizatio
     };
   });
 }
+
+/**
+ * Specialized Banner Image Optimizer
+ * 
+ * Target size: strictly 40 KB - 60 KB for Supabase as requested.
+ * Automatically handles Landscape vs Portrait aspect ratios and adaptive compression.
+ */
+export async function optimizeBannerImage(
+  file: File,
+  orientation: 'landscape' | 'portrait' = 'landscape'
+): Promise<OptimizationResult & { dataUrl?: string }> {
+  return new Promise((resolve) => {
+    const originalSize = file.size;
+    const formattedOriginal = formatFileSize(originalSize);
+
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+
+    reader.onload = (e) => {
+      const img = new Image();
+      img.src = e.target?.result as string;
+
+      img.onload = async () => {
+        try {
+          // Dimensions based on orientation
+          let maxW = orientation === 'landscape' ? 1400 : 900;
+          let maxH = orientation === 'landscape' ? 800 : 1300;
+
+          let width = img.width;
+          let height = img.height;
+
+          if (width > maxW || height > maxH) {
+            const ratio = Math.min(maxW / width, maxH / height);
+            width = Math.round(width * ratio);
+            height = Math.round(height * ratio);
+          }
+
+          let canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          let ctx = canvas.getContext('2d', { alpha: false });
+
+          if (!ctx) {
+            resolve({
+              file,
+              stats: {
+                originalSize,
+                optimizedSize: originalSize,
+                formattedOriginal,
+                formattedOptimized: formattedOriginal,
+                savedPercent: 0,
+                formatString: `${formattedOriginal} → ${formattedOriginal}`,
+              },
+            });
+            return;
+          }
+
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(0, 0, width, height);
+          ctx.drawImage(img, 0, 0, width, height);
+
+          const useWebp = isWebpSupported();
+          const mimeType = useWebp ? 'image/webp' : 'image/jpeg';
+          const extension = useWebp ? 'webp' : 'jpg';
+
+          const targetMin = 40 * 1024; // 40 KB
+          const targetMax = 60 * 1024; // 60 KB
+
+          const getBlob = (c: HTMLCanvasElement, q: number): Promise<Blob> => {
+            return new Promise((res, rej) => {
+              c.toBlob(
+                (b) => (b ? res(b) : rej(new Error('toBlob failed'))),
+                mimeType,
+                q
+              );
+            });
+          };
+
+          let currentQuality = 0.80;
+          let blob = await getBlob(canvas, currentQuality);
+
+          // If blob is too large (> 60 KB), reduce quality or downscale canvas
+          let attempts = 0;
+          while (blob.size > targetMax && attempts < 12) {
+            attempts++;
+            if (currentQuality > 0.45) {
+              currentQuality = Math.max(0.40, currentQuality - 0.08);
+              blob = await getBlob(canvas, currentQuality);
+            } else {
+              // Quality is already low, reduce resolution by 15%
+              width = Math.round(width * 0.85);
+              height = Math.round(height * 0.85);
+              if (width < 320 || height < 320) break;
+
+              const scaledCanvas = document.createElement('canvas');
+              scaledCanvas.width = width;
+              scaledCanvas.height = height;
+              const sCtx = scaledCanvas.getContext('2d', { alpha: false });
+              if (sCtx) {
+                sCtx.fillStyle = '#ffffff';
+                sCtx.fillRect(0, 0, width, height);
+                sCtx.drawImage(canvas, 0, 0, width, height);
+                canvas = scaledCanvas;
+                currentQuality = 0.65;
+                blob = await getBlob(canvas, currentQuality);
+              } else {
+                break;
+              }
+            }
+          }
+
+          // If blob is smaller than 40 KB and original was larger, try increasing quality up to 0.95
+          if (blob.size < targetMin && originalSize > targetMin && attempts === 0) {
+            let highQuality = 0.90;
+            const highBlob = await getBlob(canvas, highQuality);
+            if (highBlob.size <= targetMax) {
+              blob = highBlob;
+            }
+          }
+
+          const optimizedSize = blob.size;
+          const formattedOptimized = formatFileSize(optimizedSize);
+          const savedPercent =
+            originalSize > optimizedSize
+              ? Math.round(((originalSize - optimizedSize) / originalSize) * 100)
+              : 0;
+
+          const baseName = file.name.replace(/\.[^/.]+$/, '').replace(/[^a-zA-Z0-9_-]/g, '_');
+          const newFileName = `${baseName}_banner.${extension}`;
+          const optimizedFile = new File([blob], newFileName, {
+            type: mimeType,
+            lastModified: Date.now(),
+          });
+
+          // Generate dataUrl for instant fast local rendering
+          const dataUrl = canvas.toDataURL(mimeType, currentQuality);
+
+          resolve({
+            file: optimizedFile,
+            dataUrl,
+            stats: {
+              originalSize,
+              optimizedSize,
+              formattedOriginal,
+              formattedOptimized,
+              savedPercent,
+              formatString: `${formattedOriginal} → ${formattedOptimized} (${Math.round(optimizedSize / 1024)} KB)`,
+            },
+          });
+        } catch {
+          resolve({
+            file,
+            stats: {
+              originalSize,
+              optimizedSize: originalSize,
+              formattedOriginal,
+              formattedOptimized: formattedOriginal,
+              savedPercent: 0,
+              formatString: `${formattedOriginal} → ${formattedOriginal}`,
+            },
+          });
+        }
+      };
+
+      img.onerror = () => {
+        resolve({
+          file,
+          stats: {
+            originalSize,
+            optimizedSize: originalSize,
+            formattedOriginal,
+            formattedOptimized: formattedOriginal,
+            savedPercent: 0,
+            formatString: `${formattedOriginal} → ${formattedOriginal}`,
+          },
+        });
+      };
+    };
+
+    reader.onerror = () => {
+      resolve({
+        file,
+        stats: {
+          originalSize,
+          optimizedSize: originalSize,
+          formattedOriginal,
+          formattedOptimized: formattedOriginal,
+          savedPercent: 0,
+          formatString: `${formattedOriginal} → ${formattedOriginal}`,
+        },
+      });
+    };
+  });
+}

@@ -27,6 +27,7 @@ import {
   WING_PROGRAMS_SQL_SCHEMA,
 } from '../../services/supabaseService';
 import { MediaUploadZone } from './MediaUploadZone';
+import { BannersManagementTab } from './BannersManagementTab';
 import {
   LayoutDashboard,
   Home,
@@ -85,6 +86,7 @@ import {
 
 export type AdminTab =
   | 'overview'
+  | 'banners'
   | 'home'
   | 'telemetry'
   | 'about'
@@ -1217,6 +1219,7 @@ export const AdminDashboard: React.FC = () => {
   // Admin Navigation Menu Items - EXACT 1:1 Match with the user requested layout
   const navMenuItems = [
     { id: 'overview' as AdminTab, label: 'Overview', icon: LayoutDashboard },
+    { id: 'banners' as AdminTab, label: 'BANNERS', icon: Sparkles },
     { id: 'home' as AdminTab, label: 'Home', icon: Home },
     { id: 'telemetry' as AdminTab, label: 'Telemetry & Stats', icon: Activity },
     { id: 'about' as AdminTab, label: 'About', icon: BookOpen },
@@ -1419,6 +1422,13 @@ export const AdminDashboard: React.FC = () => {
                     <span>Issue Circular / Notice</span>
                   </button>
                   <button
+                    onClick={() => setActiveTab('banners')}
+                    className="p-3.5 bg-stone-950 hover:bg-stone-800 border border-emerald-900/60 hover:border-emerald-500 rounded-xl text-xs font-semibold text-emerald-300 flex items-center gap-2 cursor-pointer transition-colors"
+                  >
+                    <Sparkles className="w-4 h-4 text-emerald-400" />
+                    <span>Manage Banners ({database.banners?.length || 0})</span>
+                  </button>
+                  <button
                     onClick={() => setActiveTab('telemetry')}
                     className="p-3.5 bg-stone-950 hover:bg-stone-800 border border-stone-800 rounded-xl text-xs font-semibold text-stone-200 flex items-center gap-2 cursor-pointer"
                   >
@@ -1428,6 +1438,11 @@ export const AdminDashboard: React.FC = () => {
                 </div>
               </div>
             </div>
+          )}
+
+          {/* ================= TAB: BANNERS (DYNAMIC 5-SECOND ROTATING BANNERS) ================= */}
+          {activeTab === 'banners' && (
+            <BannersManagementTab showToast={showToast} requestDelete={requestDelete} />
           )}
 
           {/* ================= TAB 1: HOME ================= */}

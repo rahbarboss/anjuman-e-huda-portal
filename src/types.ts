@@ -222,6 +222,24 @@ export interface SocialLink {
   displayOrder?: number;
 }
 
+export type BannerOrientation = 'landscape' | 'portrait';
+
+export interface Banner {
+  id: string;
+  title?: string;
+  imageUrl: string; // Primary image (Landscape or Left Portrait)
+  imageUrl2?: string; // Secondary image (Right Portrait in dual portrait pair)
+  title2?: string; // Optional title for right portrait banner
+  linkUrl?: string; // Link for primary image
+  linkUrl2?: string; // Link for secondary image
+  orientation: BannerOrientation; // 'landscape' | 'portrait'
+  displayOrder?: number;
+  isActive: boolean;
+  createdAt: string;
+  fileSizeKb?: number;
+  fileSizeKb2?: number;
+}
+
 export interface AppDatabase {
   homepage: HomepageContent;
   announcements: Announcement[];
@@ -240,6 +258,7 @@ export interface AppDatabase {
   pillars?: PillarItem[];
   telemetry?: TelemetrySettings;
   socialLinks?: SocialLink[];
+  banners?: Banner[];
 }
 
 export interface TelemetryCard {

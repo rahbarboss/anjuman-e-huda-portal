@@ -16,6 +16,8 @@ import {
   PillarItem,
   TelemetrySettings,
   SocialLink,
+  Banner,
+  BannerOrientation,
 } from '../types';
 import { initialDatabase, defaultTelemetrySettings } from '../defaultData';
 
@@ -381,6 +383,34 @@ export async function fetchContentFromSupabase(): Promise<AppDatabase | null> {
       console.warn('[Supabase DB] wing_programs table not queried:', e);
     }
 
+    let banners: Banner[] = initialDatabase.banners || [];
+    try {
+      const { data: bannersData, error: bannersError } = await supabase
+        .from('banners')
+        .select('*')
+        .order('display_order', { ascending: true });
+
+      if (!bannersError && bannersData && bannersData.length > 0) {
+        banners = bannersData.map((b: any) => ({
+          id: b.id,
+          title: b.title || '',
+          imageUrl: b.image_url || b.imageUrl,
+          imageUrl2: b.image_url_2 || b.image_url2 || b.imageUrl2 || undefined,
+          title2: b.title_2 || b.title2 || undefined,
+          linkUrl: b.link_url || b.linkUrl || '',
+          linkUrl2: b.link_url_2 || b.link_url2 || b.linkUrl2 || undefined,
+          orientation: (b.orientation === 'portrait' ? 'portrait' : 'landscape') as BannerOrientation,
+          displayOrder: typeof b.display_order === 'number' ? b.display_order : 1,
+          isActive: b.is_active !== undefined ? b.is_active : true,
+          createdAt: b.created_at || b.createdAt || new Date().toISOString(),
+          fileSizeKb: b.file_size_kb,
+          fileSizeKb2: b.file_size_kb_2 || b.file_size_kb2 || undefined,
+        }));
+      }
+    } catch (e) {
+      console.warn('[Supabase DB] banners table query error:', e);
+    }
+
     return {
       homepage,
       announcements,
@@ -395,6 +425,7 @@ export async function fetchContentFromSupabase(): Promise<AppDatabase | null> {
       pillars,
       telemetry,
       socialLinks,
+      banners,
       achievements: {
         totalAchievements: telemetry.cards?.find((c) => c.id === 'stat-achievements')?.value || 142,
         totalOutreachInitiatives: 120,
@@ -1768,5 +1799,234 @@ export async function deleteSocialLinkInSupabase(
   } catch (err: any) {
     console.error('[Supabase DB / socialmedia] Unexpected delete error:', err);
     return { success: false, message: err?.message || 'Failed to delete social link' };
+  }
+}
+
+/* =========================================================================
+   DYNAMIC BANNERS CRUD & SQL SCHEMA (Table: public.banners)
+========================================================================= */
+
+export const BANNERS_SQL_SCHEMA = `-- =========================================================
+-- ANJUMAN-E-HUDA: Supabase BANNERS Table
+-- Run this in Supabase SQL Editor or Table Editor
+-- =========================================================
+
+-- 1. Create Banners table in Supabase
+CREATE TABLE IF NOT EXISTS public.banners (
+    id TEXT PRIMARY KEY,
+    title TEXT,
+    image_url TEXT NOT NULL,
+    image_url_2 TEXT,
+    title_2 TEXT,
+    orientation TEXT NOT NULL CHECK (orientation IN ('landscape', 'portrait')),
+    link_url TEXT,
+    link_url_2 TEXT,
+    display_order INTEGER DEFAULT 1,
+    is_active BOOLEAN DEFAULT true,
+    file_size_kb NUMERIC,
+    file_size_kb_2 NUMERIC,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- 2. Upgrade existing table if columns don't exist yet:
+ALTER TABLE public.banners ADD COLUMN IF NOT EXISTS image_url_2 TEXT;
+ALTER TABLE public.banners ADD COLUMN IF NOT EXISTS title_2 TEXT;
+ALTER TABLE public.banners ADD COLUMN IF NOT EXISTS link_url_2 TEXT;
+ALTER TABLE public.banners ADD COLUMN IF NOT EXISTS file_size_kb_2 NUMERIC;
+
+-- 3. Enable Row Level Security (RLS)
+ALTER TABLE public.banners ENABLE ROW LEVEL SECURITY;
+
+-- 4. Create Public Read Policy (Anyone can view published banners)
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_policies 
+        WHERE tablename = 'banners' 
+        AND policyname = 'Public Read Access for Banners'
+    ) THEN
+        CREATE POLICY "Public Read Access for Banners" 
+        ON public.banners FOR SELECT USING (true);
+    END IF;
+END $$;
+
+-- 5. Create Full Access Policy for Admin Operations (Insert, Update, Delete)
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_policies 
+        WHERE tablename = 'banners' 
+        AND policyname = 'Allow All Operations on Banners'
+    ) THEN
+        CREATE POLICY "Allow All Operations on Banners" 
+        ON public.banners FOR ALL USING (true) WITH CHECK (true);
+    END IF;
+END $$;
+`;
+
+export async function fetchBannersFromSupabase(): Promise<Banner[]> {
+  if (!supabase || !isSupabaseConfigured) return [];
+  try {
+    const { data, error } = await supabase
+      .from('banners')
+      .select('*')
+      .order('display_order', { ascending: true });
+
+    if (error) {
+      console.warn('[Supabase DB / banners] Fetch failed:', error.message);
+      return [];
+    }
+
+    return (data || []).map((b: any) => ({
+      id: b.id,
+      title: b.title || '',
+      imageUrl: b.image_url || b.imageUrl,
+      imageUrl2: b.image_url_2 || b.image_url2 || b.imageUrl2 || undefined,
+      title2: b.title_2 || b.title2 || undefined,
+      orientation: (b.orientation === 'portrait' ? 'portrait' : 'landscape') as BannerOrientation,
+      linkUrl: b.link_url || b.linkUrl || '',
+      linkUrl2: b.link_url_2 || b.link_url2 || b.linkUrl2 || undefined,
+      displayOrder: typeof b.display_order === 'number' ? b.display_order : 1,
+      isActive: b.is_active !== undefined ? b.is_active : true,
+      createdAt: b.created_at || b.createdAt || new Date().toISOString(),
+      fileSizeKb: b.file_size_kb,
+      fileSizeKb2: b.file_size_kb_2 || b.file_size_kb2 || undefined,
+    }));
+  } catch (err: any) {
+    console.error('[Supabase DB / banners] Unexpected fetch error:', err);
+    return [];
+  }
+}
+
+export async function saveBannerInSupabase(
+  banner: Banner
+): Promise<{ success: boolean; data?: Banner; message?: string }> {
+  if (!supabase || !isSupabaseConfigured) {
+    return { success: false, message: 'Supabase is not configured' };
+  }
+
+  try {
+    const bannerPayload: any = {
+      id: banner.id,
+      title: banner.title || '',
+      image_url: banner.imageUrl,
+      image_url_2: banner.imageUrl2 || null,
+      title_2: banner.title2 || null,
+      orientation: banner.orientation,
+      link_url: banner.linkUrl || null,
+      link_url_2: banner.linkUrl2 || null,
+      display_order: typeof banner.displayOrder === 'number' ? banner.displayOrder : 1,
+      is_active: banner.isActive !== false,
+      file_size_kb: banner.fileSizeKb || null,
+      file_size_kb_2: banner.fileSizeKb2 || null,
+      created_at: banner.createdAt || new Date().toISOString(),
+    };
+
+    let { data, error } = await supabase
+      .from('banners')
+      .upsert(bannerPayload)
+      .select()
+      .single();
+
+    if (error && error.message && (error.message.includes('image_url_2') || error.message.includes('column'))) {
+      // Graceful fallback if user has not yet executed the ALTER TABLE statement in Supabase
+      const fallbackPayload = {
+        id: banner.id,
+        title: banner.title || '',
+        image_url: banner.imageUrl,
+        orientation: banner.orientation,
+        link_url: banner.linkUrl || null,
+        display_order: typeof banner.displayOrder === 'number' ? banner.displayOrder : 1,
+        is_active: banner.isActive !== false,
+        file_size_kb: banner.fileSizeKb || null,
+        created_at: banner.createdAt || new Date().toISOString(),
+      };
+      const fallbackRes = await supabase.from('banners').upsert(fallbackPayload).select().single();
+      data = fallbackRes.data;
+      error = fallbackRes.error;
+    }
+
+    if (error) {
+      console.error('[Supabase DB / banners] Upsert failed:', error.message);
+      return { success: false, message: error.message };
+    }
+
+    return {
+      success: true,
+      data: {
+        id: data.id,
+        title: data.title || '',
+        imageUrl: data.image_url,
+        imageUrl2: data.image_url_2 || banner.imageUrl2 || undefined,
+        title2: data.title_2 || banner.title2 || undefined,
+        orientation: data.orientation,
+        linkUrl: data.link_url || '',
+        linkUrl2: data.link_url_2 || banner.linkUrl2 || undefined,
+        displayOrder: data.display_order,
+        isActive: data.is_active,
+        createdAt: data.created_at,
+        fileSizeKb: data.file_size_kb,
+        fileSizeKb2: data.file_size_kb_2 || banner.fileSizeKb2 || undefined,
+      },
+    };
+  } catch (err: any) {
+    console.error('[Supabase DB / banners] Unexpected save error:', err);
+    return { success: false, message: err?.message || 'Failed to save banner' };
+  }
+}
+
+export async function deleteBannerInSupabase(
+  id: string,
+  imageUrl?: string
+): Promise<{ success: boolean; message?: string }> {
+  if (!supabase || !isSupabaseConfigured) {
+    return { success: false, message: 'Supabase is not configured' };
+  }
+
+  try {
+    const { error } = await supabase.from('banners').delete().eq('id', id);
+    if (error) {
+      console.error('[Supabase DB / banners] Delete failed:', error.message);
+      return { success: false, message: error.message };
+    }
+
+    if (imageUrl && imageUrl.includes('/storage/v1/object/public/')) {
+      try {
+        await deleteFromSupabaseStorage(imageUrl, 'gallery');
+      } catch (storageErr) {
+        console.warn('[Supabase DB / banners] Storage deletion warning:', storageErr);
+      }
+    }
+
+    return { success: true };
+  } catch (err: any) {
+    console.error('[Supabase DB / banners] Unexpected delete error:', err);
+    return { success: false, message: err?.message || 'Failed to delete banner' };
+  }
+}
+
+export async function toggleBannerStatusInSupabase(
+  id: string,
+  isActive: boolean
+): Promise<{ success: boolean; message?: string }> {
+  if (!supabase || !isSupabaseConfigured) {
+    return { success: false, message: 'Supabase is not configured' };
+  }
+
+  try {
+    const { error } = await supabase
+      .from('banners')
+      .update({ is_active: isActive })
+      .eq('id', id);
+
+    if (error) {
+      console.error('[Supabase DB / banners] Status update failed:', error.message);
+      return { success: false, message: error.message };
+    }
+
+    return { success: true };
+  } catch (err: any) {
+    console.error('[Supabase DB / banners] Unexpected update error:', err);
+    return { success: false, message: err?.message || 'Failed to update banner status' };
   }
 }

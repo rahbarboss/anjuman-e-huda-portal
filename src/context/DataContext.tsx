@@ -18,6 +18,8 @@ import {
   PillarItem,
   TelemetrySettings,
   SocialLink,
+  Banner,
+  BannerOrientation,
 } from '../types';
 import { initialDatabase, defaultTelemetrySettings, defaultCoreCommitteeWing } from '../defaultData';
 import { isSupabaseConfigured } from '../lib/supabase';
@@ -54,6 +56,9 @@ import {
   saveTelemetryInSupabase,
   saveSocialLinkInSupabase,
   deleteSocialLinkInSupabase,
+  saveBannerInSupabase,
+  deleteBannerInSupabase,
+  toggleBannerStatusInSupabase,
   seedSupabaseDatabase,
   StorageBucket,
 } from '../services/supabaseService';
@@ -111,6 +116,10 @@ interface DataContextType {
   addSocialLink: (link: Omit<SocialLink, 'id'>) => Promise<boolean>;
   updateSocialLink: (id: string, link: Partial<SocialLink>) => Promise<boolean>;
   deleteSocialLink: (id: string) => Promise<boolean>;
+  addBanner: (banner: Omit<Banner, 'id' | 'createdAt'>) => Promise<boolean>;
+  updateBanner: (id: string, banner: Partial<Banner>) => Promise<boolean>;
+  deleteBanner: (id: string, imageUrl?: string) => Promise<boolean>;
+  toggleBannerActive: (id: string) => Promise<boolean>;
   resetToDefaultSeed: () => Promise<boolean>;
 }
 
@@ -1637,6 +1646,88 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return true;
   };
 
+  /* =========================================================================
+     DYNAMIC ROTATING BANNERS (5-Second Carousel: Landscape & Portrait)
+  ========================================================================= */
+
+  const addBanner = async (banner: Omit<Banner, 'id' | 'createdAt'>): Promise<boolean> => {
+    const newBanner: Banner = {
+      ...banner,
+      id: `bnr_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+      createdAt: new Date().toISOString(),
+      displayOrder: banner.displayOrder ?? ((database.banners?.length || 0) + 1),
+      isActive: banner.isActive !== false,
+    };
+
+    if (isSupabaseConfigured) {
+      const res = await saveBannerInSupabase(newBanner);
+      if (res.success && res.data) {
+        setDatabase((prev) => ({
+          ...prev,
+          banners: [...(prev.banners || []), res.data!],
+        }));
+        return true;
+      }
+    }
+
+    setDatabase((prev) => ({
+      ...prev,
+      banners: [...(prev.banners || []), newBanner],
+    }));
+    return true;
+  };
+
+  const updateBanner = async (id: string, banner: Partial<Banner>): Promise<boolean> => {
+    const existing = (database.banners || []).find((b) => b.id === id);
+    if (!existing) return false;
+    const merged: Banner = { ...existing, ...banner };
+
+    if (isSupabaseConfigured) {
+      const res = await saveBannerInSupabase(merged);
+      if (res.success && res.data) {
+        setDatabase((prev) => ({
+          ...prev,
+          banners: (prev.banners || []).map((b) => (b.id === id ? res.data! : b)),
+        }));
+        return true;
+      }
+    }
+
+    setDatabase((prev) => ({
+      ...prev,
+      banners: (prev.banners || []).map((b) => (b.id === id ? merged : b)),
+    }));
+    return true;
+  };
+
+  const deleteBanner = async (id: string, imageUrl?: string): Promise<boolean> => {
+    if (isSupabaseConfigured) {
+      await deleteBannerInSupabase(id, imageUrl);
+    }
+
+    setDatabase((prev) => ({
+      ...prev,
+      banners: (prev.banners || []).filter((b) => b.id !== id),
+    }));
+    return true;
+  };
+
+  const toggleBannerActive = async (id: string): Promise<boolean> => {
+    const item = (database.banners || []).find((b) => b.id === id);
+    if (!item) return false;
+    const nextStatus = !item.isActive;
+
+    if (isSupabaseConfigured) {
+      await toggleBannerStatusInSupabase(id, nextStatus);
+    }
+
+    setDatabase((prev) => ({
+      ...prev,
+      banners: (prev.banners || []).map((b) => (b.id === id ? { ...b, isActive: nextStatus } : b)),
+    }));
+    return true;
+  };
+
   const resetToDefaultSeed = async (): Promise<boolean> => {
     try {
       if (isSupabaseConfigured) {
@@ -1709,6 +1800,10 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         addSocialLink,
         updateSocialLink,
         deleteSocialLink,
+        addBanner,
+        updateBanner,
+        deleteBanner,
+        toggleBannerActive,
         resetToDefaultSeed,
       }}
     >
