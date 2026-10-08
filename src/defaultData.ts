@@ -1,4 +1,4 @@
-import { AppDatabase, Wing } from './types';
+import { AppDatabase, Wing, Banner } from './types';
 
 export const defaultCoreCommitteeWing: Wing = {
   id: 'core-committee',
@@ -1420,7 +1420,44 @@ export const initialDatabase: AppDatabase = {
       displayOrder: 3,
     },
   ],
-  banners: [],
+  banners: [
+    {
+      id: 'bnr-default-1',
+      title: "ANJUMAN-E-HUDA Students' Union | Darul Huda Islamic University",
+      imageUrl: 'https://zfvyxvajgnodiatiqyoh.supabase.co/storage/v1/object/public/gallery/1790241556346_independence_23.jpg',
+      orientation: 'landscape',
+      linkUrl: '#about',
+      displayOrder: 1,
+      isActive: true,
+      fileSizeKb: 54,
+    },
+    {
+      id: 'bnr-default-2',
+      title: 'Fiqh & Contemporary Research Symposium 2026',
+      imageUrl: 'https://zfvyxvajgnodiatiqyoh.supabase.co/storage/v1/object/public/events/1790492499106_img_20260917_wa0002.webp',
+      orientation: 'landscape',
+      linkUrl: '#programs',
+      displayOrder: 2,
+      isActive: true,
+      fileSizeKb: 48,
+    },
+    {
+      id: 'bnr-default-3',
+      title: 'Core Committee Executive Council 2026-27',
+      imageUrl: 'https://zfvyxvajgnodiatiqyoh.supabase.co/storage/v1/object/public/posters/1790960057976_anjuman_core_committee_poster.webp',
+      title2: 'Monthly Assembly & Academic Convocation',
+      imageUrl2: 'https://zfvyxvajgnodiatiqyoh.supabase.co/storage/v1/object/public/notices/1790558054335_fas.webp',
+      orientation: 'portrait',
+      linkUrl: '#core-committee',
+      linkUrl2: '#announcements',
+      displayOrder: 3,
+      isActive: true,
+      fileSizeKb: 52,
+      fileSizeKb2: 49,
+    },
+  ],
 };
+
+export const defaultBanners: Banner[] = initialDatabase.banners || [];
 
 export const defaultTelemetrySettings = initialDatabase.telemetry!;

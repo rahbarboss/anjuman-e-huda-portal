@@ -21,7 +21,7 @@ import {
   Banner,
   BannerOrientation,
 } from '../types';
-import { initialDatabase, defaultTelemetrySettings, defaultCoreCommitteeWing } from '../defaultData';
+import { initialDatabase, defaultTelemetrySettings, defaultCoreCommitteeWing, defaultBanners } from '../defaultData';
 import { isSupabaseConfigured } from '../lib/supabase';
 import { optimizeImageBeforeUpload } from '../utils/imageOptimizer';
 import {
@@ -147,6 +147,9 @@ const getInitialDatabase = (): AppDatabase => {
           if (Array.isArray(parsed.wings)) {
             parsed.wings = sanitizeWings(parsed.wings);
           }
+          if (!parsed.banners || !Array.isArray(parsed.banners) || parsed.banners.length === 0) {
+            parsed.banners = defaultBanners;
+          }
           return parsed;
         }
       }
@@ -184,6 +187,9 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
             if (Array.isArray(localData.wings)) {
               localData.wings = sanitizeWings(localData.wings);
             }
+            if (!localData.banners || !Array.isArray(localData.banners) || localData.banners.length === 0) {
+              localData.banners = defaultBanners;
+            }
             setDatabase(localData);
             saveToLocalCache(localData);
           }
@@ -202,6 +208,9 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
           if (cloudData && cloudData.homepage) {
             if (Array.isArray(cloudData.wings)) {
               cloudData.wings = sanitizeWings(cloudData.wings);
+            }
+            if (!cloudData.banners || !Array.isArray(cloudData.banners) || cloudData.banners.length === 0) {
+              cloudData.banners = defaultBanners;
             }
             setDatabase(cloudData);
             saveToLocalCache(cloudData);

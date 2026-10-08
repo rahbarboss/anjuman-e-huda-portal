@@ -235,7 +235,7 @@ export interface Banner {
   orientation: BannerOrientation; // 'landscape' | 'portrait'
   displayOrder?: number;
   isActive: boolean;
-  createdAt: string;
+  createdAt?: string;
   fileSizeKb?: number;
   fileSizeKb2?: number;
 }

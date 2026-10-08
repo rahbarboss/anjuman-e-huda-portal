@@ -6,7 +6,7 @@ import multer from 'multer';
 // @ts-ignore
 import convert from 'heic-convert';
 import { createServer as createViteServer } from 'vite';
-import { initialDatabase, defaultCoreCommitteeWing } from './src/defaultData.ts';
+import { initialDatabase, defaultCoreCommitteeWing, defaultBanners } from './src/defaultData.ts';
 import { AppDatabase } from './src/types.ts';
 
 const app = express();
@@ -79,6 +79,12 @@ function readDb(): AppDatabase {
         if (parsed.wings.length !== initialCount) {
           needsWrite = true;
         }
+      }
+
+      // Ensure default banners are seeded if empty
+      if (!parsed.banners || !Array.isArray(parsed.banners) || parsed.banners.length === 0) {
+        parsed.banners = defaultBanners || [];
+        needsWrite = true;
       }
 
       if (needsWrite) {

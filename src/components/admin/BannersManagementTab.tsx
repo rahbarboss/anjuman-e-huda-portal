@@ -3,6 +3,7 @@ import { useData } from '../../context/DataContext';
 import { useAuth } from '../../context/AuthContext';
 import { isSupabaseConfigured } from '../../lib/supabase';
 import { Banner, BannerOrientation } from '../../types';
+import { defaultBanners } from '../../defaultData';
 import { BANNERS_SQL_SCHEMA } from '../../services/supabaseService';
 import { optimizeBannerImage } from '../../utils/imageOptimizer';
 import {
@@ -49,7 +50,7 @@ export const BannersManagementTab: React.FC<Props> = ({ showToast, requestDelete
     uploadMedia,
   } = useData();
 
-  const banners = database.banners || [];
+  const banners = database.banners && database.banners.length > 0 ? database.banners : defaultBanners;
 
   // Filter & Sorted Banners (Landscape first, then Portrait)
   const [filter, setFilter] = useState<'all' | 'landscape' | 'portrait'>('all');
