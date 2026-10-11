@@ -28,7 +28,9 @@ import {
 } from '../../services/supabaseService';
 import { MediaUploadZone } from './MediaUploadZone';
 import { BannersManagementTab } from './BannersManagementTab';
+import { ReportsManagementTab } from './ReportsManagementTab';
 import {
+  FileSpreadsheet,
   LayoutDashboard,
   Home,
   Users,
@@ -87,6 +89,7 @@ import {
 export type AdminTab =
   | 'overview'
   | 'banners'
+  | 'report'
   | 'home'
   | 'telemetry'
   | 'about'
@@ -1220,6 +1223,7 @@ export const AdminDashboard: React.FC = () => {
   const navMenuItems = [
     { id: 'overview' as AdminTab, label: 'Overview', icon: LayoutDashboard },
     { id: 'banners' as AdminTab, label: 'BANNERS', icon: Sparkles },
+    { id: 'report' as AdminTab, label: 'REPORT', icon: FileSpreadsheet },
     { id: 'home' as AdminTab, label: 'Home', icon: Home },
     { id: 'telemetry' as AdminTab, label: 'Telemetry & Stats', icon: Activity },
     { id: 'about' as AdminTab, label: 'About', icon: BookOpen },
@@ -1429,6 +1433,13 @@ export const AdminDashboard: React.FC = () => {
                     <span>Manage Banners ({database.banners?.length || 0})</span>
                   </button>
                   <button
+                    onClick={() => setActiveTab('report')}
+                    className="p-3.5 bg-stone-950 hover:bg-stone-800 border border-emerald-500/40 hover:border-emerald-400 rounded-xl text-xs font-bold text-emerald-300 flex items-center gap-2 cursor-pointer transition-colors"
+                  >
+                    <FileSpreadsheet className="w-4 h-4 text-emerald-400" />
+                    <span>Excel Reports & Ledger</span>
+                  </button>
+                  <button
                     onClick={() => setActiveTab('telemetry')}
                     className="p-3.5 bg-stone-950 hover:bg-stone-800 border border-stone-800 rounded-xl text-xs font-semibold text-stone-200 flex items-center gap-2 cursor-pointer"
                   >
@@ -1443,6 +1454,15 @@ export const AdminDashboard: React.FC = () => {
           {/* ================= TAB: BANNERS (DYNAMIC 5-SECOND ROTATING BANNERS) ================= */}
           {activeTab === 'banners' && (
             <BannersManagementTab showToast={showToast} requestDelete={requestDelete} />
+          )}
+
+          {/* ================= TAB: REPORT (WINGS & CORE COMMITTEE EXCEL REPORTS) ================= */}
+          {activeTab === 'report' && (
+            <ReportsManagementTab
+              showToast={showToast}
+              requestDelete={requestDelete}
+              onNavigateTab={(tab) => setActiveTab(tab as any)}
+            />
           )}
 
           {/* ================= TAB 1: HOME ================= */}
