@@ -112,7 +112,12 @@
         "Debate"
       ],
       "status": "Live",
-      "registrationLink": ""
+      "registrationLink": "",
+      "month": "October",
+      "academicYear": "2026-27",
+      "targetClass": "Symposium, Debate",
+      "wingId": "wing_1791249403584",
+      "wingName": "GK WING"
     },
     {
       "id": "evt_1790919717134",
@@ -128,7 +133,12 @@
         "Debate"
       ],
       "status": "Live",
-      "registrationLink": ""
+      "registrationLink": "",
+      "month": "October",
+      "academicYear": "2026-27",
+      "targetClass": "Symposium, Debate",
+      "wingId": "wing_1791249403584",
+      "wingName": "GK WING"
     },
     {
       "id": "evt_1791247975618",
@@ -144,7 +154,12 @@
         "Debate"
       ],
       "status": "Completed",
-      "registrationLink": ""
+      "registrationLink": "",
+      "month": "October",
+      "academicYear": "2026-27",
+      "targetClass": "Symposium, Debate",
+      "wingId": "core-committee",
+      "wingName": "Core Committee"
     },
     {
       "id": "evt_1790918609839",
@@ -160,7 +175,12 @@
         "Debate"
       ],
       "status": "Upcoming",
-      "registrationLink": ""
+      "registrationLink": "",
+      "month": "October",
+      "academicYear": "2026-27",
+      "targetClass": "Symposium, Debate",
+      "wingId": "wing_1790241129444",
+      "wingName": "URDU WING"
     },
     {
       "id": "evt_1790918689999",
@@ -176,7 +196,12 @@
         "Debate"
       ],
       "status": "Upcoming",
-      "registrationLink": ""
+      "registrationLink": "",
+      "month": "October",
+      "academicYear": "2026-27",
+      "targetClass": "Symposium, Debate",
+      "wingId": "wing_1790241129444",
+      "wingName": "URDU WING"
     },
     {
       "id": "evt_1790492517252",
@@ -192,7 +217,12 @@
         "Debate"
       ],
       "status": "Upcoming",
-      "registrationLink": ""
+      "registrationLink": "",
+      "month": "October",
+      "academicYear": "2026-27",
+      "targetClass": "Symposium, Debate",
+      "wingId": "core-committee",
+      "wingName": "Core Committee"
     },
     {
       "id": "evt_1790919585902",
@@ -208,7 +238,12 @@
         "Debate"
       ],
       "status": "Upcoming",
-      "registrationLink": ""
+      "registrationLink": "",
+      "month": "October",
+      "academicYear": "2026-27",
+      "targetClass": "Symposium, Debate",
+      "wingId": "core-committee",
+      "wingName": "Core Committee"
     },
     {
       "id": "evt_1790918969254",
@@ -224,7 +259,12 @@
         "Debate"
       ],
       "status": "Completed",
-      "registrationLink": ""
+      "registrationLink": "",
+      "month": "October",
+      "academicYear": "2026-27",
+      "targetClass": "Symposium, Debate",
+      "wingId": "wing_1790241070300",
+      "wingName": "FIDA CLUB"
     },
     {
       "id": "evt_1790490542384",
@@ -240,7 +280,12 @@
         "Debate"
       ],
       "status": "Completed",
-      "registrationLink": ""
+      "registrationLink": "",
+      "month": "September",
+      "academicYear": "2026-27",
+      "targetClass": "Symposium, Debate",
+      "wingId": "core-committee",
+      "wingName": "Core Committee"
     },
     {
       "id": "evt_1790492185431",
@@ -256,7 +301,12 @@
         "Debate"
       ],
       "status": "Completed",
-      "registrationLink": ""
+      "registrationLink": "",
+      "month": "September",
+      "academicYear": "2026-27",
+      "targetClass": "Symposium, Debate",
+      "wingId": "core-committee",
+      "wingName": "Core Committee"
     },
     {
       "id": "evt_1790919500774",
@@ -272,7 +322,12 @@
         "Debate"
       ],
       "status": "Upcoming",
-      "registrationLink": ""
+      "registrationLink": "",
+      "month": "September",
+      "academicYear": "2026-27",
+      "targetClass": "Symposium, Debate",
+      "wingId": "core-committee",
+      "wingName": "Core Committee"
     },
     {
       "id": "evt_1790490481482",
@@ -288,7 +343,12 @@
         "Debate"
       ],
       "status": "Completed",
-      "registrationLink": ""
+      "registrationLink": "",
+      "month": "September",
+      "academicYear": "2026-27",
+      "targetClass": "Symposium, Debate",
+      "wingId": "core-committee",
+      "wingName": "Core Committee"
     },
     {
       "id": "evt_1790492422702",
@@ -304,7 +364,12 @@
         "Debate"
       ],
       "status": "Completed",
-      "registrationLink": ""
+      "registrationLink": "",
+      "month": "September",
+      "academicYear": "2026-27",
+      "targetClass": "Symposium, Debate",
+      "wingId": "wing_1790241070300",
+      "wingName": "FIDA CLUB"
     },
     {
       "id": "evt_1790490603561",
@@ -320,7 +385,12 @@
         "Debate"
       ],
       "status": "Completed",
-      "registrationLink": ""
+      "registrationLink": "",
+      "month": "September",
+      "academicYear": "2026-27",
+      "targetClass": "Symposium, Debate",
+      "wingId": "wing_1790241070300",
+      "wingName": "FIDA CLUB"
     },
     {
       "id": "evt_1790492563942",
@@ -336,7 +406,12 @@
         "Debate"
       ],
       "status": "Completed",
-      "registrationLink": ""
+      "registrationLink": "",
+      "month": "September",
+      "academicYear": "2026-27",
+      "targetClass": "Symposium, Debate",
+      "wingId": "core-committee",
+      "wingName": "Core Committee"
     },
     {
       "id": "evt_1790919838597",
@@ -352,7 +427,12 @@
         "Debate"
       ],
       "status": "Completed",
-      "registrationLink": ""
+      "registrationLink": "",
+      "month": "September",
+      "academicYear": "2026-27",
+      "targetClass": "Symposium, Debate",
+      "wingId": "core-committee",
+      "wingName": "Core Committee"
     },
     {
       "id": "evt_1790919096894",
@@ -368,7 +448,12 @@
         "Debate"
       ],
       "status": "Completed",
-      "registrationLink": ""
+      "registrationLink": "",
+      "month": "August",
+      "academicYear": "2026-27",
+      "targetClass": "Symposium, Debate",
+      "wingId": "wing_1791249403584",
+      "wingName": "GK WING"
     },
     {
       "id": "evt_1790919258094",
@@ -384,7 +469,12 @@
         "Debate"
       ],
       "status": "Completed",
-      "registrationLink": ""
+      "registrationLink": "",
+      "month": "August",
+      "academicYear": "2026-27",
+      "targetClass": "Symposium, Debate",
+      "wingId": "core-committee",
+      "wingName": "Core Committee"
     },
     {
       "id": "evt_1790492655628",
@@ -400,7 +490,12 @@
         "Debate"
       ],
       "status": "Completed",
-      "registrationLink": ""
+      "registrationLink": "",
+      "month": "August",
+      "academicYear": "2026-27",
+      "targetClass": "Symposium, Debate",
+      "wingId": "core-committee",
+      "wingName": "Core Committee"
     },
     {
       "id": "evt_1790919328184",
@@ -416,7 +511,12 @@
         "Debate"
       ],
       "status": "Completed",
-      "registrationLink": ""
+      "registrationLink": "",
+      "month": "August",
+      "academicYear": "2026-27",
+      "targetClass": "Symposium, Debate",
+      "wingId": "core-committee",
+      "wingName": "Core Committee"
     },
     {
       "id": "evt_1790919417558",
@@ -432,7 +532,12 @@
         "Debate"
       ],
       "status": "Completed",
-      "registrationLink": ""
+      "registrationLink": "",
+      "month": "August",
+      "academicYear": "2026-27",
+      "targetClass": "Symposium, Debate",
+      "wingId": "core-committee",
+      "wingName": "Core Committee"
     },
     {
       "id": "evt_1790492318653",
@@ -448,7 +553,12 @@
         "Debate"
       ],
       "status": "Completed",
-      "registrationLink": ""
+      "registrationLink": "",
+      "month": "August",
+      "academicYear": "2026-27",
+      "targetClass": "Symposium, Debate",
+      "wingId": "wing_1790241070300",
+      "wingName": "FIDA CLUB"
     },
     {
       "id": "evt_1790492377422",
@@ -464,7 +574,12 @@
         "Debate"
       ],
       "status": "Completed",
-      "registrationLink": ""
+      "registrationLink": "",
+      "month": "June",
+      "academicYear": "2026-27",
+      "targetClass": "Symposium, Debate",
+      "wingId": "wing_1790240993892",
+      "wingName": "SCIENCE & MATH WING"
     },
     {
       "id": "evt_1790492468092",
@@ -480,7 +595,12 @@
         "Debate"
       ],
       "status": "Completed",
-      "registrationLink": ""
+      "registrationLink": "",
+      "month": "May",
+      "academicYear": "2026-27",
+      "targetClass": "Symposium, Debate",
+      "wingId": "core-committee",
+      "wingName": "Core Committee"
     }
   ],
   "highlights": [
@@ -861,7 +981,7 @@
       "targetClass": "UI TO U5",
       "date": "2026-10-08",
       "academicYear": "2026-27",
-      "month": "",
+      "month": "October",
       "description": "",
       "venue": "",
       "status": "Completed",
@@ -907,38 +1027,40 @@
   ],
   "banners": [
     {
-      "id": "bnr-default-1",
-      "title": "ANJUMAN-E-HUDA Students' Union | Darul Huda Islamic University",
-      "imageUrl": "https://zfvyxvajgnodiatiqyoh.supabase.co/storage/v1/object/public/gallery/1790241556346_independence_23.jpg",
+      "id": "bnr_1791475947013_e7rf9",
+      "title": "1790558054335 fas",
+      "imageUrl": "https://zfvyxvajgnodiatiqyoh.supabase.co/storage/v1/object/public/gallery/1791475927184_1790558054335_fas_banner.webp",
+      "linkUrl": "",
       "orientation": "landscape",
-      "linkUrl": "#about",
       "displayOrder": 1,
       "isActive": true,
-      "fileSizeKb": 54
+      "createdAt": "2026-10-08T16:12:27.013+00:00",
+      "fileSizeKb": 26
     },
     {
-      "id": "bnr-default-2",
-      "title": "Fiqh & Contemporary Research Symposium 2026",
-      "imageUrl": "https://zfvyxvajgnodiatiqyoh.supabase.co/storage/v1/object/public/events/1790492499106_img_20260917_wa0002.webp",
-      "orientation": "landscape",
-      "linkUrl": "#programs",
+      "id": "bnr_1791475920261_tfyz6",
+      "title": "1790918617437 1",
+      "imageUrl": "https://zfvyxvajgnodiatiqyoh.supabase.co/storage/v1/object/public/gallery/1791475888720_1790918617437_1_banner.webp",
+      "imageUrl2": "https://zfvyxvajgnodiatiqyoh.supabase.co/storage/v1/object/public/gallery/1791475894675_1790918661724_2_banner.webp",
+      "title2": "1790918661724 2",
+      "linkUrl": "",
+      "orientation": "portrait",
       "displayOrder": 2,
       "isActive": true,
-      "fileSizeKb": 48
+      "createdAt": "2026-10-08T16:12:00.261+00:00",
+      "fileSizeKb": 25,
+      "fileSizeKb2": 25
     },
     {
-      "id": "bnr-default-3",
-      "title": "Core Committee Executive Council 2026-27",
-      "imageUrl": "https://zfvyxvajgnodiatiqyoh.supabase.co/storage/v1/object/public/posters/1790960057976_anjuman_core_committee_poster.webp",
-      "title2": "Monthly Assembly & Academic Convocation",
-      "imageUrl2": "https://zfvyxvajgnodiatiqyoh.supabase.co/storage/v1/object/public/notices/1790558054335_fas.webp",
-      "orientation": "portrait",
-      "linkUrl": "#core-committee",
-      "linkUrl2": "#announcements",
-      "displayOrder": 3,
+      "id": "bnr_1791476085488_lz3q7",
+      "title": "Independence 23",
+      "imageUrl": "https://zfvyxvajgnodiatiqyoh.supabase.co/storage/v1/object/public/gallery/1791476082509_independence_23_banner.webp",
+      "linkUrl": "",
+      "orientation": "landscape",
+      "displayOrder": 6,
       "isActive": true,
-      "fileSizeKb": 52,
-      "fileSizeKb2": 49
+      "createdAt": "2026-10-08T16:14:45.488+00:00",
+      "fileSizeKb": 53
     }
   ]
 }

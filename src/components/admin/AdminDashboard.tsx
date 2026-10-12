@@ -1022,6 +1022,8 @@ export const AdminDashboard: React.FC = () => {
   const [progForm, setProgForm] = useState({
     title: '',
     category: 'Academic' as Program['category'],
+    wingId: 'core-committee',
+    wingName: 'Core Committee',
     date: new Date().toISOString().split('T')[0],
     time: '10:00 AM',
     venue: 'Central Quadrangle, Main Campus',
@@ -1036,6 +1038,8 @@ export const AdminDashboard: React.FC = () => {
     setProgForm({
       title: '',
       category: 'Academic',
+      wingId: 'core-committee',
+      wingName: 'Core Committee',
       date: new Date().toISOString().split('T')[0],
       time: '10:00 AM',
       venue: 'Central Quadrangle, Main Campus',
@@ -1052,6 +1056,8 @@ export const AdminDashboard: React.FC = () => {
     setProgForm({
       title: prog.title,
       category: prog.category,
+      wingId: prog.wingId || 'core-committee',
+      wingName: prog.wingName || 'Core Committee',
       date: prog.date,
       time: prog.time,
       venue: prog.venue,
@@ -1066,8 +1072,34 @@ export const AdminDashboard: React.FC = () => {
   const handleSaveProgram = async (e: React.FormEvent) => {
     e.preventDefault();
     const tagArray = progForm.tags.split(',').map((t) => t.trim()).filter(Boolean);
+
+    let month = 'October';
+    let academicYear = '2026-27';
+    if (progForm.date) {
+      try {
+        const d = new Date(progForm.date);
+        if (!isNaN(d.getTime())) {
+          month = d.toLocaleString('en-US', { month: 'long' });
+          const yr = d.getFullYear();
+          const m = d.getMonth() + 1;
+          academicYear = m >= 5 ? `${yr}-${String(yr + 1).slice(-2)}` : `${yr - 1}-${String(yr).slice(-2)}`;
+        }
+      } catch {}
+    }
+
+    const selectedWingObj = database.wings.find((w) => w.id === progForm.wingId);
+    const finalWingName =
+      progForm.wingId === 'core-committee'
+        ? 'Core Committee'
+        : selectedWingObj?.name || progForm.wingName || 'Specialized Wing';
+
     const payload = {
       ...progForm,
+      wingId: progForm.wingId,
+      wingName: finalWingName,
+      month,
+      academicYear,
+      targetClass: progForm.tags || 'All Campus Students',
       tags: tagArray,
     };
 
@@ -4582,6 +4614,34 @@ export const AdminDashboard: React.FC = () => {
                   onChange={(e) => setProgForm({ ...progForm, title: e.target.value })}
                   className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-xs text-white"
                 />
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-stone-300 mb-1">
+                  Sector / Specialized Wing Assignment <span className="text-emerald-400">*</span>
+                </label>
+                <select
+                  value={progForm.wingId}
+                  onChange={(e) => {
+                    const wid = e.target.value;
+                    const wObj = database.wings.find((w) => w.id === wid);
+                    setProgForm({
+                      ...progForm,
+                      wingId: wid,
+                      wingName: wid === 'core-committee' ? 'Core Committee' : wObj?.name || 'Wing',
+                    });
+                  }}
+                  className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500 cursor-pointer font-semibold"
+                >
+                  <option value="core-committee">👑 Core Committee (Apex Council)</option>
+                  {database.wings
+                    .filter((w) => w.id !== 'core-committee')
+                    .map((w) => (
+                      <option key={`prog-modal-wing-${w.id}`} value={w.id}>
+                        {w.name}
+                      </option>
+                    ))}
+                </select>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

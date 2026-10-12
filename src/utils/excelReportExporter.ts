@@ -1,5 +1,5 @@
 import * as XLSX from 'xlsx';
-import { WingProgram, Wing } from '../types';
+import { WingProgram, Wing, ReportProgram, Program } from '../types';
 
 export interface ReportExportOptions {
   fileName?: string;
@@ -12,8 +12,10 @@ function sanitizeSheetName(name: string): string {
   return sanitized.slice(0, 31) || 'Sheet';
 }
 
-// Format a single WingProgram into a standard row object
-function formatProgramRow(prog: WingProgram, index: number) {
+type AnyProgramItem = ReportProgram | WingProgram | Program | any;
+
+// Format a single program into a standard row object matching upload fields
+function formatProgramRow(prog: AnyProgramItem, index: number) {
   const isCore =
     prog.wingId === 'core-committee' ||
     prog.wingName?.toLowerCase().includes('core committee');
@@ -23,13 +25,15 @@ function formatProgramRow(prog: WingProgram, index: number) {
     'Sector Type': isCore ? 'Core Committee (Apex Council)' : 'Specialized Wing',
     'Wing / Committee Name': prog.wingName || (isCore ? 'Core Committee' : 'Specialized Wing'),
     'Program Name (Title)': prog.title || '',
-    'Category / Target Class': prog.targetClass || '',
+    'Category': prog.category || prog.targetClass || '',
+    'Target Class / Audience': prog.targetClass || (prog.tags && Array.isArray(prog.tags) ? prog.tags.join(', ') : '') || 'All Campus Students',
     'Academic Year': prog.academicYear || '',
     'Month': prog.month || '',
     'Date Conducted': prog.date || '',
-    'Venue': prog.venue || 'Campus Central',
+    'Time': prog.time || '',
+    'Venue': prog.venue || 'Darul Huda',
     'Status': prog.status || 'Completed',
-    'Program Description / Notes': prog.description || '',
+    'Program Description / Details': prog.description || '',
     'Program ID': prog.id || '',
   };
 }
@@ -44,9 +48,9 @@ function formatProgramRow(prog: WingProgram, index: number) {
  * 5. Dedicated sheets for each Wing that has programs
  */
 export function exportMasterExcelReport(
-  programs: WingProgram[],
+  programs: AnyProgramItem[],
   wings: Wing[],
-  fileNamePrefix = 'ANJUMAN_E_HUDA_Master_Report'
+  fileNamePrefix = 'ANJUMAN_E_HUDA_Programs_Master_Report'
 ) {
   const wb = XLSX.utils.book_new();
 
@@ -91,7 +95,7 @@ export function exportMasterExcelReport(
   }
 
   // 5. Individual Wing Sheets
-  const wingMap = new Map<string, WingProgram[]>();
+  const wingMap = new Map<string, AnyProgramItem[]>();
   programs.forEach((p) => {
     const key = p.wingName || p.wingId;
     if (!wingMap.has(key)) {
@@ -111,7 +115,7 @@ export function exportMasterExcelReport(
     // Avoid re-creating Core Committee duplicate
     if (wingName.toLowerCase().includes('core committee')) return;
 
-    let sheetName = sanitizeSheetName(wingName.replace(/wing[-_ ]*/i, ''));
+    let sheetName = sanitizeSheetName(wingName);
     if (usedSheetNames.has(sheetName)) {
       sheetName = sanitizeSheetName(`${sheetName}_${wProgs.length}`);
     }
@@ -135,7 +139,7 @@ export function exportMasterExcelReport(
  * Downloads a Filtered / Specific List of Programs into Excel (.xlsx)
  */
 export function exportFilteredExcelReport(
-  programs: WingProgram[],
+  programs: AnyProgramItem[],
   sheetName = 'Filtered_Programs',
   fileName = 'ANJUMAN_E_HUDA_Filtered_Report'
 ) {
@@ -156,11 +160,11 @@ export function exportFilteredExcelReport(
 /**
  * Generates summary rows grouping by Academic Year and Month
  */
-function generateYearMonthSummary(programs: WingProgram[]) {
+function generateYearMonthSummary(programs: AnyProgramItem[]) {
   const matrix: { [key: string]: { year: string; month: string; coreCount: number; wingsCount: number; total: number } } = {};
 
   programs.forEach((p) => {
-    const year = p.academicYear || 'Undated';
+    const year = p.academicYear || '2026-27';
     const month = p.month || 'Other';
     const key = `${year}___${month}`;
 
@@ -207,13 +211,15 @@ function setColumnWidths(ws: XLSX.WorkSheet) {
     { wch: 28 }, // Sector Type
     { wch: 26 }, // Wing / Committee Name
     { wch: 38 }, // Program Name
-    { wch: 26 }, // Category / Target Class
+    { wch: 20 }, // Category
+    { wch: 26 }, // Target Class / Audience
     { wch: 16 }, // Academic Year
     { wch: 14 }, // Month
     { wch: 14 }, // Date Conducted
-    { wch: 24 }, // Venue
+    { wch: 12 }, // Time
+    { wch: 26 }, // Venue
     { wch: 14 }, // Status
-    { wch: 45 }, // Description
+    { wch: 50 }, // Description
     { wch: 20 }, // ID
   ];
   ws['!cols'] = colWidths;

@@ -68,6 +68,31 @@ export interface Program {
   tags: string[];
   status: 'Upcoming' | 'Live' | 'Completed';
   registrationLink?: string;
+  wingId?: string;
+  wingName?: string;
+  academicYear?: string;
+  month?: string;
+  targetClass?: string;
+}
+
+export interface ReportProgram {
+  id: string;
+  source: 'program' | 'wingProgram';
+  title: string;
+  category: string;
+  wingId: string;
+  wingName: string;
+  date: string;
+  academicYear: string;
+  month: string;
+  time?: string;
+  venue?: string;
+  targetClass?: string;
+  status: 'Completed' | 'Upcoming' | 'Ongoing' | 'Live' | string;
+  description: string;
+  banner?: string;
+  tags?: string[];
+  registrationLink?: string;
 }
 
 export interface HighlightItem {
@@ -97,12 +122,15 @@ export interface WingProgram {
   wingName?: string;
   title: string; // Program Name
   targetClass: string; // Category / Class e.g. "Aliya 1st Year", "Sanawiya", "Fazilat", "All Campus Scholars"
+  category?: string;
   date: string; // YYYY-MM-DD
   academicYear: string; // e.g. "2026-27", "2025-26", "2024-25"
   month: string; // e.g. "October", "November" etc.
+  time?: string;
   description?: string;
   venue?: string;
   status?: 'Completed' | 'Upcoming' | 'Ongoing';
+  banner?: string;
   createdAt?: string;
 }
 
