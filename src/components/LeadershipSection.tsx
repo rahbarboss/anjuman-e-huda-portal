@@ -36,7 +36,6 @@ export const LeadershipSection: React.FC = () => {
     ...database.leaders.map((l) => l.tenure),
     ...((database.niicsInCharge || []).map((n) => n.tenure)),
     ...((database.coreCommitteePosters || []).map((p) => p.tenure)),
-    ...((initialDatabase.coreCommitteePosters || []).map((p) => p.tenure)),
   ].filter(Boolean);
 
   const tenures = Array.from(new Set(allTenures)).sort().reverse();
@@ -52,16 +51,12 @@ export const LeadershipSection: React.FC = () => {
       return 0;
     });
 
-  // Core Committee Posters
-  const corePosters =
-    database.coreCommitteePosters && database.coreCommitteePosters.length > 0
-      ? database.coreCommitteePosters
-      : initialDatabase.coreCommitteePosters || [];
+  // Core Committee Posters - strictly adhere to live database state
+  const corePosters = database.coreCommitteePosters || [];
 
   const currentPoster =
     corePosters.find((p) => p.tenure === selectedTenure) ||
-    corePosters.find((p) => p.tenure.startsWith(selectedTenure.split('-')[0])) ||
-    corePosters[0];
+    corePosters.find((p) => p.tenure.startsWith(selectedTenure.split('-')[0]));
 
   // NIICS In-Charge list
   const niicsList =

@@ -19,22 +19,21 @@ export const HeroSection: React.FC = () => {
   const { database } = useData();
   const { navigateTo } = useNavigation();
   const { isAdminLoggedIn, setActiveView, setIsLoginModalOpen } = useAuth();
-  const banners = database.banners && database.banners.length > 0 ? database.banners : defaultBanners;
+  const banners = database.banners !== undefined ? database.banners : defaultBanners;
 
   // Sort: First ALL LANDSCAPE banners, then ALL PORTRAIT banners
   const sortedBanners: Banner[] = useMemo(() => {
-    const list = banners.length > 0 ? banners : defaultBanners;
+    const list = banners;
     const activeList = list.filter((b) => b.isActive !== false);
-    const effectiveList = activeList.length > 0 ? activeList : defaultBanners;
-    const landscapeList = effectiveList
+    const landscapeList = activeList
       .filter((b) => b.orientation === 'landscape')
       .sort((a, b) => (a.displayOrder ?? 1) - (b.displayOrder ?? 1));
-    const portraitList = effectiveList
+    const portraitList = activeList
       .filter((b) => b.orientation === 'portrait')
       .sort((a, b) => (a.displayOrder ?? 1) - (b.displayOrder ?? 1));
 
     const combined = [...landscapeList, ...portraitList];
-    return combined.length > 0 ? combined : defaultBanners;
+    return combined.length > 0 ? combined : (banners.length === 0 ? [] : defaultBanners);
   }, [banners]);
 
   const [currentIndex, setCurrentIndex] = useState(0);

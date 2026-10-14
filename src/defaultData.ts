@@ -1,11 +1,56 @@
-import { AppDatabase, Wing, BannerItem } from './types';
+import { AppDatabase, Wing, Banner, TelemetrySettings } from './types';
 
-export const defaultTelemetrySettings = {
-  "enabled": false,
-  "errorReporting": false,
-  "performanceTracking": false,
-  "anonymizeIp": true,
-  "logLevel": "error"
+export const defaultTelemetrySettings: TelemetrySettings = {
+  title: "Real-Time Union Telemetry",
+  academicSession: "Academic Session 2026–27",
+  hintText: "Click any card to explore section",
+  cards: [
+    {
+      id: "stat-scholars",
+      value: 50,
+      suffix: "+",
+      label: "Active Scholars & Members",
+      badge: "CAMPUS WIDE",
+      trend: "+14% Growth",
+      targetSection: "#leadership",
+      color: "emerald"
+    },
+    {
+      id: "stat-achievements",
+      value: 500,
+      suffix: "+",
+      label: "Recognized Achievements",
+      badge: "STATE & NATIONAL",
+      trend: "38 Laurels 2026",
+      targetSection: "#rankings",
+      color: "amber"
+    },
+    {
+      id: "stat-programs",
+      value: 550,
+      suffix: "+",
+      label: "Programs Conducted",
+      badge: "7 DYNAMIC WINGS",
+      trend: "Live Calendars",
+      targetSection: "#programs",
+      color: "cyan"
+    },
+    {
+      id: "stat-legacy",
+      value: 20,
+      suffix: " Years",
+      label: "Unbroken Student Legacy",
+      badge: "ESTD. 1994",
+      trend: "32nd Cabinet",
+      targetSection: "#about",
+      color: "purple"
+    }
+  ],
+  enabled: true,
+  errorReporting: false,
+  performanceTracking: false,
+  anonymizeIp: true,
+  logLevel: "info"
 };
 
 export const defaultCoreCommitteeWing: Wing = {
@@ -31,7 +76,7 @@ export const defaultCoreCommitteeWing: Wing = {
   "history": []
 };
 
-export const defaultBanners: BannerItem[] = [
+export const defaultBanners: Banner[] = [
   {
     "id": "bnr_1791475947013_e7rf9",
     "title": "1790558054335 fas",

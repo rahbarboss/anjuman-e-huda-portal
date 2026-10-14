@@ -142,13 +142,15 @@ const getInitialDatabase = (): AppDatabase => {
       const cached = localStorage.getItem(CACHE_KEY);
       if (cached) {
         const parsed = JSON.parse(cached);
-        // Only use cache if it has real admin data (e.g. at least 15 programs)
-        if (parsed && typeof parsed === 'object' && parsed.homepage && Array.isArray(parsed.programs) && parsed.programs.length >= 15) {
+        if (parsed && typeof parsed === 'object' && parsed.homepage && Array.isArray(parsed.programs)) {
           if (Array.isArray(parsed.wings)) {
             parsed.wings = sanitizeWings(parsed.wings);
           }
-          if (!parsed.banners || !Array.isArray(parsed.banners) || parsed.banners.length === 0) {
+          if (parsed.banners === undefined) {
             parsed.banners = defaultBanners;
+          }
+          if (parsed.coreCommitteePosters === undefined) {
+            parsed.coreCommitteePosters = [];
           }
           return parsed;
         }
@@ -171,9 +173,22 @@ const saveToLocalCache = (data: AppDatabase) => {
 };
 
 export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [database, setDatabase] = useState<AppDatabase>(getInitialDatabase);
+  const [database, _setDatabase] = useState<AppDatabase>(getInitialDatabase);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Automatically synchronize every database state mutation directly to localStorage
+  const setDatabase: React.Dispatch<React.SetStateAction<AppDatabase>> = (action) => {
+    _setDatabase((prev) => {
+      const next = typeof action === 'function' ? (action as any)(prev) : action;
+      saveToLocalCache(next);
+      return next;
+    });
+  };
+
+  const applyDatabaseUpdate = (updater: (prev: AppDatabase) => AppDatabase) => {
+    setDatabase(updater);
+  };
 
   const fetchContent = async () => {
     try {
@@ -187,8 +202,11 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
             if (Array.isArray(localData.wings)) {
               localData.wings = sanitizeWings(localData.wings);
             }
-            if (!localData.banners || !Array.isArray(localData.banners) || localData.banners.length === 0) {
+            if (localData.banners === undefined) {
               localData.banners = defaultBanners;
+            }
+            if (localData.coreCommitteePosters === undefined) {
+              localData.coreCommitteePosters = [];
             }
             setDatabase(localData);
             saveToLocalCache(localData);
@@ -209,7 +227,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
             if (Array.isArray(cloudData.wings)) {
               cloudData.wings = sanitizeWings(cloudData.wings);
             }
-            if (!cloudData.banners || !Array.isArray(cloudData.banners) || cloudData.banners.length === 0) {
+            if (cloudData.banners === undefined) {
               cloudData.banners = defaultBanners;
             }
             setDatabase(cloudData);
@@ -505,33 +523,42 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     poster: CoreCommitteePoster | Omit<CoreCommitteePoster, 'id'>,
     id?: string
   ): Promise<boolean> => {
+    let savedPoster: CoreCommitteePoster | null = null;
     if (isSupabaseConfigured) {
-      const res = await saveCoreCommitteePosterInSupabase(poster, id);
-      if (res.success && res.data) {
-        setDatabase((prev) => {
-          const currentPosters = prev.coreCommitteePosters || [];
-          const exists = currentPosters.some((p) => p.id === res.data!.id || p.tenure === res.data!.tenure);
-          const updatedPosters = exists
-            ? currentPosters.map((p) => (p.id === res.data!.id || p.tenure === res.data!.tenure ? res.data! : p))
-            : [res.data!, ...currentPosters];
-          return { ...prev, coreCommitteePosters: updatedPosters };
-        });
-        return true;
+      try {
+        const res = await saveCoreCommitteePosterInSupabase(poster, id);
+        if (res.success && res.data) {
+          savedPoster = res.data;
+        }
+      } catch (e) {
+        console.warn('[DataContext] Supabase poster save notice:', e);
       }
     }
 
     const posterId = id || ('id' in poster && poster.id ? poster.id : `ccp-${Date.now()}`);
-    const newPoster: CoreCommitteePoster = {
+    const finalPoster: CoreCommitteePoster = savedPoster || {
       ...poster,
       id: posterId,
       uploadedAt: new Date().toISOString(),
     };
-    setDatabase((prev) => {
+
+    // Save to local backend server
+    try {
+      await fetch('/api/core-committee-posters', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(finalPoster),
+      });
+    } catch (e) {
+      console.warn('[DataContext] Failed to save poster to local server:', e);
+    }
+
+    applyDatabaseUpdate((prev) => {
       const currentPosters = prev.coreCommitteePosters || [];
-      const exists = currentPosters.some((p) => p.id === posterId || p.tenure === newPoster.tenure);
+      const exists = currentPosters.some((p) => p.id === posterId || (finalPoster.tenure && p.tenure === finalPoster.tenure));
       const updatedPosters = exists
-        ? currentPosters.map((p) => (p.id === posterId || p.tenure === newPoster.tenure ? newPoster : p))
-        : [newPoster, ...currentPosters];
+        ? currentPosters.map((p) => (p.id === posterId || (finalPoster.tenure && p.tenure === finalPoster.tenure) ? finalPoster : p))
+        : [finalPoster, ...currentPosters];
       return { ...prev, coreCommitteePosters: updatedPosters };
     });
     return true;
@@ -539,9 +566,21 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const deleteCoreCommitteePoster = async (id: string, posterUrl?: string): Promise<boolean> => {
     if (isSupabaseConfigured) {
-      await deleteCoreCommitteePosterInSupabase(id, posterUrl);
+      try {
+        await deleteCoreCommitteePosterInSupabase(id, posterUrl);
+      } catch (e) {
+        console.warn('[DataContext] Supabase poster delete notice:', e);
+      }
     }
-    setDatabase((prev) => ({
+
+    // Delete from local backend server
+    try {
+      await fetch(`/api/core-committee-posters/${id}`, { method: 'DELETE' });
+    } catch (e) {
+      console.warn('[DataContext] Failed to delete poster from local server:', e);
+    }
+
+    applyDatabaseUpdate((prev) => ({
       ...prev,
       coreCommitteePosters: (prev.coreCommitteePosters || []).filter((p) => p.id !== id),
     }));
@@ -553,49 +592,50 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   ========================================================================= */
 
   const addProgram = async (program: Omit<Program, 'id'>): Promise<boolean> => {
+    let savedProg: Program | null = null;
     if (isSupabaseConfigured) {
-      const res = await saveProgramInSupabase(program);
-      if (res.success && res.data) {
-        setDatabase((prev) => ({ ...prev, programs: [res.data!, ...prev.programs] }));
-        return true;
+      try {
+        const res = await saveProgramInSupabase(program);
+        if (res.success && res.data) {
+          savedProg = res.data;
+        }
+      } catch (e) {
+        console.warn('[DataContext] Supabase program save notice:', e);
       }
-      return false;
     }
+
+    const payload = savedProg || { ...program, id: `prg-${Date.now()}` };
 
     try {
       const res = await fetch('/api/programs', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(program),
+        body: JSON.stringify(payload),
       });
       if (res.ok) {
         const json = await res.json();
         if (json.programs) {
-          setDatabase((prev) => ({ ...prev, programs: json.programs }));
+          applyDatabaseUpdate((prev) => ({ ...prev, programs: json.programs }));
           return true;
         }
       }
     } catch (err) {
       console.error(err);
     }
-    const newProg: Program = { ...program, id: `prg-${Date.now()}` };
-    setDatabase((prev) => ({ ...prev, programs: [newProg, ...prev.programs] }));
+
+    applyDatabaseUpdate((prev) => ({ ...prev, programs: [payload, ...prev.programs] }));
     return true;
   };
 
   const updateProgram = async (id: string, program: Partial<Program>): Promise<boolean> => {
     if (isSupabaseConfigured) {
-      const existing = database.programs.find((p) => p.id === id);
-      const merged = existing ? { ...existing, ...program } : (program as Program);
-      const res = await saveProgramInSupabase(merged, id);
-      if (res.success && res.data) {
-        setDatabase((prev) => ({
-          ...prev,
-          programs: prev.programs.map((p) => (p.id === id ? res.data! : p)),
-        }));
-        return true;
+      try {
+        const existing = database.programs.find((p) => p.id === id);
+        const merged = existing ? { ...existing, ...program } : (program as Program);
+        await saveProgramInSupabase(merged, id);
+      } catch (e) {
+        console.warn('[DataContext] Supabase program update notice:', e);
       }
-      return false;
     }
 
     try {
@@ -607,14 +647,15 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (res.ok) {
         const json = await res.json();
         if (json.programs) {
-          setDatabase((prev) => ({ ...prev, programs: json.programs }));
+          applyDatabaseUpdate((prev) => ({ ...prev, programs: json.programs }));
           return true;
         }
       }
     } catch (err) {
       console.error(err);
     }
-    setDatabase((prev) => ({
+
+    applyDatabaseUpdate((prev) => ({
       ...prev,
       programs: prev.programs.map((p) => (p.id === id ? { ...p, ...program } : p)),
     }));
@@ -637,7 +678,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.error(err);
     }
 
-    setDatabase((prev) => ({
+    applyDatabaseUpdate((prev) => ({
       ...prev,
       programs: prev.programs.filter((p) => p.id !== id),
     }));
@@ -978,7 +1019,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.error(err);
     }
 
-    setDatabase((prev) => ({
+    applyDatabaseUpdate((prev) => ({
       ...prev,
       wingPrograms: [payload, ...(prev.wingPrograms || [])],
     }));
@@ -1013,7 +1054,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.error(err);
     }
 
-    setDatabase((prev) => ({
+    applyDatabaseUpdate((prev) => ({
       ...prev,
       wingPrograms: (prev.wingPrograms || []).map((wp) => (wp.id === id ? finalProgram : wp)),
     }));
@@ -1035,7 +1076,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.error(err);
     }
 
-    setDatabase((prev) => ({
+    applyDatabaseUpdate((prev) => ({
       ...prev,
       wingPrograms: (prev.wingPrograms || []).filter((wp) => wp.id !== id),
     }));
@@ -1660,6 +1701,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   ========================================================================= */
 
   const addBanner = async (banner: Omit<Banner, 'id' | 'createdAt'>): Promise<boolean> => {
+    let savedBanner: Banner | null = null;
     const newBanner: Banner = {
       ...banner,
       id: `bnr_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
@@ -1669,19 +1711,31 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     if (isSupabaseConfigured) {
-      const res = await saveBannerInSupabase(newBanner);
-      if (res.success && res.data) {
-        setDatabase((prev) => ({
-          ...prev,
-          banners: [...(prev.banners || []), res.data!],
-        }));
-        return true;
+      try {
+        const res = await saveBannerInSupabase(newBanner);
+        if (res.success && res.data) {
+          savedBanner = res.data;
+        }
+      } catch (e) {
+        console.warn('[DataContext] Supabase banner save notice:', e);
       }
     }
 
-    setDatabase((prev) => ({
+    const finalBanner = savedBanner || newBanner;
+
+    try {
+      await fetch('/api/banners', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(finalBanner),
+      });
+    } catch (e) {
+      console.warn('[DataContext] Failed to save banner to local server:', e);
+    }
+
+    applyDatabaseUpdate((prev) => ({
       ...prev,
-      banners: [...(prev.banners || []), newBanner],
+      banners: [...(prev.banners || []), finalBanner],
     }));
     return true;
   };
@@ -1692,17 +1746,24 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const merged: Banner = { ...existing, ...banner };
 
     if (isSupabaseConfigured) {
-      const res = await saveBannerInSupabase(merged);
-      if (res.success && res.data) {
-        setDatabase((prev) => ({
-          ...prev,
-          banners: (prev.banners || []).map((b) => (b.id === id ? res.data! : b)),
-        }));
-        return true;
+      try {
+        await saveBannerInSupabase(merged);
+      } catch (e) {
+        console.warn('[DataContext] Supabase banner update notice:', e);
       }
     }
 
-    setDatabase((prev) => ({
+    try {
+      await fetch(`/api/banners/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(banner),
+      });
+    } catch (e) {
+      console.warn('[DataContext] Failed to update banner on local server:', e);
+    }
+
+    applyDatabaseUpdate((prev) => ({
       ...prev,
       banners: (prev.banners || []).map((b) => (b.id === id ? merged : b)),
     }));
@@ -1711,10 +1772,20 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const deleteBanner = async (id: string, imageUrl?: string): Promise<boolean> => {
     if (isSupabaseConfigured) {
-      await deleteBannerInSupabase(id, imageUrl);
+      try {
+        await deleteBannerInSupabase(id, imageUrl);
+      } catch (e) {
+        console.warn('[DataContext] Supabase banner delete notice:', e);
+      }
     }
 
-    setDatabase((prev) => ({
+    try {
+      await fetch(`/api/banners/${id}`, { method: 'DELETE' });
+    } catch (e) {
+      console.warn('[DataContext] Failed to delete banner on local server:', e);
+    }
+
+    applyDatabaseUpdate((prev) => ({
       ...prev,
       banners: (prev.banners || []).filter((b) => b.id !== id),
     }));
@@ -1727,10 +1798,20 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const nextStatus = !item.isActive;
 
     if (isSupabaseConfigured) {
-      await toggleBannerStatusInSupabase(id, nextStatus);
+      try {
+        await toggleBannerStatusInSupabase(id, nextStatus);
+      } catch (e) {
+        console.warn('[DataContext] Supabase banner toggle notice:', e);
+      }
     }
 
-    setDatabase((prev) => ({
+    try {
+      await fetch(`/api/banners/${id}/toggle`, { method: 'PATCH' });
+    } catch (e) {
+      console.warn('[DataContext] Failed to toggle banner on local server:', e);
+    }
+
+    applyDatabaseUpdate((prev) => ({
       ...prev,
       banners: (prev.banners || []).map((b) => (b.id === id ? { ...b, isActive: nextStatus } : b)),
     }));

@@ -2687,7 +2687,7 @@ export const AdminDashboard: React.FC = () => {
                     }`}
                   >
                     <FileText className="w-3.5 h-3.5" />
-                    <span>Core Committee Posters ({(database.coreCommitteePosters || initialDatabase.coreCommitteePosters || []).length})</span>
+                    <span>Core Committee Posters ({(database.coreCommitteePosters || []).length})</span>
                   </button>
                 </div>
               </div>
@@ -3020,10 +3020,7 @@ export const AdminDashboard: React.FC = () => {
 
                   {/* Grid of Year-wise Posters */}
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {(database.coreCommitteePosters && database.coreCommitteePosters.length > 0
-                      ? database.coreCommitteePosters
-                      : initialDatabase.coreCommitteePosters || []
-                    ).map((poster: CoreCommitteePoster, idx: number) => (
+                    {(database.coreCommitteePosters || []).map((poster: CoreCommitteePoster, idx: number) => (
                       <div
                         key={`admin-ccp-${poster.id}-${idx}`}
                         className="p-5 bg-stone-900 border border-stone-800 rounded-2xl flex flex-col justify-between group hover:border-emerald-500/40 transition-all shadow-lg"
@@ -3113,10 +3110,7 @@ export const AdminDashboard: React.FC = () => {
 
           {/* ================= TAB 5: PARTICIPANTS (WINGS & CONDUCTED PROGRAMS) ================= */}
           {activeTab === 'participants' && (() => {
-            const allWPs: WingProgram[] =
-              database.wingPrograms && database.wingPrograms.length > 0
-                ? database.wingPrograms
-                : initialDatabase.wingPrograms || [];
+            const allWPs: WingProgram[] = database.wingPrograms || [];
 
             const distinctYears = Array.from(new Set(allWPs.map((p) => p.academicYear).filter(Boolean))).sort().reverse();
             if (distinctYears.length === 0) distinctYears.push('2026-27');

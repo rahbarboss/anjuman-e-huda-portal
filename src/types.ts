@@ -305,4 +305,9 @@ export interface TelemetrySettings {
   academicSession: string;
   hintText: string;
   cards: TelemetryCard[];
+  enabled?: boolean;
+  errorReporting?: boolean;
+  performanceTracking?: boolean;
+  anonymizeIp?: boolean;
+  logLevel?: string;
 }

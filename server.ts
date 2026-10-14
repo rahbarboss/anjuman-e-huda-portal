@@ -36,12 +36,12 @@ function readDb(): AppDatabase {
       const parsed: AppDatabase = JSON.parse(raw);
       let needsWrite = false;
 
-      if (!parsed.niicsInCharge || parsed.niicsInCharge.length === 0) {
+      if (parsed.niicsInCharge === undefined) {
         parsed.niicsInCharge = initialDatabase.niicsInCharge || [];
         needsWrite = true;
       }
 
-      if (!parsed.wingPrograms || parsed.wingPrograms.length === 0) {
+      if (parsed.wingPrograms === undefined) {
         parsed.wingPrograms = initialDatabase.wingPrograms || [];
         needsWrite = true;
       } else {
@@ -59,6 +59,11 @@ function readDb(): AppDatabase {
           );
           needsWrite = true;
         }
+      }
+
+      if (parsed.coreCommitteePosters === undefined) {
+        parsed.coreCommitteePosters = initialDatabase.coreCommitteePosters || [];
+        needsWrite = true;
       }
 
       // Ensure Core Committee is present in wings list
@@ -81,8 +86,8 @@ function readDb(): AppDatabase {
         }
       }
 
-      // Ensure default banners are seeded if empty
-      if (!parsed.banners || !Array.isArray(parsed.banners) || parsed.banners.length === 0) {
+      // Ensure banners array exists
+      if (parsed.banners === undefined) {
         parsed.banners = defaultBanners || [];
         needsWrite = true;
       }
@@ -530,6 +535,109 @@ app.delete('/api/wing-programs/:id', (req, res) => {
   db.wingPrograms = db.wingPrograms.filter((wp) => wp.id !== req.params.id);
   writeDb(db);
   res.json({ success: true, wingPrograms: db.wingPrograms });
+});
+
+// Core Committee Posters CRUD
+app.get('/api/core-committee-posters', (_req, res) => {
+  const db = readDb();
+  res.json({ success: true, posters: db.coreCommitteePosters || [] });
+});
+
+app.post('/api/core-committee-posters', (req, res) => {
+  const db = readDb();
+  if (!db.coreCommitteePosters) db.coreCommitteePosters = [];
+  const posterId = req.body.id || `ccp-${Date.now()}`;
+  const newPoster = {
+    ...req.body,
+    id: posterId,
+    uploadedAt: req.body.uploadedAt || new Date().toISOString(),
+  };
+  const existsIdx = db.coreCommitteePosters.findIndex(
+    (p: any) => p.id === posterId || (newPoster.tenure && p.tenure === newPoster.tenure)
+  );
+  if (existsIdx !== -1) {
+    db.coreCommitteePosters[existsIdx] = newPoster;
+  } else {
+    db.coreCommitteePosters.unshift(newPoster);
+  }
+  writeDb(db);
+  res.json({ success: true, item: newPoster, posters: db.coreCommitteePosters });
+});
+
+app.put('/api/core-committee-posters/:id', (req, res) => {
+  const db = readDb();
+  if (!db.coreCommitteePosters) db.coreCommitteePosters = [];
+  const index = db.coreCommitteePosters.findIndex((p: any) => p.id === req.params.id);
+  if (index === -1) {
+    const newPoster = { id: req.params.id, ...req.body };
+    db.coreCommitteePosters.unshift(newPoster);
+    writeDb(db);
+    return res.json({ success: true, item: newPoster, posters: db.coreCommitteePosters });
+  }
+  db.coreCommitteePosters[index] = { ...db.coreCommitteePosters[index], ...req.body };
+  writeDb(db);
+  res.json({ success: true, item: db.coreCommitteePosters[index], posters: db.coreCommitteePosters });
+});
+
+app.delete('/api/core-committee-posters/:id', (req, res) => {
+  const db = readDb();
+  if (!db.coreCommitteePosters) db.coreCommitteePosters = [];
+  db.coreCommitteePosters = db.coreCommitteePosters.filter((p: any) => p.id !== req.params.id);
+  writeDb(db);
+  res.json({ success: true, posters: db.coreCommitteePosters });
+});
+
+// Banners (Hero Rotating Posters) CRUD
+app.get('/api/banners', (_req, res) => {
+  const db = readDb();
+  res.json({ success: true, banners: db.banners || [] });
+});
+
+app.post('/api/banners', (req, res) => {
+  const db = readDb();
+  if (!db.banners) db.banners = [];
+  const newBanner = {
+    ...req.body,
+    id: req.body.id || `bnr_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+    createdAt: new Date().toISOString(),
+    displayOrder: req.body.displayOrder ?? (db.banners.length + 1),
+    isActive: req.body.isActive !== false,
+  };
+  db.banners.push(newBanner);
+  writeDb(db);
+  res.json({ success: true, item: newBanner, banners: db.banners });
+});
+
+app.put('/api/banners/:id', (req, res) => {
+  const db = readDb();
+  if (!db.banners) db.banners = [];
+  const index = db.banners.findIndex((b: any) => b.id === req.params.id);
+  if (index === -1) {
+    return res.status(404).json({ success: false, message: 'Banner not found' });
+  }
+  db.banners[index] = { ...db.banners[index], ...req.body };
+  writeDb(db);
+  res.json({ success: true, item: db.banners[index], banners: db.banners });
+});
+
+app.delete('/api/banners/:id', (req, res) => {
+  const db = readDb();
+  if (!db.banners) db.banners = [];
+  db.banners = db.banners.filter((b: any) => b.id !== req.params.id);
+  writeDb(db);
+  res.json({ success: true, banners: db.banners });
+});
+
+app.patch('/api/banners/:id/toggle', (req, res) => {
+  const db = readDb();
+  if (!db.banners) db.banners = [];
+  const index = db.banners.findIndex((b: any) => b.id === req.params.id);
+  if (index === -1) {
+    return res.status(404).json({ success: false, message: 'Banner not found' });
+  }
+  db.banners[index].isActive = !db.banners[index].isActive;
+  writeDb(db);
+  res.json({ success: true, item: db.banners[index], banners: db.banners });
 });
 
 // Announcements CRUD

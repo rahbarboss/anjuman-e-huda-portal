@@ -55,10 +55,7 @@ export const OurWingsSection: React.FC = () => {
   const [previewImage, setPreviewImage] = useState<{ url: string; title: string; subtitle: string } | null>(null);
 
   // Wing conducted programs archives & modal
-  const allWingPrograms: WingProgram[] =
-    database.wingPrograms && database.wingPrograms.length > 0
-      ? database.wingPrograms
-      : initialDatabase.wingPrograms || [];
+  const allWingPrograms: WingProgram[] = database.wingPrograms || [];
 
   const [activeWingModal, setActiveWingModal] = useState<Wing | null>(null);
   const [modalYearFilter, setModalYearFilter] = useState<string>('All');
